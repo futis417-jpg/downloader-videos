@@ -1,8 +1,8 @@
 """
-SISTEMA: ISHAK HYPER-SAAS V40.0 - ABSOLUTE ZERO EDITION
-ESTADO: TOTAL CONTROL OVERLORD - ULTIMATE HIERARCHY
+SISTEMA: ISHAK HYPER-SAAS V45.0 - THE SINGULARITY EDITION
+ESTADO: SUPREME CONTROL - ABSOLUTE HIERARCHY
 PROPIETARIO: Ishak Ezzahouani (ID: 8398522835)
-PAÍS: España (Control Central)
+PAÍS: España (Sede Central)
 """
 
 import os
@@ -19,23 +19,34 @@ import subprocess
 import threading
 import platform
 import random
-from typing import Dict, List, Any, Optional, Union
+import signal
+from typing import Dict, List, Any, Optional, Union, Tuple
 
 # =================================================================
-# [0] AUTO-INSTALLER & DEPENDENCY CHECK (MILITARY GRADE)
+# [0] PREPARACIÓN DE ENTORNO E INSTALACIÓN (MODO ULTRA)
 # =================================================================
 def _prepare_environment():
-    """Asegura que todas las dependencias estén presentes."""
-    required = ['python-telegram-bot', 'yt-dlp', 'flask', 'requests', 'pillow', 'psutil']
+    """Garantiza que el entorno tenga todas las armas necesarias."""
+    print("🛡️ Verificando arsenal de dependencias...")
+    required = [
+        'python-telegram-bot', 
+        'yt-dlp', 
+        'flask', 
+        'requests', 
+        'pillow', 
+        'psutil', 
+        'colorama'
+    ]
     for lib in required:
         try:
             __import__(lib.replace('-', '_'))
         except ImportError:
+            print(f"📦 Instalando componente faltante: {lib}")
             subprocess.check_call([sys.executable, "-m", "pip", "install", lib])
 
 _prepare_environment()
 
-# Importaciones Críticas
+# Importaciones tras verificación
 try:
     import psutil
 except ImportError:
@@ -44,165 +55,205 @@ except ImportError:
 from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup, 
     ReplyKeyboardMarkup, KeyboardButton, constants,
-    InputMediaPhoto, InputMediaVideo
+    InputMediaPhoto, InputMediaVideo, InputFile
 )
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler, 
-    CallbackQueryHandler, ContextTypes, filters
+    CallbackQueryHandler, ContextTypes, filters, Application
 )
 from flask import Flask, jsonify
 
 # =================================================================
-# [1] CONFIGURACIÓN MAESTRA (OVERLORD SETTINGS)
+# [1] CONFIGURACIÓN MAESTRA (OVERLORD CORE)
 # =================================================================
 class Config:
     ADMIN_ID = 8398522835
     TOKEN = "8780125825:AAFZZonawTj_kNHrewjQtAdELod9vj3a6w4"
-    VERSION = "40.50.0-ZERO"
+    VERSION = "45.0.0-SINGULARITY"
     
-    # Rutas de Infraestructura
+    # Infraestructura de Archivos
     ROOT_DIR = os.getcwd()
-    DATA_DIR = os.path.join(ROOT_DIR, "vault_overlord")
-    BUFFER_DIR = os.path.join(ROOT_DIR, "buffer_downloads")
-    LOGS_DIR = os.path.join(ROOT_DIR, "system_logs")
-    DB_FILE = os.path.join(DATA_DIR, "overlord_master.json")
+    DATA_DIR = os.path.join(ROOT_DIR, "vault_ishak")
+    BUFFER_DIR = os.path.join(ROOT_DIR, "buffer_overlord")
+    LOGS_DIR = os.path.join(ROOT_DIR, "logs_system")
+    DB_FILE = os.path.join(DATA_DIR, "master_database.json")
     
-    # Parámetros de Negocio
+    # Definición de Rangos y Poderes
     PLANS = {
         "FREE": {
-            "label": "🆓 CIVIL (FREE)", 
+            "label": "🆓 CIUDADANO (FREE)", 
             "limit": 5, 
-            "size_mb": 100, 
-            "speed": "Standard",
-            "resolutions": ["360p", "720p"]
+            "size_mb": 150, 
+            "speed_limit": "2MB/s",
+            "resolutions": ["360p", "720p"],
+            "features": ["Descargas básicas", "Soporte comunitario"]
         },
         "PRO": {
-            "label": "💎 ELITE (PRO)", 
-            "limit": 100, 
-            "size_mb": 1000, 
-            "speed": "High-Speed",
-            "resolutions": ["360p", "720p", "1080p"]
+            "label": "💎 ÉLITE (PRO)", 
+            "limit": 150, 
+            "size_mb": 1500, 
+            "speed_limit": "20MB/s",
+            "resolutions": ["360p", "720p", "1080p"],
+            "features": ["Prioridad alta", "Sin anuncios", "Soporte prioritario"]
         },
-        "ZERO": {
-            "label": "🔥 ABSOLUTE ZERO", 
-            "limit": 99999, 
-            "size_mb": 5000, 
-            "speed": "Unlimited",
-            "resolutions": ["360p", "720p", "1080p", "1440p", "4K"]
+        "ULTRA": {
+            "label": "🔥 SUPREMO (ULTRA)", 
+            "limit": 999999, 
+            "size_mb": 10000, 
+            "speed_limit": "MAX",
+            "resolutions": ["360p", "720p", "1080p", "1440p", "4K", "8K"],
+            "features": ["Control total", "Acceso anticipado", "API Personalizada"]
         }
     }
 
-    # Mensajería Central
-    MSG_WELCOME = "🔥 **SISTEMA ISHAK V40 ACTIVO**\nBienvenido al centro de mando, {name}."
-    MSG_MAINTENANCE = "⚠️ **SISTEMA EN MANTENIMIENTO**\nIshak está ajustando los engranajes. Vuelve pronto."
+    # Constantes de Recompensa
+    REWARDS = {
+        "DAILY": 50,
+        "REFERRAL": 250,
+        "STREAK_BONUS": 100
+    }
 
     @classmethod
-    def setup(cls):
-        """Crea la estructura de carpetas necesaria."""
-        for d in [cls.DATA_DIR, cls.BUFFER_DIR, cls.LOGS_DIR]:
-            os.makedirs(d, exist_ok=True)
+    def setup_system(cls):
+        """Inicializa la estructura física del Imperio."""
+        for path in [cls.DATA_DIR, cls.BUFFER_DIR, cls.LOGS_DIR]:
+            if not os.path.exists(path):
+                os.makedirs(path, exist_ok=True)
+        # Limpieza de buffer al iniciar
+        for f in os.listdir(cls.BUFFER_DIR):
+            try: os.remove(os.path.join(cls.BUFFER_DIR, f))
+            except: pass
 
-Config.setup()
-
-# =================================================================
-# [2] LOGGING & AUDITORÍA
-# =================================================================
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    handlers=[
-        logging.FileHandler(os.path.join(Config.LOGS_DIR, "master.log")),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger("ISHAK_OVERLORD")
+Config.setup_system()
 
 # =================================================================
-# [3] BASE DE DATOS HYPER-SCALABLE (JSON ENGINE)
+# [2] SISTEMA DE LOGS Y AUDITORÍA PRO
+# =================================================================
+class Audit:
+    @staticmethod
+    def get_logger():
+        l = logging.getLogger("ISHAK_CORE")
+        l.setLevel(logging.INFO)
+        if not l.handlers:
+            fh = logging.FileHandler(os.path.join(Config.LOGS_DIR, "ishak_master.log"))
+            sh = logging.StreamHandler(sys.stdout)
+            fmt = logging.Formatter('%(asctime)s | %(levelname)s | %(message)s')
+            fh.setFormatter(fmt)
+            sh.setFormatter(fmt)
+            l.addHandler(fh)
+            l.addHandler(sh)
+        return l
+
+log = Audit.get_logger()
+
+# =================================================================
+# [3] GESTIÓN DE BASE DE DATOS (NÚCLEO PERSISTENTE)
 # =================================================================
 class Database:
     def __init__(self):
         self._lock = threading.Lock()
-        self.data = {
+        self.db_path = Config.DB_FILE
+        self.cache = {
             "users": {},
             "coupons": {},
             "blacklist": [],
+            "transactions": [],
             "stats": {
                 "total_downloads": 0,
                 "total_users": 0,
-                "total_points_distributed": 0,
-                "server_start": str(datetime.datetime.now())
+                "points_in_circulation": 0,
+                "total_revenue_sim": 0,
+                "start_date": str(datetime.datetime.now())
             },
-            "system": {
-                "maint_mode": False,
-                "global_announcement": None,
-                "daily_reward": 20
+            "config": {
+                "maintenance": False,
+                "welcome_msg": "👑 **BIENVENIDO AL IMPERIO ISHAK V45**\nSistema operacional y listo.",
+                "global_multiplier": 1.0,
+                "auto_backup": True
             }
         }
         self.load()
 
     def load(self):
         with self._lock:
-            if os.path.exists(Config.DB_FILE):
+            if os.path.exists(self.db_path):
                 try:
-                    with open(Config.DB_FILE, 'r', encoding='utf-8') as f:
-                        self.data.update(json.load(f))
+                    with open(self.db_path, 'r', encoding='utf-8') as f:
+                        self.cache.update(json.load(f))
                 except Exception as e:
-                    logger.error(f"Error cargando base de datos: {e}")
+                    log.error(f"Error crítico cargando DB: {e}")
 
     def save(self):
         with self._lock:
             try:
-                with open(Config.DB_FILE, 'w', encoding='utf-8') as f:
-                    json.dump(self.data, f, indent=4, ensure_ascii=False)
+                with open(self.db_path, 'w', encoding='utf-8') as f:
+                    json.dump(self.cache, f, indent=4, ensure_ascii=False)
             except Exception as e:
-                logger.error(f"Error guardando base de datos: {e}")
+                log.error(f"Error crítico guardando DB: {e}")
 
-    def get_user(self, user_obj):
+    def get_user_template(self, user_obj):
+        return {
+            "id": user_obj.id,
+            "name": user_obj.first_name,
+            "username": user_obj.username,
+            "plan": "FREE",
+            "points": 100,
+            "total_downloads": 0,
+            "daily_stats": [0, str(datetime.date.today())],
+            "last_login": str(datetime.datetime.now()),
+            "joined": str(datetime.date.today()),
+            "referrals": 0,
+            "referred_by": None,
+            "is_admin": user_obj.id == Config.ADMIN_ID,
+            "banned": False,
+            "settings": {"notif": True, "lang": "es"}
+        }
+
+    def ensure_user(self, user_obj):
         uid = str(user_obj.id)
-        if uid not in self.data["users"]:
-            self.data["users"][uid] = {
-                "id": user_obj.id,
-                "name": user_obj.first_name,
-                "username": user_obj.username,
-                "plan": "FREE",
-                "points": 10,
-                "total_downloads": 0,
-                "daily_downloads": [0, str(datetime.date.today())],
-                "last_daily_claim": None,
-                "joined_at": str(datetime.date.today()),
-                "is_banned": False,
-                "referred_by": None,
-                "referrals": 0,
-                "language": "es"
-            }
-            self.data["stats"]["total_users"] += 1
+        if uid not in self.cache["users"]:
+            self.cache["users"][uid] = self.get_user_template(user_obj)
+            self.cache["stats"]["total_users"] += 1
             self.save()
+            log.info(f"Nuevo usuario registrado: {uid} ({user_obj.first_name})")
         
-        # Reset diario de límites
-        u = self.data["users"][uid]
+        # Reset de límites diarios
+        u = self.cache["users"][uid]
         today = str(datetime.date.today())
-        if u["daily_downloads"][1] != today:
-            u["daily_downloads"] = [0, today]
+        if u["daily_stats"][1] != today:
+            u["daily_stats"] = [0, today]
             self.save()
             
         return u
 
-    def ban_user(self, uid):
+    def add_points(self, uid, amount, reason="Gift"):
         uid = str(uid)
-        if uid in self.data["users"]:
-            self.data["users"][uid]["is_banned"] = True
-            if uid not in self.data["blacklist"]:
-                self.data["blacklist"].append(uid)
+        if uid in self.cache["users"]:
+            self.cache["users"][uid]["points"] += amount
+            self.cache["stats"]["points_in_circulation"] += amount
+            self.cache["transactions"].append({
+                "uid": uid, "amount": amount, "reason": reason, "date": str(datetime.datetime.now())
+            })
             self.save()
             return True
         return False
 
-    def add_points(self, uid, amount):
+    def ban_user(self, uid):
         uid = str(uid)
-        if uid in self.data["users"]:
-            self.data["users"][uid]["points"] += amount
-            self.data["stats"]["total_points_distributed"] += amount
+        if uid in self.cache["users"]:
+            self.cache["users"][uid]["banned"] = True
+            if uid not in self.cache["blacklist"]:
+                self.cache["blacklist"].append(uid)
+            self.save()
+            return True
+        return False
+
+    def unban_user(self, uid):
+        uid = str(uid)
+        if uid in self.cache["users"]:
+            self.cache["users"][uid]["banned"] = False
+            if uid in self.cache["blacklist"]:
+                self.cache["blacklist"].remove(uid)
             self.save()
             return True
         return False
@@ -210,33 +261,37 @@ class Database:
 db = Database()
 
 # =================================================================
-# [4] MOTOR DE DESCARGA HYPER-SPEED (PRO-ENGINE)
+# [4] MOTOR DE DESCARGAS "ISHAK-X" (ULTRA RÁPIDO)
 # =================================================================
-class DownloadEngine:
-    """Motor especializado en extracción de medios con post-procesamiento."""
+class IshakXEngine:
+    """Motor de procesamiento de medios avanzado con soporte multiformato."""
     
     @staticmethod
-    async def get_metadata(url: str):
-        """Extrae metadatos sin descargar."""
-        ydl_opts = {'quiet': True, 'no_warnings': True, 'noplaylist': True}
+    async def get_info(url: str):
+        """Extrae metadatos de cualquier URL soportada."""
+        opts = {'quiet': True, 'no_warnings': True, 'noplaylist': True}
         def _get():
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(opts) as ydl:
                 return ydl.extract_info(url, download=False)
-        return await asyncio.to_thread(_get)
+        try:
+            return await asyncio.to_thread(_get)
+        except Exception as e:
+            log.error(f"Error extrayendo info: {e}")
+            return None
 
     @staticmethod
-    async def run(url: str, mode: str, quality: str, uid: str):
-        """Ejecuta la descarga física."""
-        job_id = f"job_{uid}_{uuid.uuid4().hex[:8]}"
-        out_tmpl = os.path.join(Config.BUFFER_DIR, f"{job_id}.%(ext)s")
+    async def download(url: str, mode: str, quality: str, uid: str):
+        """Procesa la descarga física hacia el buffer."""
+        job_token = f"{uid}_{uuid.uuid4().hex[:10]}"
+        output_path = os.path.join(Config.BUFFER_DIR, f"{job_token}.%(ext)s")
         
-        # Configuración de YT-DLP
         ydl_opts = {
-            'outtmpl': out_tmpl,
+            'outtmpl': output_path,
             'quiet': True,
             'no_warnings': True,
             'noplaylist': True,
-            'max_filesize': 2000 * 1024 * 1024, # 2GB
+            'max_filesize': 5000 * 1024 * 1024, # 5GB límite físico
+            'cookiefile': None, # Opcional: añadir si hay problemas con YT
         }
 
         if mode == "MP3":
@@ -249,374 +304,430 @@ class DownloadEngine:
                 }],
             })
         elif mode == "MP4":
-            # Mapeo de resolución
-            h = quality.replace("p", "")
-            ydl_opts['format'] = f'bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+            height = quality.replace("p", "")
+            ydl_opts['format'] = f'bestvideo[height<={height}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
 
         def _exec():
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                res = ydl.extract_info(url, download=True)
-                path = ydl.prepare_filename(res)
+                info = ydl.extract_info(url, download=True)
+                final_file = ydl.prepare_filename(info)
                 if mode == "MP3":
-                    path = os.path.splitext(path)[0] + ".mp3"
-                return path, res.get('title', 'Media_Ishak')
+                    final_file = os.path.splitext(final_file)[0] + ".mp3"
+                return final_file, info.get('title', 'Ishak_Media'), info.get('duration', 0)
 
-        try:
-            return await asyncio.to_thread(_exec)
-        except Exception as e:
-            logger.error(f"Error en motor descarga: {e}")
-            raise e
+        return await asyncio.to_thread(_exec)
 
 # =================================================================
-# [5] UI COMPONENT GENERATOR (DINÁMICO)
+# [5] UI & UX DESIGNER (MATERIAL OVERLORD)
 # =================================================================
 class UI:
-    """Generador de teclados y menús visuales."""
+    """Generador de interfaces de usuario para Telegram."""
     
     @staticmethod
-    def main_keyboard(uid):
-        u = db.data["users"].get(str(uid), {})
+    def main_menu(uid):
+        u = db.cache["users"].get(str(uid), {})
         is_admin = uid == Config.ADMIN_ID
         
-        kb = [
+        buttons = [
             [KeyboardButton("📥 DESCARGAR"), KeyboardButton("👤 MI PERFIL")],
             [KeyboardButton("💎 PLANES VIP"), KeyboardButton("🎁 RECOMPENSA")],
             [KeyboardButton("👥 REFERIDOS"), KeyboardButton("🎟️ CANJEAR")],
             [KeyboardButton("📊 ESTADÍSTICAS"), KeyboardButton("🤝 SOPORTE")]
         ]
         if is_admin:
-            kb.append([KeyboardButton("👑 PANEL OVERLORD 👑")])
-        return ReplyKeyboardMarkup(kb, resize_keyboard=True)
+            buttons.append([KeyboardButton("👑 PANEL OVERLORD 👑")])
+        return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
     @staticmethod
     def admin_panel():
         return InlineKeyboardMarkup([
-            [InlineKeyboardButton("📋 LISTAR USUARIOS", callback_data="adm_list"), 
+            [InlineKeyboardButton("👥 LISTAR USERS", callback_data="adm_list"), 
              InlineKeyboardButton("📢 BROADCAST", callback_data="adm_bc")],
-            [InlineKeyboardButton("🚫 BANEAR USER", callback_data="adm_ban"), 
-             InlineKeyboardButton("🔓 UNBAN USER", callback_data="adm_unban")],
+            [InlineKeyboardButton("🚫 BANEAR", callback_data="adm_ban"), 
+             InlineKeyboardButton("🔓 UNBAN", callback_data="adm_unban")],
             [InlineKeyboardButton("💰 DAR PUNTOS", callback_data="adm_pts"), 
-             InlineKeyboardButton("🎫 GENERAR CUPÓN", callback_data="adm_cp")],
+             InlineKeyboardButton("🎫 CREAR CÓDIGO", callback_data="adm_cp")],
             [InlineKeyboardButton("📂 EXPLORADOR", callback_data="adm_files"), 
              InlineKeyboardButton("📜 LOGS", callback_data="adm_logs")],
-            [InlineKeyboardButton("💾 BACKUP MASTER", callback_data="adm_backup"), 
+            [InlineKeyboardButton("💾 BACKUP DB", callback_data="adm_backup"), 
              InlineKeyboardButton("🧹 LIMPIAR CACHÉ", callback_data="adm_clean")],
             [InlineKeyboardButton("⚙️ SISTEMA", callback_data="adm_sys"), 
              InlineKeyboardButton("🔄 REINICIAR", callback_data="adm_reboot")],
-            [InlineKeyboardButton("❌ CERRAR PANEL", callback_data="u_close")]
+            [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
         ])
 
     @staticmethod
     def format_selector():
         return InlineKeyboardMarkup([
-            [InlineKeyboardButton("🎬 VIDEO (MP4)", callback_data="fmt_MP4"),
-             InlineKeyboardButton("🎵 AUDIO (MP3)", callback_data="fmt_MP3")],
+            [InlineKeyboardButton("🎬 VIDEO (MP4)", callback_data="f_MP4"),
+             InlineKeyboardButton("🎵 AUDIO (MP3)", callback_data="f_MP3")],
             [InlineKeyboardButton("❌ CANCELAR", callback_data="u_close")]
         ])
 
     @staticmethod
-    def quality_selector(plan_type):
-        available = Config.PLANS.get(plan_type, Config.PLANS["FREE"])["resolutions"]
-        btns = []
-        for q in available:
-            btns.append([InlineKeyboardButton(f"🎥 {q}", callback_data=f"ql_{q}")])
-        btns.append([InlineKeyboardButton("⬅️ ATRÁS", callback_data="fmt_back")])
-        return InlineKeyboardMarkup(btns)
+    def quality_selector(user_plan):
+        plan_data = Config.PLANS.get(user_plan, Config.PLANS["FREE"])
+        res_list = plan_data["resolutions"]
+        rows = []
+        for res in res_list:
+            rows.append([InlineKeyboardButton(f"🎥 {res}", callback_data=f"q_{res}")])
+        rows.append([InlineKeyboardButton("⬅️ VOLVER", callback_data="f_back")])
+        return InlineKeyboardMarkup(rows)
 
 # =================================================================
-# [6] LÓGICA DE NEGOCIO (HANDLERS)
+# [6] HANDLERS: CORE LOGIC & COMMANDS
 # =================================================================
 async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
-    u_data = db.get_user(user)
+    u_data = db.ensure_user(user)
     
-    # Manejo de Referidos Profundo
+    # Sistema de referidos por link
     if context.args and context.args[0].isdigit():
         ref_id = context.args[0]
         if ref_id != str(user.id) and not u_data.get("referred_by"):
             u_data["referred_by"] = ref_id
-            if ref_id in db.data["users"]:
-                db.data["users"][ref_id]["points"] += 100
-                db.data["users"][ref_id]["referrals"] += 1
-                try: await context.bot.send_message(ref_id, "🎊 **¡NUEVO REFERIDO!**\nHas ganado 100 puntos.")
+            if ref_id in db.cache["users"]:
+                db.add_points(ref_id, Config.REWARDS["REFERRAL"], f"Referido: {user.first_name}")
+                db.cache["users"][ref_id]["referrals"] += 1
+                try:
+                    await context.bot.send_message(
+                        ref_id, 
+                        f"🎊 **¡NUEVO REFERIDO!**\n{user.first_name} se ha unido. +{Config.REWARDS['REFERRAL']} puntos."
+                    )
                 except: pass
             db.save()
 
     await update.message.reply_text(
-        Config.MSG_WELCOME.format(name=user.first_name),
-        reply_markup=UI.main_keyboard(user.id),
+        db.cache["config"]["welcome_msg"].format(name=user.first_name),
+        reply_markup=UI.main_menu(user.id),
         parse_mode="Markdown"
     )
 
-async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
-    txt = update.message.text
-    u_data = db.get_user(user)
+    text = update.message.text
+    u_data = db.ensure_user(user)
     state = context.user_data.get("state")
 
-    # Seguridad: Banned Check
-    if u_data.get("is_banned"):
-        return await update.message.reply_text("🚫 Acceso revocado por el Overlord Ishak.")
+    # Filtro de baneo
+    if u_data.get("banned"):
+        return await update.message.reply_text("🚫 **ACCESO REVOCADO.** Tu cuenta ha sido suspendida.")
 
-    # [1] NAVEGACIÓN PRINCIPAL
-    if txt == "📥 DESCARGAR":
-        await update.message.reply_text("🔗 **Pega el enlace ahora mismo:**")
-        context.user_data["state"] = "AWAIT_URL"
+    # --- NAVEGACIÓN DE MENÚ ---
+    if text == "📥 DESCARGAR":
+        await update.message.reply_text("🔗 **ENVÍA EL LINK (YT, TikTok, IG, FB, Twitter):**")
+        context.user_data["state"] = "WAIT_LINK"
 
-    elif txt == "👤 MI PERFIL":
+    elif text == "👤 MI PERFIL":
         plan = Config.PLANS[u_data["plan"]]
         msg = (
-            f"👤 **EXPEDIENTE: {user.first_name}**\n"
+            f"👤 **EXPEDIENTE DE USUARIO**\n"
             f"━━━━━━━━━━━━━━━━━━━━\n"
             f"🆔 ID: `{user.id}`\n"
             f"🎭 Rango: **{plan['label']}**\n"
             f"💰 Puntos: `{u_data['points']}`\n"
-            f"📥 Hoy: `{u_data['daily_downloads'][0]}/{plan['limit']}`\n"
+            f"📥 Hoy: `{u_data['daily_stats'][0]}/{plan['limit']}`\n"
             f"👥 Referidos: `{u_data['referrals']}`\n"
-            f"📅 Miembro: `{u_data['joined_at']}`\n"
+            f"📅 Miembro desde: `{u_data['joined']}`\n"
             f"━━━━━━━━━━━━━━━━━━━━"
         )
         await update.message.reply_text(msg, parse_mode="Markdown")
 
-    elif txt == "🎁 RECOMPENSA":
+    elif text == "🎁 RECOMPENSA":
         today = str(datetime.date.today())
         if u_data.get("last_daily_claim") == today:
-            await update.message.reply_text("❌ Ya has reclamado tu recompensa hoy. Vuelve mañana.")
+            await update.message.reply_text("❌ Ya has reclamado tu recompensa diaria. Vuelve mañana.")
         else:
-            reward = db.data["system"]["daily_reward"]
-            u_data["points"] += reward
             u_data["last_daily_claim"] = today
-            db.save()
-            await update.message.reply_text(f"✅ ¡Has recibido **{reward} puntos** de Ishak!")
+            db.add_points(user.id, Config.REWARDS["DAILY"], "Recompensa Diaria")
+            await update.message.reply_text(f"✅ ¡Has recibido **{Config.REWARDS['DAILY']} puntos**!")
 
-    elif txt == "👥 REFERIDOS":
-        bot_user = (await context.bot.get_me()).username
-        link = f"https://t.me/{bot_user}?start={user.id}"
+    elif text == "👥 REFERIDOS":
+        me = await context.bot.get_me()
+        link = f"https://t.me/{me.username}?start={user.id}"
         await update.message.reply_text(
             f"👥 **SISTEMA DE REFERENCIA**\n\n"
-            f"Gana 100 puntos por cada persona que invites.\n\n"
-            f"🔗 Tu link único:\n`{link}`",
+            f"Comparte tu link y gana **{Config.REWARDS['REFERRAL']} puntos** por cada usuario nuevo.\n\n"
+            f"🔗 `{link}`",
             parse_mode="Markdown"
         )
 
-    elif txt == "📊 ESTADÍSTICAS":
-        s = db.data["stats"]
-        uptime = str(datetime.datetime.now() - datetime.datetime.fromisoformat(s["server_start"])).split('.')[0]
+    elif text == "📊 ESTADÍSTICAS":
+        s = db.cache["stats"]
+        uptime = str(datetime.datetime.now() - datetime.datetime.fromisoformat(s["start_date"])).split('.')[0]
         msg = (
-            f"📊 **MÉTRICAS DEL IMPERIO**\n\n"
+            f"📊 **MÉTRICAS DEL IMPERIO**\n"
+            f"━━━━━━━━━━━━━━━━━━━━\n"
             f"👥 Usuarios: `{s['total_users']}`\n"
             f"📥 Descargas: `{s['total_downloads']}`\n"
-            f"💰 Economía: `{s['total_points_distributed']} pts`\n"
+            f"💰 Circulación: `{s['points_in_circulation']} pts`\n"
             f"⏱ Uptime: `{uptime}`\n"
-            f"🚀 Versión: `{Config.VERSION}`"
+            f"🚀 Versión: `{Config.VERSION}`\n"
+            f"━━━━━━━━━━━━━━━━━━━━"
         )
         await update.message.reply_text(msg, parse_mode="Markdown")
 
-    elif txt == "👑 PANEL OVERLORD 👑" and user.id == Config.ADMIN_ID:
-        await update.message.reply_text("🛠 **MODO ADMINISTRADOR ACTIVADO**", reply_markup=UI.admin_panel())
+    elif text == "👑 PANEL OVERLORD 👑" and user.id == Config.ADMIN_ID:
+        await update.message.reply_text("🛠 **CENTRAL DE COMANDO ACTIVADA**", reply_markup=UI.admin_panel())
 
-    # [2] MANEJO DE ESTADOS
-    elif state == "AWAIT_URL":
-        if "http" in txt:
-            context.user_data["active_url"] = txt
-            await update.message.reply_text("🛠 **Enlace capturado.** Elige el formato:", reply_markup=UI.format_selector())
+    # --- MANEJO DE ESTADOS DE ENTRADA ---
+    elif state == "WAIT_LINK":
+        if "http" in text:
+            context.user_data["active_url"] = text
+            await update.message.reply_text("⚙️ **Analizando medio...** Selecciona el formato:", reply_markup=UI.format_selector())
         else:
-            await update.message.reply_text("❌ Enlace basura. Envía algo real.")
+            await update.message.reply_text("❌ Enlace no detectado. Envía una URL válida.")
         context.user_data["state"] = None
 
     elif state == "ADM_BC" and user.id == Config.ADMIN_ID:
         count = 0
-        for sid in db.data["users"]:
+        for sid in list(db.cache["users"].keys()):
             try:
-                await context.bot.send_message(sid, f"📢 **MENSAJE DEL OVERLORD:**\n\n{txt}", parse_mode="Markdown")
+                await context.bot.send_message(sid, f"📢 **MENSAJE DEL OVERLORD:**\n\n{text}", parse_mode="Markdown")
                 count += 1
-                await asyncio.sleep(0.05)
+                await asyncio.sleep(0.05) # Anti-spam
             except: pass
-        await update.message.reply_text(f"✅ Difusión finalizada: `{count}` usuarios.")
+        await update.message.reply_text(f"✅ Difusión completada: `{count}` usuarios alcanzados.")
+        context.user_data["state"] = None
+
+    elif state == "ADM_BAN" and user.id == Config.ADMIN_ID:
+        if db.ban_user(text): await update.message.reply_text(f"🚫 Usuario `{text}` baneado.")
+        else: await update.message.reply_text("❌ ID no encontrado.")
+        context.user_data["state"] = None
+
+    elif state == "ADM_UNBAN" and user.id == Config.ADMIN_ID:
+        if db.unban_user(text): await update.message.reply_text(f"🔓 Usuario `{text}` desbloqueado.")
+        else: await update.message.reply_text("❌ ID no encontrado en blacklist.")
         context.user_data["state"] = None
 
     elif state == "ADM_PTS" and user.id == Config.ADMIN_ID:
         try:
-            target_id, pts = txt.split(":")
-            if db.add_points(target_id, int(pts)):
-                await update.message.reply_text(f"✅ {pts} puntos añadidos a {target_id}.")
-            else:
-                await update.message.reply_text("❌ Usuario no encontrado.")
-        except:
-            await update.message.reply_text("❌ Formato: ID:PUNTOS")
+            target, pts = text.split(":")
+            db.add_points(target, int(pts), "Admin Gift")
+            await update.message.reply_text(f"💰 Se han enviado {pts} puntos a `{target}`.")
+        except: await update.message.reply_text("❌ Formato inválido. Usa: `ID:PUNTOS`")
+        context.user_data["state"] = None
+
+    elif state == "ADM_CP" and user.id == Config.ADMIN_ID:
+        try:
+            code, plan = text.upper().split(":")
+            db.cache["coupons"][code] = plan
+            db.save()
+            await update.message.reply_text(f"🎫 Cupón `{code}` creado para plan `{plan}`.")
+        except: await update.message.reply_text("❌ Formato: `CODIGO:PLAN` (Ej: ISHAKVIP:PRO)")
         context.user_data["state"] = None
 
 # =================================================================
-# [7] MANEJO DE CALLBACKS (ACCIONES)
+# [7] CALLBACK DISPATCHER (LÓGICA DE BOTONES INLINE)
 # =================================================================
-async def callback_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
     uid = q.from_user.id
     data = q.data
     await q.answer()
 
-    u_data = db.get_user(q.from_user)
+    u_data = db.ensure_user(q.from_user)
 
-    # NAVEGACIÓN DE DESCARGA
-    if data.startswith("fmt_"):
-        mode = data.split("_")[1]
-        if mode == "back":
-            return await q.edit_message_text("🎬 Elige el formato:", reply_markup=UI.format_selector())
+    # --- LÓGICA DE DESCARGA ---
+    if data.startswith("f_"):
+        fmt = data.split("_")[1]
+        if fmt == "back":
+            return await q.edit_message_text("🎬 Selecciona el formato:", reply_markup=UI.format_selector())
         
-        context.user_data["active_mode"] = mode
-        if mode == "MP3":
-            await process_download_final(update, context)
+        context.user_data["active_fmt"] = fmt
+        if fmt == "MP3":
+            await start_download_process(update, context)
         else:
-            await q.edit_message_text("🎥 Selecciona la calidad deseada:", reply_markup=UI.quality_selector(u_data["plan"]))
+            await q.edit_message_text("🎥 Selecciona la calidad del video:", reply_markup=UI.quality_selector(u_data["plan"]))
 
-    elif data.startswith("ql_"):
+    elif data.startswith("q_"):
         context.user_data["active_quality"] = data.split("_")[1]
-        await process_download_final(update, context)
+        await start_download_process(update, context)
 
-    # ACCIONES ADMIN
+    # --- LÓGICA DE ADMINISTRACIÓN (SOLO ISHAK) ---
     elif data.startswith("adm_") and uid == Config.ADMIN_ID:
         if data == "adm_list":
-            users = db.data["users"]
-            msg = "👥 **ÚLTIMOS 20 USUARIOS:**\n"
+            users = db.cache["users"]
+            msg = "👥 **ESTADO DE LA POBLACIÓN (Últimos 20):**\n"
             for sid, d in list(users.items())[-20:]:
                 msg += f"• `{sid}` | {d['name']} | {d['plan']} | {d['points']} pts\n"
             await q.message.reply_text(msg, parse_mode="Markdown")
 
         elif data == "adm_bc":
-            await q.message.reply_text("✍️ Escribe el mensaje para el Broadcast:")
+            await q.message.reply_text("✍️ Escribe el mensaje para el Broadcast Global:")
             context.user_data["state"] = "ADM_BC"
 
+        elif data == "adm_ban":
+            await q.message.reply_text("🚫 Envía el ID del usuario a banear:")
+            context.user_data["state"] = "ADM_BAN"
+
+        elif data == "adm_unban":
+            await q.message.reply_text("🔓 Envía el ID del usuario a desbloquear:")
+            context.user_data["state"] = "ADM_UNBAN"
+
         elif data == "adm_pts":
-            await q.message.reply_text("✍️ Formato `ID:PUNTOS` para añadir:")
+            await q.message.reply_text("💰 Envía el comando `ID:PUNTOS`:")
             context.user_data["state"] = "ADM_PTS"
+
+        elif data == "adm_cp":
+            await q.message.reply_text("🎫 Envía el comando `CÓDIGO:PLAN`:")
+            context.user_data["state"] = "ADM_CP"
+
+        elif data == "adm_files":
+            files = os.listdir(Config.DATA_DIR)
+            msg = "📂 **ARCHIVOS EN VAULT:**\n" + "\n".join([f"• `{f}`" for f in files])
+            await q.message.reply_text(msg, parse_mode="Markdown")
+
+        elif data == "adm_logs":
+            log_path = os.path.join(Config.LOGS_DIR, "ishak_master.log")
+            if os.path.exists(log_path):
+                await context.bot.send_document(uid, open(log_path, 'rb'), caption="📜 Logs del Sistema")
+            else: await q.message.reply_text("❌ No hay logs disponibles.")
 
         elif data == "adm_backup":
             db.save()
-            with open(Config.DB_FILE, 'rb') as f:
-                await context.bot.send_document(uid, f, caption=f"💾 Master DB V40 - {datetime.datetime.now()}")
+            await context.bot.send_document(uid, open(Config.DB_FILE, 'rb'), caption=f"💾 Master DB Backup - {datetime.datetime.now()}")
 
         elif data == "adm_clean":
             count = 0
             for f in os.listdir(Config.BUFFER_DIR):
-                os.remove(os.path.join(Config.BUFFER_DIR, f))
-                count += 1
-            await q.message.reply_text(f"🧹 Se han purgado {count} archivos del buffer.")
+                try: 
+                    os.remove(os.path.join(Config.BUFFER_DIR, f))
+                    count += 1
+                except: pass
+            await q.message.reply_text(f"🧹 Se han purgado `{count}` archivos del buffer.")
 
         elif data == "adm_sys":
-            # Engine de info de sistema
             if psutil:
                 mem = psutil.virtual_memory()
                 disk = psutil.disk_usage('/')
                 msg = (
-                    f"🖥 **ESTADO DEL SERVIDOR**\n\n"
+                    f"🖥 **TELEMETRÍA DE SERVIDOR**\n"
+                    f"━━━━━━━━━━━━━━━━━━━━\n"
                     f"🚀 CPU: `{psutil.cpu_percent()}%` (Cores: {psutil.cpu_count()})\n"
-                    f"📟 RAM: `{mem.percent}%` ({mem.used // 1024**2} MB)\n"
+                    f"📟 RAM: `{mem.percent}%` ({mem.used // 1024**2} MB usados)\n"
                     f"💾 DISCO: `{disk.percent}%` ({disk.free // 1024**3} GB libres)\n"
-                    f"🐍 Python: `{platform.python_version()}`"
+                    f"🐍 Python: `{platform.python_version()}`\n"
+                    f"🏗 OS: `{platform.system()} {platform.release()}`\n"
+                    f"━━━━━━━━━━━━━━━━━━━━"
                 )
-            else:
-                msg = "⚠️ `psutil` no disponible. No hay telemetría."
+            else: msg = "⚠️ `psutil` no disponible en este entorno."
             await q.message.reply_text(msg, parse_mode="Markdown")
 
         elif data == "adm_reboot":
-            await q.message.reply_text("🔄 Reiniciando motor principal...")
+            await q.message.reply_text("🔄 **REINICIANDO INFRAESTRUCTURA...**")
+            db.save()
             os.execl(sys.executable, sys.executable, *sys.argv)
 
     elif data == "u_close":
         await q.message.delete()
 
-async def process_download_final(update, context):
+# --- LÓGICA DE DESCARGA FINAL (ORQUESTADOR) ---
+async def start_download_process(update, context):
     q = update.callback_query
     uid = q.from_user.id
     url = context.user_data.get("active_url")
-    mode = context.user_data.get("active_mode")
-    quality = context.user_data.get("active_quality", "720p")
-    u_data = db.get_user(q.from_user)
+    fmt = context.user_data.get("active_fmt")
+    qlty = context.user_data.get("active_quality", "720p")
+    u_data = db.ensure_user(q.from_user)
 
-    # Verificación de Límites
-    limit = Config.PLANS[u_data["plan"]]["limit"]
-    if u_data["daily_downloads"][0] >= limit:
-        return await q.edit_message_text("❌ Has alcanzado tu límite diario. Sube de rango para continuar.")
+    # 1. Verificación de límites
+    plan = Config.PLANS[u_data["plan"]]
+    if u_data["daily_stats"][0] >= plan["limit"]:
+        return await q.edit_message_text(
+            f"❌ **LÍMITE ALCANZADO.** Tu plan permite {plan['limit']} descargas/día.\n"
+            f"Adquiere un plan **PRO** o **ULTRA** para continuar."
+        )
 
-    status_msg = await q.edit_message_text(f"⚡ **GENERANDO TÚNEL DE DATOS...**\n`[{mode} | {quality}]`")
+    # 2. Inicio de UI de progreso
+    status = await q.edit_message_text(f"⚡ **GENERANDO TÚNEL DE DATOS...**\n`[{fmt} | {qlty}]`")
     
     try:
-        path, title = await DownloadEngine.run(url, mode, quality, str(uid))
+        # 3. Descarga vía Motor Ishak-X
+        path, title, duration = await IshakXEngine.download(url, fmt, qlty, str(uid))
         
-        await status_msg.edit_text("📤 **SUBIENDO AL SATÉLITE...**")
+        # 4. Envío al usuario
+        await status.edit_text("📤 **SUBIENDO AL SATÉLITE DE TELEGRAM...**")
         
         with open(path, 'rb') as f:
-            caption = (
+            cap = (
                 f"✅ **{title}**\n\n"
-                f"👤 Usuario: `{q.from_user.first_name}`\n"
-                f"⚡ Engine: `Ishak Zero-V40`"
+                f"⏱ Duración: `{str(datetime.timedelta(seconds=duration))}`\n"
+                f"⚡ Motor: `Ishak-Singularity V45`"
             )
-            if mode == "MP3":
-                await context.bot.send_audio(uid, f, caption=caption, parse_mode="Markdown")
+            if fmt == "MP3":
+                await context.bot.send_audio(uid, f, caption=cap, parse_mode="Markdown")
             else:
-                await context.bot.send_video(uid, f, caption=caption, parse_mode="Markdown")
-        
-        # Log & Stats
-        u_data["daily_downloads"][0] += 1
+                await context.bot.send_video(uid, f, caption=cap, parse_mode="Markdown")
+
+        # 5. Actualización de DB
+        u_data["daily_stats"][0] += 1
         u_data["total_downloads"] += 1
-        db.data["stats"]["total_downloads"] += 1
+        db.cache["stats"]["total_downloads"] += 1
         db.save()
         
-        # Cleanup
+        # 6. Cleanup
         if os.path.exists(path): os.remove(path)
-        await status_msg.delete()
+        await status.delete()
 
     except Exception as e:
-        logger.error(f"Error fatal descarga: {traceback.format_exc()}")
-        await status_msg.edit_text(f"❌ **ERROR DE SISTEMA:**\n`{str(e)[:150]}`")
+        log.error(f"Error en flujo de descarga: {traceback.format_exc()}")
+        await status.edit_text(f"❌ **ERROR CRÍTICO DEL MOTOR:**\n`{str(e)[:200]}`")
 
 # =================================================================
-# [8] WEB STATUS SERVER (FLASK)
+# [8] SERVIDOR WEB DE MANTENIMIENTO (FLASK)
 # =================================================================
 web_app = Flask(__name__)
 
 @web_app.route('/')
-def home():
+def ping():
     return jsonify({
-        "system": "ISHAK HYPER-SAAS",
         "status": "OPERATIONAL",
+        "empire": "ISHAK HYPER-SAAS",
         "version": Config.VERSION,
-        "active_users": len(db.data["users"]),
-        "downloads": db.data["stats"]["total_downloads"]
+        "metrics": {
+            "users": len(db.cache["users"]),
+            "downloads": db.cache["stats"]["total_downloads"]
+        }
     })
 
 def run_flask():
-    web_app.run(host='0.0.0.0', port=os.getenv("PORT", 5000))
+    try:
+        port = int(os.getenv("PORT", 5000))
+        web_app.run(host='0.0.0.0', port=port)
+    except Exception as e:
+        print(f"Flask Error: {e}")
 
 # =================================================================
-# [9] EJECUCIÓN MAESTRA
+# [9] LANZAMIENTO SUPREMO
 # =================================================================
 def main():
-    print(f"--- ISHAK HYPER-SAAS V{Config.VERSION} ---")
+    print(f"""
+    ==================================================
+    ISHAK HYPER-SAAS V{Config.VERSION}
+    ESTADO: LISTO PARA LA DOMINACIÓN
+    ==================================================
+    """)
     
-    # Iniciar Flask
-    threading.Thread(target=run_web, daemon=True).start()
+    # Iniciar Flask en hilo independiente para mantener el servicio
+    threading.Thread(target=run_flask, daemon=True).start()
     
-    # Configurar Telegram
-    application = ApplicationBuilder().token(Config.TOKEN).build()
+    # Construir aplicación de Telegram
+    app = ApplicationBuilder().token(Config.TOKEN).build()
 
-    # Handlers
-    application.add_handler(CommandHandler("start", start_handler))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_dispatcher))
-    application.add_handler(CallbackQueryHandler(callback_dispatcher))
+    # Registro de Handlers de Comandos y Mensajes
+    app.add_handler(CommandHandler("start", start_handler))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_handler))
+    app.add_handler(CallbackQueryHandler(callback_handler))
 
-    # Lanzamiento
-    print("🚀 SISTEMA ONLINE. ESPERANDO ÓRDENES.")
-    application.run_polling()
-
-def run_web():
-    try:
-        web_app.run(host='0.0.0.0', port=int(os.getenv("PORT", 5000)))
-    except Exception as e:
-        print(f"Error Flask: {e}")
+    # Ejecución
+    print("🚀 NÚCLEO SINGULARITY ONLINE.")
+    app.run_polling()
 
 if __name__ == '__main__':
     try:
         main()
+    except KeyboardInterrupt:
+        print("\n🛑 Apagado por el administrador.")
     except Exception:
         traceback.print_exc()

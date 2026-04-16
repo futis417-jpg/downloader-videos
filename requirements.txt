@@ -1,0 +1,4 @@
+python-telegram-bot
+yt-dlp
+flask
+    * Crea el archivo `bot_maestro.py` y pega todo mi código de arriba.

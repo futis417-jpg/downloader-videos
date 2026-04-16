@@ -1,14 +1,17 @@
 """
 SISTEMA: ISHAK HYPER-SAAS V25.0 - INFINITY EDITION
-PROPIETARIO: Ishak Ezzahouani
-ESTADO: Ultra-Enterprise / No-Watermark / Non-Stop UI
+ESTADO: FULL OVERLORD MODE - NO LIMITS
+PROPIETARIO: Ishak Ezzahouani (8398522835)
 """
 
-import os, asyncio, json, uuid, shutil, traceback
+import os, asyncio, json, uuid, shutil, sys
 from datetime import datetime
 from threading import Thread
 from flask import Flask
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import (
+    Update, InlineKeyboardButton, InlineKeyboardMarkup, 
+    ReplyKeyboardMarkup, KeyboardButton
+)
 from telegram.ext import (
     ApplicationBuilder, CommandHandler, MessageHandler, 
     CallbackQueryHandler, ContextTypes, filters
@@ -22,20 +25,20 @@ except ImportError:
     import yt_dlp
 
 # =================================================================
-# 1. CONFIGURACIÓN E INFRAESTRUCTURA
+# 1. NÚCLEO DE DATOS
 # =================================================================
 class Config:
     ADMIN_ID = 8398522835
     TOKEN = "8780125825:AAFZZonawTj_kNHrewjQtAdELod9vj3a6w4"
     DB_FILE = "infinity_vault.json"
-    TEMP_DIR = "infinity_buffer"
-    VERSION = "25.5.0-MAX"
+    TEMP_DIR = "downloads"
 
-class GlobalDB:
+class Database:
     def __init__(self):
         self.data = {
             "users": {}, "coupons": {}, "blacklist": [],
-            "logs": [], "settings": {"maintenance": False, "global_msg": "Bienvenido al Imperio."}
+            "stats": {"total_dls": 0},
+            "settings": {"maint": False}
         }
         self.load()
 
@@ -50,167 +53,162 @@ class GlobalDB:
         sid = str(u.id)
         if sid not in self.data["users"]:
             self.data["users"][sid] = {
-                "id": u.id, "name": u.first_name, "username": u.username,
-                "plan": "FREE", "dls": 0, "joined": str(datetime.now()), "points": 0
+                "id": u.id, "name": u.first_name, "username": u.username, "phone": "Sin verificar",
+                "plan": "FREE", "dls": 0, "points": 0
             }
             self.save()
         return self.data["users"][sid]
 
-db = GlobalDB()
+db = Database()
 
 # =================================================================
-# 2. MOTOR DE DESCARGA MULTI-FORMATO (SIN MARCA)
+# 2. TECLADOS PERMANENTES (BOTONES AL LADO DEL TEXTO)
 # =================================================================
-async def download_engine(url, format_type, limit_mb):
+def get_main_reply_markup(uid):
+    btns = [
+        [KeyboardButton("📥 Descargar"), KeyboardButton("👤 Perfil")],
+        [KeyboardButton("💎 Planes VIP"), KeyboardButton("🎟️ Canjear Cupón")]
+    ]
+    if uid == Config.ADMIN_ID:
+        btns.append([KeyboardButton("👑 PANEL ADMIN 👑")])
+    return ReplyKeyboardMarkup(btns, resize_keyboard=True)
+
+# =================================================================
+# 3. FUNCIONES DE ADMINISTRACIÓN
+# =================================================================
+def admin_inline_kb():
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("📋 LISTA USUARIOS COMPLETA", callback_data="a_list_all")],
+        [InlineKeyboardButton("📊 Stats", callback_data="a_stats"), InlineKeyboardButton("📢 Broadcast", callback_data="a_bc")],
+        [InlineKeyboardButton("🎟️ Crear Cupón", callback_data="a_cp"), InlineKeyboardButton("💎 Dar VIP", callback_data="a_vip")],
+        [InlineKeyboardButton("🚫 Banear", callback_data="a_ban"), InlineKeyboardButton("🔓 Unban", callback_data="a_unban")],
+        [InlineKeyboardButton("💾 Backup", callback_data="a_bkp"), InlineKeyboardButton("🧹 Limpiar", callback_data="a_clear")],
+        [InlineKeyboardButton("🔄 Reiniciar Bot", callback_data="a_reboot")]
+    ])
+
+# =================================================================
+# 4. MOTOR DE DESCARGA PRO
+# =================================================================
+async def download_pro(url, fmt):
     if not os.path.exists(Config.TEMP_DIR): os.makedirs(Config.TEMP_DIR)
     fid = str(uuid.uuid4())[:8]
-    
-    # Mapeo pro de formatos
-    f_map = {
-        "MP4": "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-        "MP3": "bestaudio/best",
-        "WEBM": "bestvideo[ext=webm]+bestaudio[ext=webm]/best"
-    }
-    
     opts = {
-        'format': f_map.get(format_type, "best"),
+        'format': 'bestvideo+bestaudio/best' if fmt != "MP3" else 'bestaudio/best',
         'outtmpl': f'{Config.TEMP_DIR}/{fid}.%(ext)s',
-        'max_filesize': limit_mb * 1024 * 1024,
-        'quiet': True,
-        'noplaylist': True,
+        'quiet': True, 'noplaylist': True,
     }
-
-    if format_type == "MP3":
+    if fmt == "MP3":
         opts['postprocessors'] = [{'key': 'FFmpegExtractAudio','preferredcodec': 'mp3','preferredquality': '192'}]
 
     def run():
         with yt_dlp.YoutubeDL(opts) as ydl:
             res = ydl.extract_info(url, download=True)
             path = ydl.prepare_filename(res)
-            if format_type == "MP3": path = os.path.splitext(path)[0] + ".mp3"
+            if fmt == "MP3": path = os.path.splitext(path)[0] + ".mp3"
             return path, res.get('title', 'Ishak_Media')
-    
     return await asyncio.to_thread(run)
 
 # =================================================================
-# 3. INTERFAZ Y BOTONES PERSISTENTES
-# =================================================================
-def main_menu(uid):
-    kb = [
-        [InlineKeyboardButton("📥 Descargar Media", callback_data="u_dl_menu"), InlineKeyboardButton("👤 Mi Perfil", callback_data="u_profile")],
-        [InlineKeyboardButton("🎟️ Canjear Cupón", callback_data="u_coupon"), InlineKeyboardButton("💎 Planes VIP", callback_data="u_plans")]
-    ]
-    if uid == Config.ADMIN_ID:
-        kb.append([InlineKeyboardButton("👑 PANEL MAESTRO 👑", callback_data="adm_main")])
-    return InlineKeyboardMarkup(kb)
-
-def admin_panel():
-    # Aquí tienes las +20 funciones administrativas divididas por módulos
-    kb = [
-        [InlineKeyboardButton("📊 Stats", callback_data="a_stats"), InlineKeyboardButton("📢 Broadcast", callback_data="a_bc"), InlineKeyboardButton("🎫 Cupones", callback_data="a_cp")],
-        [InlineKeyboardButton("👥 Users", callback_data="a_ulist"), InlineKeyboardButton("🚫 Ban", callback_data="a_ban"), InlineKeyboardButton("🔓 Unban", callback_data="a_unban")],
-        [InlineKeyboardButton("💎 Set Plan", callback_data="a_setplan"), InlineKeyboardButton("💰 Saldo", callback_data="a_pts"), InlineKeyboardButton("📜 Logs", callback_data="a_logs")],
-        [InlineKeyboardButton("🛠 Mantenimiento", callback_data="a_maint"), InlineKeyboardButton("🔄 Reset DB", callback_data="a_reset"), InlineKeyboardButton("💾 Backup", callback_data="a_backup")],
-        [InlineKeyboardButton("🚪 Salir del Panel", callback_data="u_back")]
-    ]
-    return InlineKeyboardMarkup(kb)
-
-# =================================================================
-# 4. LÓGICA DE PROCESAMIENTO
+# 5. HANDLERS
 # =================================================================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     u = update.effective_user
     db.get_user(u)
-    await update.message.reply_text(f"🔥 **{db.data['settings']['global_msg']}**\nSoftware de Ishak Ezzahouani.", reply_markup=main_menu(u.id), parse_mode=ParseMode.MARKDOWN)
+    await update.message.reply_text(
+        f"🔥 **BIENVENIDO AL IMPERIO INFINITY**\nIshak, usa los botones de abajo para navegar sin comandos.",
+        reply_markup=get_main_reply_markup(u.id), parse_mode=ParseMode.MARKDOWN
+    )
 
-async def handle_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    q = update.callback_query
-    uid = q.from_user.id
-    user = db.get_user(q.from_user)
-    await q.answer()
-
-    # --- RUTAS DE USUARIO ---
-    if q.data == "u_back":
-        await q.edit_message_text("🏠 **Menú Principal**", reply_markup=main_menu(uid))
-    
-    elif q.data == "u_profile":
-        t = f"👤 **DATOS DE {user['name'].upper()}**\n\n🆔 ID: `{uid}`\n💎 Plan: `{user['plan']}`\n📥 Descargas: `{user['dls']}`\n💰 Puntos: `{user['points']}`"
-        await q.edit_message_text(t, reply_markup=main_menu(uid), parse_mode=ParseMode.MARKDOWN)
-
-    elif q.data == "u_dl_menu":
-        await q.edit_message_text("🔗 **Pega el enlace ahora.**\n(YouTube, TikTok, Instagram, Twitter...)")
-
-    # --- RUTAS DE ADMIN (SOLO ISHAK) ---
-    elif q.data == "adm_main" and uid == Config.ADMIN_ID:
-        await q.edit_message_text("🛠 **CENTRO DE OPERACIONES INFINITY**", reply_markup=admin_panel())
-
-    elif q.data == "a_stats" and uid == Config.ADMIN_ID:
-        total_dls = sum(u['dls'] for u in db.data['users'].values())
-        msg = f"📈 **ESTADÍSTICAS REAL-TIME**\n\n👤 Usuarios: {len(db.data['users'])}\n📥 Descargas Totales: {total_dls}\n🎟️ Cupones: {len(db.data['coupons'])}\n🚫 Banned: {len(db.data['blacklist'])}"
-        await q.edit_message_text(msg, reply_markup=admin_panel())
-
-    elif q.data == "a_bc" and uid == Config.ADMIN_ID:
-        await q.edit_message_text("Escribe el mensaje global para todos los usuarios:")
-        context.user_data["mode"] = "broadcast"
-
-    elif q.data.startswith("dl_exec_"):
-        _, _, fmt = q.data.split("_")
-        url = context.user_data.get("url")
-        msg = await q.message.reply_text(f"🚀 Procesando {fmt}...")
-        try:
-            path, title = await download_engine(url, fmt, 500)
-            with open(path, 'rb') as f:
-                if fmt == "MP3": await context.bot.send_audio(uid, f, caption=f"🎵 {title}")
-                else: await context.bot.send_video(uid, f, caption=f"🎬 {title}")
-            user['dls'] += 1
-            db.save()
-            os.remove(path)
-            await msg.delete()
-        except Exception as e:
-            await msg.edit_text(f"❌ Error: {str(e)[:100]}")
-        
-        # IMPORTANTE: Reenviar el menú para que nunca se quede sin botones
-        await context.bot.send_message(uid, "✅ ¿Quieres descargar algo más?", reply_markup=main_menu(uid))
-
-async def handle_msg(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    uid = update.effective_user.id
-    txt = update.message.text
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    u = update.effective_user
+    text = update.message.text
+    user = db.get_user(u)
     mode = context.user_data.get("mode")
 
-    if uid == Config.ADMIN_ID and mode == "broadcast":
-        count = 0
-        for sid in db.data["users"]:
-            try:
-                await context.bot.send_message(sid, f"📢 **MENSAJE DE ISHAK**\n\n{txt}", parse_mode=ParseMode.MARKDOWN)
-                count += 1
-            except: pass
-        await update.message.reply_text(f"✅ Enviado a {count} personas.", reply_markup=admin_panel())
+    # Lógica de estados de Admin
+    if u.id == Config.ADMIN_ID and mode:
+        if mode == "bc": # Broadcast
+            for sid in db.data["users"]:
+                try: await context.bot.send_message(sid, f"📢 **MENSAJE GLOBAL:**\n{text}")
+                except: pass
+            await update.message.reply_text("✅ Mensaje enviado a todos.")
+        elif mode == "cp": # Cupón: CODIGO|PLAN
+            c, p = text.split("|")
+            db.data["coupons"][c.upper()] = p.upper()
+            db.save(); await update.message.reply_text(f"🎟️ Cupón {c} creado.")
         context.user_data["mode"] = None
         return
 
-    if txt.startswith("http"):
-        context.user_data["url"] = txt
-        kb = [
-            [InlineKeyboardButton("📹 MP4 (Video)", callback_data="dl_exec_MP4"), InlineKeyboardButton("🎵 MP3 (Audio)", callback_data="dl_exec_MP3")],
-            [InlineKeyboardButton("🌐 WEBM (Alta Calidad)", callback_data="dl_exec_WEBM")]
-        ]
-        await update.message.reply_text("🎬 **FORMATO DETECTADO**\n¿Cómo lo quieres Ishak?", reply_markup=InlineKeyboardMarkup(kb))
+    # Navegación por botones Reply
+    if text == "📥 Descargar":
+        await update.message.reply_text("🔗 Pega el link del video aquí:")
+    elif text == "👤 Perfil":
+        await update.message.reply_text(f"👤 **PERFIL**\nID: `{u.id}`\nPlan: {user['plan']}\nDescargas: {user['dls']}", parse_mode=ParseMode.MARKDOWN)
+    elif text == "💎 Planes VIP":
+        await update.message.reply_text("💎 **PLANES DISPONIBLES**\n- PRO: 10€\n- INFINITY: 25€\nContacta con @Ishak para comprar.")
+    elif text == "🎟️ Canjear Cupón":
+        await update.message.reply_text("Escribe tu código de cupón:")
+        context.user_data["mode"] = "redeem"
+    elif text == "👑 PANEL ADMIN 👑" and u.id == Config.ADMIN_ID:
+        await update.message.reply_text("🛠 **MODO DIOS ACTIVADO**", reply_markup=admin_inline_kb())
+    
+    # Procesar Links o Cupones
+    elif text.startswith("http"):
+        context.user_data["url"] = text
+        kb = [[InlineKeyboardButton("📹 MP4", callback_data="dl_MP4"), InlineKeyboardButton("🎵 MP3", callback_data="dl_MP3")]]
+        await update.message.reply_text("🎬 **FORMATO:**", reply_markup=InlineKeyboardMarkup(kb))
+    elif context.user_data.get("mode") == "redeem":
+        code = text.upper()
+        if code in db.data["coupons"]:
+            user["plan"] = db.data["coupons"].pop(code)
+            db.save(); await update.message.reply_text(f"✅ ¡Plan {user['plan']} activado!")
+        else: await update.message.reply_text("❌ Cupón inválido.")
+        context.user_data["mode"] = None
+
+async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    uid = q.from_user.id
+    await q.answer()
+
+    if q.data == "a_list_all" and uid == Config.ADMIN_ID:
+        msg = "👥 **LISTA COMPLETA DE USUARIOS**\n\n"
+        for sid, d in db.data["users"].items():
+            msg += f"👤 {d['name']} | ID: `{sid}` | 📱 {d['phone']} | 💎 {d['plan']}\n"
+        # Si el mensaje es muy largo, Telegram lo corta, así que lo enviamos por partes o en un bloque
+        await q.message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
+
+    elif q.data == "a_bkp" and uid == Config.ADMIN_ID:
+        db.save()
+        await context.bot.send_document(uid, open(Config.DB_FILE, "rb"), caption="Respado de Base de Datos")
+
+    elif q.data == "a_reboot" and uid == Config.ADMIN_ID:
+        await q.message.reply_text("🔄 Reiniciando...")
+        os.execl(sys.executable, sys.executable, *sys.argv)
+
+    elif q.data.startswith("dl_"):
+        fmt = q.data.split("_")[1]
+        url = context.user_data.get("url")
+        m = await q.message.reply_text("⚡ Procesando...")
+        try:
+            path, title = await download_pro(url, fmt)
+            with open(path, 'rb') as f:
+                if fmt == "MP3": await context.bot.send_audio(uid, f, caption=f"🎵 {title}")
+                else: await context.bot.send_video(uid, f, caption=f"🎬 {title}")
+            db.data["stats"]["total_dls"] += 1; db.save(); os.remove(path); await m.delete()
+        except Exception as e: await m.edit_text(f"❌ Error: {str(e)[:50]}")
 
 # =================================================================
-# 5. LANZAMIENTO
+# 6. LANZAMIENTO
 # =================================================================
 app = Flask(__name__)
 @app.route('/')
-def h(): return "ISHAK V25 ACTIVE"
+def h(): return "ISHAK_V25_READY"
 
-def main():
+if __name__ == '__main__':
     Thread(target=lambda: app.run(host='0.0.0.0', port=5000)).start()
     bot = ApplicationBuilder().token(Config.TOKEN).build()
     bot.add_handler(CommandHandler("start", start))
-    bot.add_handler(CallbackQueryHandler(handle_cb))
-    bot.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_msg))
-    print("SaaS Corriendo a tope...")
+    bot.add_handler(CallbackQueryHandler(handle_callback))
+    bot.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    print("SaaS Corriendo...")
     bot.run_polling()
-
-if __name__ == '__main__':
-    main()

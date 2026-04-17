@@ -1037,6 +1037,11 @@ async def setup_bot_commands(app: Application):
         ])
     except Exception: pass
 
+async def post_init(app: Application):
+    """Inyecta tareas en background una vez que el motor cuántico está en línea."""
+    asyncio.create_task(db.backup_job())
+    await setup_bot_commands(app)
+
 def main():
     print("=" * 60)
     print(f"🚀 INICIANDO ISHAK EMPIRE V{EmpireConfig.VERSION}")
@@ -1055,6 +1060,7 @@ def main():
         .read_timeout(30.0)
         .write_timeout(30.0)
         .connection_pool_size(1024)
+        .post_init(post_init)
         .build()
     )
     
@@ -1063,11 +1069,7 @@ def main():
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_dispatcher))
     application.add_handler(CallbackQueryHandler(callback_handler))
     
-    # 4. Iniciar bucles de tareas en background
-    loop = asyncio.get_event_loop()
-    loop.create_task(db.backup_job())
-    
-    # 5. Despliegue de red
+    # 4. Despliegue de red
     logger.info("🔥 OVERLORD EN LÍNEA. ESPERANDO DIRECTRICES...")
     application.run_polling(drop_pending_updates=True)
 

@@ -6,8 +6,8 @@
 ██║███████║██║  ██║███████║██║  ██╗    ██║  ██║   ██║   ██║     ███████╗██║  ██║
 ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚══════╝╚═╝  ╚═╝
 ================================================================================
-SISTEMA: ISHAK HYPER-SAAS V300.0 - ULTIMATE ENTERPRISE TITAN EDITION
-VALORACIÓN DE MERCADO: €100,000 ARCHITECTURE - B2B READY
+SISTEMA: ISHAK HYPER-SAAS V300.1 - ULTIMATE ENTERPRISE TITAN EDITION
+VALORACIÓN DE MERCADO: €100,000 ARCHITECTURE - B2B READY (API REAL)
 PROPIETARIO Y DIRECTOR: Ishak Ezzahouani (ID: 8398522835) - Edad: 18.
 UBICACIÓN DE NÚCLEO: Sede Central de Datos - España
 REGLA ESPECIAL (ESTRICTA): Contenido 'veo3' forzado a ESPAÑOL por mandato absoluto.
@@ -41,7 +41,7 @@ from functools import wraps
 def bootstrap_packages():
     """Garantiza la presencia del arsenal masivo de librerías para B2B."""
     packages = [
-        'python-telegram-bot', 'yt-dlp', 'flask', 'requests', 
+        'python-telegram-bot', 'yt-dlp', 'flask', 'flask-cors', 'requests', 
         'psutil', 'Pillow', 'aiohttp', 'cryptography', 'qrcode'
     ]
     for p in packages:
@@ -53,6 +53,9 @@ def bootstrap_packages():
     
     global yt_dlp, requests, psutil, aiohttp, qrcode
     import yt_dlp, requests, psutil, aiohttp, qrcode
+    from flask_cors import CORS
+    global CORS_APP
+    CORS_APP = CORS
 
 bootstrap_packages()
 
@@ -74,7 +77,7 @@ from flask import Flask, jsonify, request, render_template_string
 class EmpireConfig:
     ADMIN_ID = 8398522835
     TOKEN = "8780125825:AAFZZonawTj_kNHrewjQtAdELod9vj3a6w4"
-    VERSION = "300.0.0-ENTERPRISE-TITAN"
+    VERSION = "300.1.0-ENTERPRISE-TITAN"
     
     ROOT = os.getcwd()
     VAULT_DIR = os.path.join(ROOT, "empire_vault")
@@ -119,7 +122,6 @@ class EmpireConfig:
         "CLAN_TICKET": {"name": "🛡️ Permiso Fundación Facción", "price": 10000, "desc": "Te permite crear tu propia Facción."}
     }
 
-    # Paquetes Oficiales de Monetización (Telegram Stars)
     STARS_PACKAGES = {
         "PACK_SMALL": {"name": "💰 5,000 Puntos (Packs)", "type": "points", "stars": 50, "value": 5000},
         "PACK_MEDIUM": {"name": "💎 15,000 Puntos (Packs)", "type": "points", "stars": 120, "value": 15000},
@@ -144,7 +146,7 @@ class EmpireConfig:
 EmpireConfig.init_filesystem()
 
 # =================================================================
-# [2] SISTEMA DE AUDITORÍA Y FRAUDE (SOC LEVEL)
+# [2] SISTEMA DE AUDITORÍA
 # =================================================================
 logging.basicConfig(
     level=logging.INFO,
@@ -155,7 +157,7 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("ISHAK_ENTERPRISE_V300")
-logger.info(f"Arquitectura SaaS V300 (100k€) iniciada. Sede: España. Bienvenido, Director Ishak (18).")
+logger.info(f"Arquitectura SaaS V300.1 iniciada. Sede: España. Bienvenido, Director Ishak (18).")
 
 # =================================================================
 # [3] BASE DE DATOS NOSQL EN MEMORIA (ENTERPRISE SYNC)
@@ -166,7 +168,7 @@ class EmpireDatabase:
         self.data = {
             "users": {}, "coupons": {}, "blacklist": [],
             "factions": {}, "transactions": [], "tickets": {},
-            "b2b_api_keys": {}, # NUEVO: Gestión de claves API
+            "b2b_api_keys": {}, # Diccionario {api_key: uid}
             "market_stats": {"crypto_value": 150.0, "trend": "up", "history": []},
             "stats": {
                 "total_downloads": 0, "total_users": 0, "bytes_processed": 0,
@@ -175,7 +177,7 @@ class EmpireDatabase:
             },
             "system": {
                 "maint_mode": False,
-                "global_welcome": "👑 **BIENVENIDO A ISHAK ENTERPRISE V300**\nLa plataforma definitiva de gestión multimedia (Valoración 100k€).\nSeguridad, velocidad y dominación absoluta."
+                "global_welcome": "👑 **BIENVENIDO A ISHAK ENTERPRISE V300**\nLa plataforma definitiva de gestión multimedia.\nVelocidad, seguridad y control absoluto."
             }
         }
         self.sync_load()
@@ -208,12 +210,11 @@ class EmpireDatabase:
 
     async def backup_job(self):
         while True:
-            await asyncio.sleep(60 * 60 * 2) # Backup cada 2 horas
+            await asyncio.sleep(60 * 60 * 2)
             try:
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                 backup_path = os.path.join(EmpireConfig.BACKUP_DIR, f"db_backup_{timestamp}.json")
                 shutil.copy2(EmpireConfig.DATABASE_PATH, backup_path)
-                logger.info("Backup empresarial guardado con éxito.")
             except Exception as e:
                 logger.error(f"Error backup: {e}")
 
@@ -231,7 +232,6 @@ class EmpireDatabase:
                     "referrals": 0, "referred_by": None, "achievements": [],
                     "inventory": {"XP_BOOST_X2": 0, "BYPASS_QUEUE": 0, "CLAN_TICKET": 0},
                     "active_buffs": {"xp_multiplier": 1.0, "buff_expiry": None},
-                    # NUEVOS AJUSTES V300:
                     "settings": {"watermark": None, "auto_transcribe": False, "ghost_mode": False, "send_as_doc": False},
                     "faction": None, "joined": str(datetime.date.today()),
                     "is_banned": False, "captcha_solved": False, "fraud_warnings": 0,
@@ -351,7 +351,6 @@ progress_tracker = DownloadProgressTracker()
 class MediaEngine:
     @staticmethod
     async def get_thumbnail(url: str, uid: str) -> Optional[str]:
-        """Extrae la miniatura en alta resolución."""
         try:
             def _get():
                 with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
@@ -361,7 +360,6 @@ class MediaEngine:
 
     @staticmethod
     async def get_metadata(url: str) -> dict:
-        """Extrae metadatos para la utilidad de Inspector."""
         try:
             def _get():
                 with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
@@ -392,9 +390,7 @@ class MediaEngine:
             'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36'}
         }
 
-        # =====================================================================
-        # MANDATO DIRECTO DEL DIRECTOR ISHAK: VEO3 ESTRICTAMENTE EN ESPAÑOL
-        # =====================================================================
+        # REGLA VEO3: FORZADO A ESPAÑOL
         if "veo3" in url.lower():
             logger.info(f"[ALERTA CORE] Regla veo3 activada para UID {uid}. Forzando ESPAÑOL.")
             ydl_opts['writesubtitles'] = True
@@ -402,15 +398,9 @@ class MediaEngine:
             ydl_opts['format_sort'] = ['+language:es', 'res:1080', 'ext:mp4:m4a']
 
         if mode == "MP3":
-            ydl_opts.update({
-                'format': 'bestaudio/best',
-                'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '320'}],
-            })
-        elif mode == "VOICE": # Nuevo modo: Nota de voz .ogg
-            ydl_opts.update({
-                'format': 'bestaudio/best',
-                'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'vorbis', 'preferredquality': '192'}],
-            })
+            ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '320'}]})
+        elif mode == "VOICE":
+            ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'vorbis', 'preferredquality': '192'}]})
         elif mode == "GIF":
             h = quality.replace("p", "") if quality != "Original" else "720"
             ydl_opts['format'] = f'bestvideo[height<={h}][ext=mp4]/best'
@@ -424,6 +414,8 @@ class MediaEngine:
                 file_path = ydl.prepare_filename(info)
                 if mode == "MP3": file_path = os.path.splitext(file_path)[0] + ".mp3"
                 elif mode == "VOICE": file_path = os.path.splitext(file_path)[0] + ".ogg"
+                
+                # Check existance before getting size to avoid crashes
                 file_size = os.path.getsize(file_path) if os.path.exists(file_path) else 0
                 return file_path, info.get('title', 'Media_Enterprise_V300'), info.get('duration', 0), file_size
 
@@ -434,20 +426,27 @@ class MediaEngine:
 # =================================================================
 class EmpireUI:
     @staticmethod
-    def main_keyboard(uid, is_banned=False):
-        if is_banned: return ReplyKeyboardMarkup([[KeyboardButton("🎧 SOPORTE")]], resize_keyboard=True)
+    def main_keyboard(u_data):
+        if u_data.get("is_banned"): return ReplyKeyboardMarkup([[KeyboardButton("🎧 SOPORTE")]], resize_keyboard=True)
         
-        is_admin = uid == EmpireConfig.ADMIN_ID
+        is_admin = u_data['id'] == EmpireConfig.ADMIN_ID
+        is_god = u_data['plan'] == 'GOD'
+        
         btns = [
             [KeyboardButton("📥 EXTRACCIÓN"), KeyboardButton("👤 PERFIL")],
             [KeyboardButton("⭐️ TIENDA OFICIAL (STARS)"), KeyboardButton("💎 MERCADO NEGRO")],
-            [KeyboardButton("⚙️ AJUSTES PRO"), KeyboardButton("🏢 ÁREA B2B")],
-            [KeyboardButton("🎰 CASINO IMPERIAL"), KeyboardButton("🛡️ FACCIONES")],
-            [KeyboardButton("🛠️ CAJA DE HERRAMIENTAS"), KeyboardButton("🎁 TRIBUTO")],
-            [KeyboardButton("🎮 LOGROS"), KeyboardButton("🎧 SOPORTE")]
+            [KeyboardButton("⚙️ AJUSTES PRO"), KeyboardButton("🎰 CASINO IMPERIAL")],
+            [KeyboardButton("🛠️ CAJA DE HERRAMIENTAS"), KeyboardButton("🛡️ FACCIONES")],
+            [KeyboardButton("🎁 TRIBUTO"), KeyboardButton("🎧 SOPORTE")]
         ]
+        
+        # EL ÁREA B2B SOLO APARECE PARA RANGOS GOD (CORRECCIÓN DE RESTRICCIÓN)
+        if is_god:
+            btns.append([KeyboardButton("🏢 ÁREA B2B")])
+            
         if is_admin:
             btns.append([KeyboardButton("👑 PANEL OVERLORD 👑"), KeyboardButton("🌐 DATOS MATRIZ")])
+            
         return ReplyKeyboardMarkup(btns, resize_keyboard=True)
 
     @staticmethod
@@ -562,7 +561,7 @@ async def successful_payment_callback(update: Update, context: ContextTypes.DEFA
                 msg = f"✅ Has adquirido `{pack['value']} Puntos Imperiales`."
             
             elif pack["type"] == "sub":
-                u_data["plan"] = pack["value"] # Asigna PRO
+                u_data["plan"] = pack["value"]
                 current_expiry = u_data.get("plan_expiry")
                 base_date = datetime.datetime.fromisoformat(current_expiry) if current_expiry else datetime.datetime.now()
                 new_expiry = base_date + datetime.timedelta(days=30)
@@ -579,7 +578,7 @@ async def successful_payment_callback(update: Update, context: ContextTypes.DEFA
             await update.message.reply_text(f"💎 **TRANSACCIÓN CONFIRMADA**\n{msg}", parse_mode="Markdown")
 
 # =================================================================
-# [8] CONTROLADORES DE COMANDOS Y MENSAJES (EL NÚCLEO)
+# [8] CONTROLADORES DE COMANDOS Y MENSAJES (EL NÚCLEO ARREGLADO)
 # =================================================================
 async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
@@ -599,30 +598,17 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     welcome_msg = db.data["system"]["global_welcome"]
     if user.id == EmpireConfig.ADMIN_ID:
-        welcome_msg = "👁️ **SALVE, DIRECTOR ISHAK.**\nArquitectura V300 (100k€) operativa. Sistemas de monetización y B2B enrutados."
+        welcome_msg = "👁️ **SALVE, DIRECTOR ISHAK.**\nArquitectura V300 operativa. Sistemas B2B enrutados."
 
-    await update.message.reply_text(
-        welcome_msg, reply_markup=EmpireUI.main_keyboard(user.id, u_data.get("is_banned")), parse_mode="Markdown"
-    )
+    await update.message.reply_text(welcome_msg, reply_markup=EmpireUI.main_keyboard(u_data), parse_mode="Markdown")
 
 async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text: return
     user = update.effective_user
     text = update.message.text
     uid_str = str(user.id)
-    state = context.user_data.get("state")
 
     if sec_core.rate_limit(user.id): return
-    
-    if state == "WAIT_CAPTCHA":
-        if sec_core.verify_captcha(user.id, text):
-            db.data["users"][uid_str]["captcha_solved"] = True
-            await db.save()
-            context.user_data["state"] = None
-            await update.message.reply_text("✅ Acceso autorizado.", reply_markup=EmpireUI.main_keyboard(user.id))
-        else:
-            await update.message.reply_text("❌ Error en verificación.")
-        return
 
     u_data = await db.get_user(user)
     if u_data.get("is_banned"):
@@ -630,16 +616,48 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     db.data["stats"]["commands_executed"] += 1
 
+    # =====================================================================
+    # CORRECCIÓN V300.1: STATE INTERRUPTER (PRIORIDAD ABSOLUTA DE BOTONES)
+    # =====================================================================
+    MAIN_COMMANDS = [
+        "📥 EXTRACCIÓN", "⭐️ TIENDA OFICIAL (STARS)", "💎 MERCADO NEGRO", 
+        "⚙️ AJUSTES PRO", "🏢 ÁREA B2B", "🎰 CASINO IMPERIAL", "🛠️ CAJA DE HERRAMIENTAS", 
+        "👤 PERFIL", "🎁 TRIBUTO", "🎮 LOGROS", "🎧 SOPORTE", 
+        "👑 PANEL OVERLORD 👑", "🌐 DATOS MATRIZ", "🛡️ FACCIONES"
+    ]
+    
+    if text in MAIN_COMMANDS:
+        # Si el usuario pulsó un botón principal, limpiamos cualquier estado activo
+        context.user_data["state"] = None
+        
+    state = context.user_data.get("state")
+    
+    # Manejo de Captcha Independiente
+    if state == "WAIT_CAPTCHA":
+        if sec_core.verify_captcha(user.id, text):
+            db.data["users"][uid_str]["captcha_solved"] = True
+            await db.save()
+            context.user_data["state"] = None
+            await update.message.reply_text("✅ Acceso autorizado.", reply_markup=EmpireUI.main_keyboard(u_data))
+        else:
+            await update.message.reply_text("❌ Error en verificación.")
+        return
+
+    # =====================================================================
+    # CORRECCIÓN V300.1: AUTO-DETECCIÓN DE ENLACES (SIN NECESIDAD DE ESTADO)
+    # =====================================================================
+    if not state and re.match(r'^https?://', text):
+        context.user_data["active_url"] = text
+        await update.message.reply_text("🛠 **Enlace detectado automáticamente.** Selecciona formato:", reply_markup=EmpireUI.format_selector())
+        return
+
     # --- NAVEGACIÓN PRINCIPAL V300 ---
     if text == "📥 EXTRACCIÓN":
         await update.message.reply_text("🔗 **PROTOCOLOS LISTOS. ENVÍA EL ENLACE:**\n*(Veo3, YT, IG, TikTok...)*")
         context.user_data["state"] = "WAIT_URL"
 
     elif text == "⭐️ TIENDA OFICIAL (STARS)":
-        await update.message.reply_text(
-            "⭐️ **MERCADO DIGITAL OFICIAL**\nSuscripciones y puntos mediante pagos seguros nativos (Telegram Stars):",
-            reply_markup=EmpireUI.stars_shop()
-        )
+        await update.message.reply_text("⭐️ **MERCADO DIGITAL OFICIAL**\nSuscripciones y puntos mediante pagos seguros nativos (Telegram Stars):", reply_markup=EmpireUI.stars_shop())
 
     elif text == "💎 MERCADO NEGRO":
         cv = round(db.data["market_stats"]["crypto_value"], 2)
@@ -650,7 +668,10 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text("⚙️ **PANEL DE CONFIGURACIÓN AVANZADA:**", reply_markup=EmpireUI.settings_panel(u_data['settings']))
 
     elif text == "🏢 ÁREA B2B":
-        await update.message.reply_text("🏢 **ENTORNO EMPRESARIAL B2B**\nGenera claves API para automatizar descargas en tus propios sistemas.", reply_markup=EmpireUI.b2b_panel(u_data.get('api_key')))
+        if u_data['plan'] == 'GOD':
+            await update.message.reply_text("🏢 **ENTORNO EMPRESARIAL B2B**\nGenera claves API reales para interactuar con nuestro endpoint remoto.", reply_markup=EmpireUI.b2b_panel(u_data.get('api_key')))
+        else:
+            await update.message.reply_text("🚫 Acceso restringido. Esta área es exclusiva para el rango GOD.")
 
     elif text == "🎰 CASINO IMPERIAL":
         await update.message.reply_text("🎰 **BIENVENIDO AL CASINO**\nMultiplica tus riquezas. Selecciona tu veneno:", reply_markup=EmpireUI.casino_panel())
@@ -718,7 +739,6 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     elif state == "WAIT_UTIL_TTS":
         tts = text[:500]
-        # Simulación de Audio generado (como no podemos importar gTTS nativamente con garantía, enviaremos un mensaje de confirmación "IA")
         await update.message.reply_text(f"🗣️ **Voz Sintética Generada:**\n*(Simulación Text-to-Speech V300)*\n`{tts}`", parse_mode="Markdown")
         context.user_data["state"] = None
 
@@ -734,7 +754,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     u_data = await db.get_user(q.from_user)
 
-    # --- COMPRA DE STARS (PAGOS TELEGRAM NATIVOS) ---
+    # --- COMPRA DE STARS ---
     if data.startswith("stars_"):
         pack_key = data.replace("stars_", "")
         pack = EmpireConfig.STARS_PACKAGES.get(pack_key)
@@ -745,11 +765,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             currency = "XTR"
             price = pack["stars"]
             prices = [LabeledPrice(title, price)]
-
-            await context.bot.send_invoice(
-                chat_id=uid, title=title, description=description,
-                payload=payload, provider_token="", currency=currency, prices=prices
-            )
+            await context.bot.send_invoice(chat_id=uid, title=title, description=description, payload=payload, provider_token="", currency=currency, prices=prices)
 
     # --- TIENDA POR PUNTOS ---
     elif data.startswith("buy_item_"):
@@ -787,21 +803,27 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     # --- ÁREA B2B ---
     elif data == "b2b_gen_key":
-        if u_data['plan'] not in ['PRO', 'ULTRA', 'GOD']:
-            return await q.message.reply_text("❌ La API B2B requiere suscripción PRO o superior.")
+        if u_data['plan'] != 'GOD':
+            return await q.message.reply_text("❌ Acceso Denegado. Función de seguridad exclusiva para GOD.")
+        
+        # Eliminar clave vieja del diccionario global si existe
+        old_key = u_data.get('api_key')
+        if old_key and old_key in db.data['b2b_api_keys']:
+            del db.data['b2b_api_keys'][old_key]
+            
         new_key = f"ishak_live_{uuid.uuid4().hex}"
         u_data['api_key'] = new_key
         db.data['b2b_api_keys'][new_key] = uid_str
+        
         if "HACKER" not in u_data["achievements"]:
             u_data["achievements"].append("HACKER"); u_data["points"]+=1000
         await db.save()
-        await q.edit_message_text(f"🔑 **CLAVE API GENERADA:**\n`{new_key}`\n*Úsala con precaución.*", reply_markup=EmpireUI.b2b_panel(new_key))
+        await q.edit_message_text(f"🔑 **CLAVE API GENERADA:**\n`{new_key}`\n\n*Úsala para hacer POST a /api/v1/extract*\n*Requiere cabecera: X-API-KEY*", reply_markup=EmpireUI.b2b_panel(new_key))
 
     # --- CASINO ---
     elif data.startswith("casino_"):
         db.data["stats"]["casino_spins"] = db.data["stats"].get("casino_spins", 0) + 1
         game = data.split("_")[1]
-        
         if game == "slots":
             bet = 100
             if u_data["points"] < bet: return await q.message.reply_text("❌ Puntos insuficientes.")
@@ -850,7 +872,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except: pass
 
 # =================================================================
-# [10] MOTOR DE DESCARGA TITÁN (ARCHIVOS, VOZ, GIF, WHISPER SIM)
+# [10] MOTOR DE DESCARGA TITÁN (ARCHIVOS, VOZ, GIF)
 # =================================================================
 async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -894,8 +916,6 @@ async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_document(uid, f, caption=cap, parse_mode="Markdown", read_timeout=300)
             elif fmt == "MP3": 
                 await context.bot.send_audio(uid, f, caption=cap, parse_mode="Markdown", read_timeout=120)
-                if u_data['settings'].get('auto_transcribe'):
-                    await context.bot.send_message(uid, "📝 *Módulo Whisper AI*:\n[Transcripción Automática Generada... Voz: Humano 99%]", parse_mode="Markdown")
             elif fmt == "VOICE":
                 await context.bot.send_voice(uid, f, caption=cap, parse_mode="Markdown", read_timeout=120)
             elif fmt == "GIF":
@@ -914,14 +934,16 @@ async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         if job_id in progress_tracker.active_jobs: progress_tracker.active_jobs[job_id]['finished'] = True
         logger.error(f"Fallo UID {uid}: {e}")
-        await msg.edit_text(f"❌ **ERROR DE MATRIZ V300:**\nProtección activa, archivo inalcanzable o bloqueado.")
+        await msg.edit_text(f"❌ **ERROR DE MATRIZ V300:**\nEl archivo está protegido o supera los límites de Telegram.")
 
 # =================================================================
-# [11] PANEL SAAS WEB (LANDING PAGE 100K€ + B2B API)
+# [11] PANEL SAAS WEB (LANDING PAGE 100K€ + B2B API REAL)
 # =================================================================
 web_app = Flask("Ishak_Enterprise_Web")
 
-# Landing Page Impresionante con Tailwind CSS y animaciones (El valor real corporativo)
+# Habilitar CORS para que la API pueda ser consumida por otras webs
+CORS_APP(web_app)
+
 LANDING_HTML = """
 <!DOCTYPE html>
 <html lang="es">
@@ -953,13 +975,13 @@ LANDING_HTML = """
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left">
                 <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
                     <i class="fas fa-rocket text-3xl text-blue-400 mb-3"></i>
-                    <h3 class="text-xl font-bold mb-2">Quantum Speed</h3>
-                    <p class="text-sm text-gray-400">Motor multi-hilo B2B con descargas instántaneas y bypass de bloqueos.</p>
+                    <h3 class="text-xl font-bold mb-2">API B2B Funcional</h3>
+                    <p class="text-sm text-gray-400">Endpoints REST reales para extraer URLs directas de CDNs (CORS Habilitado).</p>
                 </div>
                 <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
                     <i class="fas fa-shield-alt text-3xl text-purple-400 mb-3"></i>
                     <h3 class="text-xl font-bold mb-2">Seguridad SOC</h3>
-                    <p class="text-sm text-gray-400">Protección Anti-DDoS, modo fantasma y encriptación de grado militar.</p>
+                    <p class="text-sm text-gray-400">Protección Anti-DDoS, cancelación de hilos y modo fantasma.</p>
                 </div>
                 <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
                     <i class="fas fa-star text-3xl text-yellow-400 mb-3"></i>
@@ -1000,7 +1022,6 @@ LANDING_HTML = """
     </div>
 
     <script>
-        // Actualización Ajax en tiempo real
         async function fetchMetrics() {
             try {
                 const res = await fetch('/api/v3/metrics');
@@ -1024,7 +1045,6 @@ def index():
 
 @web_app.route('/api/v3/metrics', methods=['GET'])
 def api_metrics():
-    # Endpoint AJAX para la landing page
     return jsonify({
         "status": "ONLINE",
         "metrics": {
@@ -1034,6 +1054,58 @@ def api_metrics():
             "crypto": db.data["market_stats"]["crypto_value"]
         }
     })
+
+# =================================================================
+# [11.1] ENDPOINT DE API B2B REAL (LA MAGIA CORPORATIVA)
+# =================================================================
+@web_app.route('/api/v1/extract', methods=['POST'])
+def api_real_extract():
+    """
+    API Funcional para clientes B2B. Recibe una URL y devuelve el CDN Link directo.
+    Requiere una API Key válida del rango GOD en los Headers.
+    Header: X-API-KEY: ishak_live_xxxxxxxx
+    """
+    api_key = request.headers.get('X-API-KEY')
+    if not api_key or api_key not in db.data.get('b2b_api_keys', {}):
+        return jsonify({"error": "No autorizado. Clave de API ausente o inválida."}), 401
+    
+    data = request.json or {}
+    url = data.get('url')
+    if not url:
+        return jsonify({"error": "Parámetro 'url' es requerido."}), 400
+        
+    uid = db.data['b2b_api_keys'][api_key]
+    
+    try:
+        # Se ejecuta en hilo de Flask de forma sincrónica para devolver la respueta HTTP
+        opts = {'quiet': True, 'noplaylist': True}
+        
+        if "veo3" in url.lower():
+            opts['format_sort'] = ['+language:es', 'res:1080', 'ext:mp4:m4a']
+            
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+            
+            # Buscamos la mejor URL del formato (URL cruda lista para reproducir en reproductores web o VLC)
+            direct_url = info.get('url')
+            if not direct_url and info.get('formats'):
+                # Coger el último formato disponible si no hay url root
+                direct_url = info['formats'][-1].get('url')
+                
+            return jsonify({
+                "status": "success",
+                "code": 200,
+                "data": {
+                    "title": info.get('title'),
+                    "duration": info.get('duration'),
+                    "direct_cdn_url": direct_url,
+                    "thumbnail": info.get('thumbnail'),
+                    "source": info.get('extractor')
+                },
+                "owner_id": uid
+            })
+    except Exception as e:
+        return jsonify({"error": "Fallo durante la extracción en la matriz.", "details": str(e)}), 500
 
 def run_web():
     log = logging.getLogger('werkzeug')
@@ -1048,7 +1120,6 @@ def run_web():
 # [12] SECUENCIA DE INICIO TITÁN (THE GOD DEPLOYMENT)
 # =================================================================
 async def post_init(app: Application):
-    # Iniciar procesos asíncronos core
     asyncio.create_task(db.backup_job())
     asyncio.create_task(progress_tracker.update_messages_loop())
 
@@ -1065,15 +1136,14 @@ def main():
         ApplicationBuilder()
         .token(EmpireConfig.TOKEN)
         .pool_timeout(60.0).read_timeout(60.0).write_timeout(60.0)
-        .connection_pool_size(4096) # Alta escalabilidad para tráfico masivo
+        .connection_pool_size(4096)
         .post_init(post_init)
         .build()
     )
     
-    # Handlers
     application.add_handler(CommandHandler("start", start_handler))
-    application.add_handler(PreCheckoutQueryHandler(precheckout_callback)) # Stars Pre-checkout
-    application.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment_callback)) # Stars Pago Exitoso
+    application.add_handler(PreCheckoutQueryHandler(precheckout_callback))
+    application.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment_callback))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_dispatcher))
     application.add_handler(CallbackQueryHandler(callback_handler))
     

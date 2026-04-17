@@ -138,14 +138,17 @@ EmpireConfig.init_filesystem()
 # =================================================================
 # [2] SISTEMA DE LOGS Y AUDITORÍA QUANTUM
 # =================================================================
+audit_handler = logging.FileHandler(os.path.join(EmpireConfig.LOGS_DIR, "empire_audit.log"), encoding='utf-8')
+
+error_handler = logging.FileHandler(os.path.join(EmpireConfig.LOGS_DIR, "empire_errors.log"), encoding='utf-8')
+error_handler.setLevel(logging.ERROR)
+
+stream_handler = logging.StreamHandler(sys.stdout)
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s | %(name)s | %(levelname)s | %(message)s',
-    handlers=[
-        logging.FileHandler(os.path.join(EmpireConfig.LOGS_DIR, "empire_audit.log"), encoding='utf-8'),
-        logging.FileHandler(os.path.join(EmpireConfig.LOGS_DIR, "empire_errors.log"), level=logging.ERROR, encoding='utf-8'),
-        logging.StreamHandler(sys.stdout)
-    ]
+    handlers=[audit_handler, error_handler, stream_handler]
 )
 logger = logging.getLogger("ISHAK_OVERLORD")
 logger.info("Iniciando secuencias de arranque del Imperio...")

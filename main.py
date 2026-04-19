@@ -10,7 +10,7 @@ SISTEMA: ISHAK HYPER-SAAS V400.0 - THE LEVIATHAN ENTERPRISE EDITION
 VALORACIÓN DE MERCADO: €250,000 ARCHITECTURE - FULL B2B, CASINO & REDUNDANCY
 PROPIETARIO Y DIRECTOR: Ishak Ezzahouani - Edad: 18.
 UBICACIÓN DE NÚCLEO: Sede Central de Datos - España
-REGLA ESPECIAL (ESTRICTA): Contenido 'veo3' forzado a ESPAÑOL por mandato absoluto.
+REGLA ESPECIAL (ESTRICTA BLINDADA): Contenido 'veo3' forzado a ESPAÑOL por mandato absoluto.
 ================================================================================
 """
 
@@ -32,6 +32,7 @@ import re
 import math
 import hashlib
 import base64
+import gc  # Integrado: Optimización de Memoria (Garbage Collector)
 from typing import Dict, List, Any, Optional, Union, Tuple
 from functools import wraps
 
@@ -77,7 +78,6 @@ from flask import Flask, jsonify, request, render_template_string
 # [1] ARQUITECTURA DE CONFIGURACIÓN CORPORATIVA (V400)
 # =================================================================
 class EmpireConfig:
-    # BLINDAJE: Variables críticas ocultas en entorno
     ADMIN_ID = int(os.getenv("ADMIN_ID", "8398522835"))
     TOKEN = os.getenv("TELEGRAM_TOKEN")
     VERSION = "400.0.0-LEVIATHAN-TITAN"
@@ -178,7 +178,7 @@ class EmpireDatabase:
     def __init__(self):
         self._lock = asyncio.Lock()
         self.data = self._get_default_structure()
-        self.sync_load() # Carga inicial síncrona está bien en el arranque
+        self.sync_load() 
 
     def _get_default_structure(self):
         return {
@@ -198,8 +198,30 @@ class EmpireDatabase:
             }
         }
 
+    def _auto_repair_json(self):
+        """Comprueba e intenta reparar DB de forma autónoma antes de cargar."""
+        if not os.path.exists(EmpireConfig.DATABASE_PATH): return
+        corrupted = False
+        try:
+            with open(EmpireConfig.DATABASE_PATH, 'r', encoding='utf-8') as f:
+                json.load(f)
+        except Exception as e:
+            logger.critical(f"⚠️ CORRUPCIÓN DETECTADA EN DB PRINCIPAL ({e}). INICIANDO REPARACIÓN AUTÓNOMA.")
+            corrupted = True
+            
+        if corrupted:
+            if os.path.exists(EmpireConfig.SHADOW_DB_PATH):
+                try:
+                    shutil.copy2(EmpireConfig.SHADOW_DB_PATH, EmpireConfig.DATABASE_PATH)
+                    logger.info("✅ RESTAURACIÓN AUTOMÁTICA DESDE SHADOW DB COMPLETADA CON ÉXITO.")
+                except Exception as ex:
+                    logger.critical(f"❌ FALLO AL RESTAURAR DESDE SHADOW DB: {ex}")
+            else:
+                logger.critical("❌ NO EXISTE SHADOW DB. RIESGO DE PÉRDIDA DE DATOS TOTAL.")
+
     def sync_load(self):
-        """Carga la DB principal. Si falla, intenta restaurar desde el Shadow Backup."""
+        """Carga la DB principal tras el proceso de Auto-Reparación."""
+        self._auto_repair_json()
         loaded = False
         if os.path.exists(EmpireConfig.DATABASE_PATH):
             try:
@@ -208,16 +230,14 @@ class EmpireDatabase:
                     self._merge_dicts(self.data, saved_data)
                     loaded = True
             except Exception as e:
-                logger.error(f"⚠️ CORRUPCIÓN EN DB PRINCIPAL: {e}")
+                logger.error(f"⚠️ Fallo post-reparación en DB PRINCIPAL: {e}")
         
-        # Recuperación de Desastres Automática
         if not loaded and os.path.exists(EmpireConfig.SHADOW_DB_PATH):
-            logger.warning("🔄 INICIANDO RESTAURACIÓN DESDE SHADOW DB...")
+            logger.warning("🔄 CARGANDO DIRECTAMENTE DESDE SHADOW DB...")
             try:
                 with open(EmpireConfig.SHADOW_DB_PATH, 'r', encoding='utf-8') as f:
                     saved_data = json.load(f)
                     self._merge_dicts(self.data, saved_data)
-                    logger.info("✅ RESTAURACIÓN SHADOW EXITOSA.")
             except Exception as e:
                 logger.critical(f"❌ FALLO TOTAL DE DATOS: {e}")
 
@@ -229,7 +249,7 @@ class EmpireDatabase:
                 default_dict[k] = v
 
     def _sync_save_logic(self, data_copy):
-        """Lógica síncrona que será empujada a un hilo asíncrono para no bloquear."""
+        """Lógica síncrona empujada a un hilo asíncrono para no bloquear."""
         temp_path = f"{EmpireConfig.DATABASE_PATH}.tmp"
         with open(temp_path, 'w', encoding='utf-8') as f:
             json.dump(data_copy, f, indent=4, ensure_ascii=False)
@@ -243,7 +263,6 @@ class EmpireDatabase:
     async def save(self):
         async with self._lock:
             try:
-                # Copia superficial segura para que el thread no choque con el main loop
                 data_copy = dict(self.data)
                 await asyncio.to_thread(self._sync_save_logic, data_copy)
             except Exception as e:
@@ -272,7 +291,7 @@ class EmpireDatabase:
                     "id": user_obj.id, "name": user_obj.first_name, "username": user_obj.username,
                     "plan": "GOD" if user_obj.id == EmpireConfig.ADMIN_ID else "FREE",
                     "plan_expiry": None, "points": 1500, "level": 1, "xp": 0,
-                    "crypto_balance": 0.0, # Balance del Mercado Clandestino
+                    "crypto_balance": 0.0,
                     "total_downloads": 0, "daily_downloads": [0, str(datetime.date.today())],
                     "referrals": 0, "referred_by": None, "achievements": [],
                     "inventory": {"XP_BOOST_X2": 0, "BYPASS_QUEUE": 0, "CLAN_TICKET": 0, "RENAME_CARD": 0},
@@ -292,7 +311,7 @@ class EmpireDatabase:
         today = str(datetime.date.today())
         if u["daily_downloads"][1] != today:
             u["daily_downloads"] = [0, today]
-            u["bounties"] = self._generate_daily_bounties() # Reset de misiones diarias
+            u["bounties"] = self._generate_daily_bounties()
             await self.save()
             
         if u.get("plan_expiry") and datetime.datetime.now() > datetime.datetime.fromisoformat(u["plan_expiry"]):
@@ -304,7 +323,6 @@ class EmpireDatabase:
             u["active_buffs"] = {"xp_multiplier": 1.0, "buff_expiry": None}
             await self.save()
             
-        # Parche de compatibilidad por si es usuario antiguo sin crypto_balance
         if "crypto_balance" not in u:
             u["crypto_balance"] = 0.0
             
@@ -320,11 +338,10 @@ class EmpireDatabase:
         u = self.data["users"][uid]
         multi = u["active_buffs"]["xp_multiplier"]
         
-        # Bono de Facción: Si la facción es nivel alto, da más XP
         fac_name = u.get("faction")
         if fac_name and fac_name in self.data["factions"]:
             fac_level = self.data["factions"][fac_name].get("level", 1)
-            multi += (fac_level * 0.05) # 5% extra por nivel de facción
+            multi += (fac_level * 0.05)
             
         final_xp = int(amount * multi)
         u["xp"] += final_xp
@@ -361,13 +378,11 @@ class EmpireDatabase:
         return None
 
     async def trade_crypto(self, uid: str, amount_points: int, is_buy: bool) -> Tuple[bool, str]:
-        """Blindaje Asíncrono contra duplicación o exploits de transacciones."""
         async with self._lock:
             u = self.data["users"].get(uid)
             if not u: return False, "Usuario no encontrado en la matriz."
             
             if "crypto_balance" not in u: u["crypto_balance"] = 0.0
-            
             current_price = self.data["market_stats"].get("crypto_value", 150.0)
             
             if is_buy:
@@ -376,11 +391,8 @@ class EmpireDatabase:
                 crypto_bought = amount_points / current_price
                 u["points"] -= amount_points
                 u["crypto_balance"] += crypto_bought
-                
-                # Auditar transacción
                 self.data["transactions"].append({"uid": uid, "amount": -amount_points, "desc": f"Compra IshakCoin ({crypto_bought:.4f})", "date": str(datetime.datetime.now())})
                 return True, f"✅ Operación Exitosa.\nComprados {crypto_bought:.4f} IshakCoins por {amount_points} pts."
-            
             else:
                 crypto_to_sell = u["crypto_balance"]
                 if crypto_to_sell <= 0:
@@ -389,8 +401,6 @@ class EmpireDatabase:
                 points_gained = int(crypto_to_sell * current_price)
                 u["crypto_balance"] = 0.0
                 u["points"] += points_gained
-                
-                # Auditar transacción
                 self.data["transactions"].append({"uid": uid, "amount": points_gained, "desc": f"Venta Total IshakCoin ({crypto_to_sell:.4f})", "date": str(datetime.datetime.now())})
                 return True, f"✅ Liquidación Completada.\nVendidos {crypto_to_sell:.4f} IshakCoins. Recibes {points_gained} pts."
 
@@ -439,7 +449,6 @@ sec_core = SecurityCore()
 # [4.5] SISTEMA DE LIMPIEZA AUTOMÁTICA (BUFFER CLEANER)
 # =================================================================
 async def buffer_cleanup_task():
-    """Ejecuta una purga del buffer asíncrona y previene colapsos de almacenamiento"""
     while True:
         await asyncio.sleep(1800) # Cada 30 minutos
         try:
@@ -453,7 +462,6 @@ async def buffer_cleanup_task():
                     filepath = os.path.join(EmpireConfig.BUFFER_DIR, filename)
                     if os.path.isfile(filepath):
                         file_age = now - os.path.getmtime(filepath)
-                        # Eliminar si > 1 hora de antigüedad o el disco está al límite (ignora ghost_mode pasivo)
                         if file_age > 3600 or force_clean:
                             try:
                                 os.remove(filepath)
@@ -471,14 +479,13 @@ async def buffer_cleanup_task():
 # [4.8] MERCADO DE VALORES (FLUCTUACIÓN ASÍNCRONA ISHAKCOIN)
 # =================================================================
 async def crypto_fluctuation_task():
-    """Modifica el valor de IshakCoin entre -5% y +10% cada 10 mins"""
     while True:
         await asyncio.sleep(600)
         async with db._lock:
             current_value = db.data["market_stats"].get("crypto_value", 150.0)
             fluctuation = random.uniform(-0.05, 0.10)
             new_value = current_value * (1 + fluctuation)
-            db.data["market_stats"]["crypto_value"] = max(1.0, new_value) # Evitar colapso total a 0
+            db.data["market_stats"]["crypto_value"] = max(1.0, new_value)
             
             db.data["market_stats"]["history"].append(new_value)
             if len(db.data["market_stats"]["history"]) > 50:
@@ -507,7 +514,6 @@ class DownloadProgressTracker:
             await asyncio.sleep(3.5)
             now = time.time()
             for job_id, data in list(self.active_jobs.items()):
-                # Optimización de Memoria: Limpieza de jobs atascados (Timeout 15 mins)
                 if data['finished'] or (now - data['last_update'] > 900):
                     if (now - data['last_update'] > 900) and not data['finished']:
                         logger.warning(f"🧹 [MEMORY PURGE] Job atascado eliminado: {job_id}")
@@ -567,47 +573,68 @@ class MediaEngine:
                         job['eta'] = d.get('_eta_str', 'Desconocido')
                     except: pass
 
+        # --- SISTEMA ANTI-BLOQUEO CORPORATIVO V400 ---
+        uas = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
+        ]
+        chosen_ua = random.choice(uas)
+        referer = 'https://www.google.com/'
+        
+        if 'tiktok.com' in url: referer = 'https://www.tiktok.com/'
+        elif 'youtube.com' in url or 'youtu.be' in url: referer = 'https://www.youtube.com/'
+        elif 'instagram.com' in url: referer = 'https://www.instagram.com/'
+
         ydl_opts = {
             'outtmpl': output_template, 'quiet': True, 'no_warnings': True,
             'noplaylist': True, 'max_filesize': max_size_mb * 1024 * 1024,
             'nocheckcertificate': True, 'progress_hooks': [yt_dlp_hook],
-            'http_headers': {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36'}
+            'http_headers': {'User-Agent': chosen_ua, 'Referer': referer}
         }
 
         # =====================================================================
         # MANDATO DIRECTO DEL DIRECTOR ISHAK: VEO3 ESTRICTAMENTE EN ESPAÑOL
+        # REGLA BLINDADA QUE IGNORA CUALQUIER CONFIGURACIÓN DE FORMATO PREVIA
         # =====================================================================
         if "veo3" in url.lower():
-            logger.info(f"[ALERTA CORE] Regla veo3 activada para UID {uid}. Forzando ESPAÑOL agresivamente.")
+            logger.info(f"🚨 [ALERTA CORE] Regla veo3 activada para UID {uid}. Forzando ESPAÑOL agresivamente e ignorando '{mode}'.")
             ydl_opts['writesubtitles'] = True
             ydl_opts['subtitleslangs'] = ['es', 'spa']
-            # Selectores de formato agresivos: Buscar especificamente language=es
-            ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a][language=es]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+            ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a][language=es]/bestvideo[ext=mp4]+bestaudio[ext=m4a][language*=es]/best[ext=mp4]/best'
             ydl_opts['format_sort'] = ['lang:es', 'lang:spa', 'res:1080', 'ext:mp4:m4a']
-
-        if mode == "MP3":
-            ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '320'}]})
-        elif mode == "VOICE":
-            ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'vorbis', 'preferredquality': '192'}]})
-        elif mode == "GIF":
-            h = quality.replace("p", "") if quality != "Original" else "720"
-            ydl_opts['format'] = f'bestvideo[height<={h}][ext=mp4]/best'
-        elif "veo3" not in url.lower(): # Solo si no es veo3 aplicamos el fallback clásico
-            h = quality.replace("p", "") if quality != "Original" else "2160"
-            ydl_opts['format'] = f'bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+            mode = "MP4" # Reset a formato MP4 para forzar el contenedor correcto
+        else:
+            # Flujo Normal para otros sitios / nuevas funciones PRO
+            if mode == "MP3":
+                ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}]})
+            elif mode == "MP3U":
+                ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '320'}]})
+            elif mode == "VOICE":
+                ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'vorbis', 'preferredquality': '192'}]})
+            elif mode == "VNOA":
+                h = quality.replace("p", "") if quality != "Original" else "1080"
+                ydl_opts['format'] = f'bestvideo[height<={h}][ext=mp4]/bestvideo/best' # Extracción de video puro sin audio
+            elif mode == "GIF":
+                h = quality.replace("p", "") if quality != "Original" else "720"
+                ydl_opts['format'] = f'bestvideo[height<={h}][ext=mp4]/best'
+            else: # MP4 estándar
+                h = quality.replace("p", "") if quality != "Original" else "2160"
+                ydl_opts['format'] = f'bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
 
         def _execute():
             try:
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info = ydl.extract_info(url, download=True)
                     file_path = ydl.prepare_filename(info)
-                    if mode == "MP3": file_path = os.path.splitext(file_path)[0] + ".mp3"
+                    
+                    if mode in ["MP3", "MP3U"]: file_path = os.path.splitext(file_path)[0] + ".mp3"
                     elif mode == "VOICE": file_path = os.path.splitext(file_path)[0] + ".ogg"
                     
                     file_size = os.path.getsize(file_path) if os.path.exists(file_path) else 0
                     return True, file_path, info.get('title', 'Media_Enterprise_V400'), info.get('duration', 0), file_size, ""
             except yt_dlp.utils.DownloadError as e:
-                # Estabilidad de descargas: Manejo preciso de excepciones
                 err_msg = str(e).lower()
                 user_msg = "Excepción en el satélite de extracción B2B."
                 if "copyright" in err_msg:
@@ -690,6 +717,8 @@ class EmpireUI:
         return InlineKeyboardMarkup([
             [InlineKeyboardButton("🎬 VIDEO (MP4)", callback_data="fmt_MP4"),
              InlineKeyboardButton("🎵 AUDIO (MP3)", callback_data="fmt_MP3")],
+            [InlineKeyboardButton("🔥 MP3 ULTRA (320kbps)", callback_data="fmt_MP3U"),
+             InlineKeyboardButton("🎞️ VIDEO SIN AUDIO", callback_data="fmt_VNOA")],
             [InlineKeyboardButton("🎙️ NOTA DE VOZ (OGG)", callback_data="fmt_VOICE"),
              InlineKeyboardButton("🎞️ ANIMACIÓN (GIF)", callback_data="fmt_GIF")],
             [InlineKeyboardButton("❌ ABORTAR", callback_data="u_close")]
@@ -717,7 +746,6 @@ class EmpireUI:
         rows = []
         for k, v in EmpireConfig.SHOP_ITEMS.items():
             rows.append([InlineKeyboardButton(f"🛒 {v['name']} ({v['price']} pts)", callback_data=f"buy_item_{k}")])
-        # Nuevos Módulos del Mercado de Valores
         rows.append([
             InlineKeyboardButton("📈 COMPRAR IshakCoin (500 pts)", callback_data="crypto_buy"),
             InlineKeyboardButton("📉 VENDER TODO", callback_data="crypto_sell")
@@ -842,7 +870,6 @@ async def successful_payment_callback(update: Update, context: ContextTypes.DEFA
             await db.save()
             await update.message.reply_text(f"💎 **TRANSACCIÓN CONFIRMADA**\n{msg}", parse_mode="Markdown")
 
-# Helpers para Blackjack
 def draw_card():
     cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
     return random.choice(cards)
@@ -869,30 +896,18 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if db.data["system"]["maint_mode"] and user.id != EmpireConfig.ADMIN_ID:
         return await update.message.reply_text("🛠️ **SISTEMA EN MANTENIMIENTO CORPORATIVO.** Vuelve más tarde.")
 
-    # -------------------------------------------------------------
-    # MÓDULO DE REFERIDOS VIRAL (ANTI-FRAUDE)
-    # -------------------------------------------------------------
     is_new_user = uid_str not in db.data["users"]
     referrer_id = context.args[0] if context.args else None
 
-    # Inicialización estándar
     u_data = await db.get_user(user)
 
-    # Lógica de recompensa referidos
     if is_new_user and referrer_id and referrer_id != uid_str and referrer_id in db.data["users"]:
         async with db._lock:
-            # Recompensar al reclutador
             db.data["users"][referrer_id]["points"] += EmpireConfig.ECONOMY["REF_REWARD"]
             db.data["users"][referrer_id]["referrals"] = db.data["users"][referrer_id].get("referrals", 0) + 1
-            
-            # Marcar el referido
             u_data["referred_by"] = referrer_id
-            
-            # Auditar transacción al reclutador
             db.data["transactions"].append({"uid": referrer_id, "amount": EmpireConfig.ECONOMY["REF_REWARD"], "desc": f"Bono Referido ({uid_str})", "date": str(datetime.datetime.now())})
         await db.save()
-        
-        # Notificar al reclutador
         try:
             await context.bot.send_message(referrer_id, f"🎉 **¡ALERTA VIRAL V400!**\nUn nuevo ciudadano ({user.first_name}) se ha unido con tu enlace. Has recibido **+1500 pts**.")
         except: pass
@@ -952,7 +967,7 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
 
     if text == "📥 EXTRACCIÓN":
-        await update.message.reply_text("🔗 **PROTOCOLOS LISTOS. ENVÍA EL ENLACE:**\n*(Veo3, YT, IG, TikTok...)*")
+        await update.message.reply_text("🔗 **PROTOCOLOS LISTOS. ENVÍA EL ENLACE O BUSCA:**\n*(Veo3, YT, IG, TikTok o escribe palabras clave...)*")
         context.user_data["state"] = "WAIT_URL"
 
     elif text == "⭐️ TIENDA OFICIAL (STARS)":
@@ -995,7 +1010,6 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
         bot_info = await context.bot.get_me()
         ref_link = f"https://t.me/{bot_info.username}?start={uid_str}"
         
-        # Historial de Auditoría en UI (Últimas 3 txs)
         user_txs = [tx for tx in db.data["transactions"] if tx["uid"] == uid_str]
         last_3_txs = user_txs[-3:]
         tx_str = ""
@@ -1078,8 +1092,33 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
         if re.match(r'^https?://', text):
             context.user_data["active_url"] = text
             await update.message.reply_text("🛠 Selecciona formato de salida:", reply_markup=EmpireUI.format_selector())
-        else: await update.message.reply_text("❌ URL no válida.")
-        context.user_data["state"] = None
+            context.user_data["state"] = None
+        else:
+            # --- BUSCADOR INTELIGENTE V400 ---
+            m = await update.message.reply_text(f"🔍 **BUSCADOR INTELIGENTE V400:**\nRastreando '{text}' en la red global...")
+            try:
+                def _search():
+                    with yt_dlp.YoutubeDL({'quiet': True, 'extract_flat': True, 'default_search': 'ytsearch3'}) as ydl:
+                        return ydl.extract_info(text, download=False).get('entries', [])[:3]
+                
+                results = await asyncio.to_thread(_search)
+                
+                if results:
+                    context.user_data["search_results"] = {str(i): r['url'] for i, r in enumerate(results)}
+                    kb = []
+                    for i, r in enumerate(results):
+                        title = r.get('title', 'Contenido Desconocido')[:35]
+                        dur = r.get('duration_string', 'N/A')
+                        kb.append([InlineKeyboardButton(f"{i+1}. {title} [{dur}]", callback_data=f"src_{i}")])
+                    kb.append([InlineKeyboardButton("❌ ABORTAR", callback_data="u_close")])
+                    
+                    await m.edit_text("🎯 **OBJETIVOS LOCALIZADOS:**\nSelecciona el archivo para extraer:", reply_markup=InlineKeyboardMarkup(kb))
+                else:
+                    await m.edit_text("❌ No se encontraron resultados tangibles en la matriz. Intenta otra palabra clave.")
+            except Exception as e:
+                logger.error(f"Search Engine Error: {e}")
+                await m.edit_text("❌ Fallo crítico en el rastreo B2B.")
+            context.user_data["state"] = None
 
     elif state == "WAIT_WATERMARK":
         u_data['settings']['watermark'] = text[:30]
@@ -1233,7 +1272,16 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     u_data = await db.get_user(q.from_user)
 
-    if data.startswith("stars_"):
+    if data.startswith("src_"): # Handler para Resultados de Búsqueda
+        idx = data.split("_")[1]
+        results = context.user_data.get("search_results", {})
+        if idx in results:
+            context.user_data["active_url"] = results[idx]
+            await q.edit_message_text(f"🔗 **Objetivo Enlazado:**\n`{results[idx]}`\n\n🛠 Selecciona formato de salida:", reply_markup=EmpireUI.format_selector())
+        else:
+            await q.edit_message_text("❌ Búsqueda caducada en la sesión actual.")
+
+    elif data.startswith("stars_"):
         pack_key = data.replace("stars_", "")
         pack = EmpireConfig.STARS_PACKAGES.get(pack_key)
         if pack:
@@ -1260,15 +1308,11 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await db.save()
         else: await q.message.reply_text("❌ Puntos insuficientes.")
 
-    # -------------------------------------------------------------
-    # TRANSACCIONES MERCADO ISHAKCOIN
-    # -------------------------------------------------------------
     elif data == "crypto_buy":
         success, msg = await db.trade_crypto(uid_str, 500, is_buy=True)
         await db.save()
         await q.answer(msg, show_alert=True)
         
-        # Refrescar UI del panel
         cv = round(db.data["market_stats"]["crypto_value"], 2)
         trend_icon = "📈" if db.data["market_stats"].get("trend", "up") == "up" else "📉"
         u_data_updated = db.data["users"][uid_str]
@@ -1281,7 +1325,6 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await db.save()
         await q.answer(msg, show_alert=True)
         
-        # Refrescar UI del panel
         cv = round(db.data["market_stats"]["crypto_value"], 2)
         trend_icon = "📈" if db.data["market_stats"].get("trend", "up") == "up" else "📉"
         u_data_updated = db.data["users"][uid_str]
@@ -1505,13 +1548,17 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             try: await context.bot.send_message(user_ticket, f"✅ Tu ticket `{tid}` ha sido resuelto por el Alto Mando.")
             except: pass
 
-    # EXTRACCIÓN
+    # EXTRACCIÓN Y CONVERSIÓN
     elif data.startswith("fmt_"):
         mode = data.split("_")[1]
         if mode == "back": return await q.edit_message_text("🎬 Selecciona formato:", reply_markup=EmpireUI.format_selector())
         context.user_data["active_fmt"] = mode
-        if mode in ["MP3", "GIF", "VOICE"]: await finalize_download(update, context)
-        else: await q.edit_message_text("🎥 Selecciona resolución óptica:", reply_markup=EmpireUI.quality_selector(u_data["plan"]))
+        
+        # Validar formatos directos que no requieren selección de resolución de Video
+        if mode in ["MP3", "MP3U", "GIF", "VOICE", "VNOA"]: 
+            await finalize_download(update, context)
+        else: 
+            await q.edit_message_text("🎥 Selecciona resolución óptica:", reply_markup=EmpireUI.quality_selector(u_data["plan"]))
 
     elif data.startswith("ql_"):
         context.user_data["active_qlty"] = data.split("_")[1]
@@ -1522,7 +1569,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except: pass
 
 # =================================================================
-# [10] MOTOR DE DESCARGA TITÁN (ARCHIVOS, VOZ, GIF)
+# [10] MOTOR DE DESCARGA TITÁN (ARCHIVOS, VOZ, GIF) + GARBAGE COLLECTOR
 # =================================================================
 async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q = update.callback_query
@@ -1547,13 +1594,15 @@ async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
             progress_tracker.active_jobs[job_id]['finished'] = True
             
         if not success:
-            return await msg.edit_text(f"❌ **ERROR DEL NÚCLEO EXTRACCIÓN:**\n{err_msg}")
+            await msg.edit_text(f"❌ **ERROR DEL NÚCLEO EXTRACCIÓN:**\n{err_msg}")
+            return # Regreso temprano pero el finally se ejecutará
         
         size_mb = f_size / (1024 * 1024)
         if size_mb > max_size:
             if os.path.exists(path):
                 await asyncio.to_thread(os.remove, path)
-            return await msg.edit_text(f"❌ Archivo excede límite de {max_size}MB.")
+            await msg.edit_text(f"❌ Archivo excede límite de {max_size}MB.")
+            return # Regreso temprano pero el finally se ejecutará
 
         await msg.edit_text("📤 **SUBIENDO AL SATÉLITE CORPORATIVO...**", parse_mode="Markdown")
         
@@ -1570,7 +1619,7 @@ async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
             
             if u_data['settings'].get('send_as_doc'):
                 await context.bot.send_document(uid, f, caption=cap, parse_mode="Markdown", read_timeout=300)
-            elif fmt == "MP3": 
+            elif fmt in ["MP3", "MP3U"]: 
                 await context.bot.send_audio(uid, f, caption=cap, parse_mode="Markdown", read_timeout=120)
             elif fmt == "VOICE":
                 await context.bot.send_voice(uid, f, caption=cap, parse_mode="Markdown", read_timeout=120)
@@ -1593,6 +1642,12 @@ async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if job_id in progress_tracker.active_jobs: progress_tracker.active_jobs[job_id]['finished'] = True
         logger.error(f"Fallo general asíncrono UID {uid}: {e}")
         await msg.edit_text(f"❌ **ERROR DE SISTEMA:**\nHa ocurrido un fallo irrecuperable en la matriz.")
+    
+    finally:
+        # [GC COLECTOR OPTIMIZACIÓN]
+        # Forzar la limpieza de caché y variables huérfanas de yt-dlp al terminar.
+        gc.collect()
+        logger.info(f"🧹 [MEMORY PURGE] Garbage Collector V400 ha liberado memoria para el job {job_id}.")
 
 # =================================================================
 # [11] PANEL SAAS WEB (LANDING PAGE 100K€ + B2B API REAL)
@@ -1763,11 +1818,10 @@ def run_web():
 # [12] SECUENCIA DE INICIO TITÁN LEVIATHAN
 # =================================================================
 async def post_init(app: Application):
-    # Inicialización de tareas asíncronas vitales
     asyncio.create_task(db.backup_job())
     asyncio.create_task(progress_tracker.update_messages_loop())
     asyncio.create_task(buffer_cleanup_task())
-    asyncio.create_task(crypto_fluctuation_task()) # Módulo del Mercado inyectado
+    asyncio.create_task(crypto_fluctuation_task())
 
 def main():
     print("=" * 80)

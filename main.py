@@ -652,7 +652,6 @@ class MediaEngine:
             'nocheckcertificate': True, 
             'progress_hooks': [yt_dlp_hook],
             'socket_timeout': 5, # Evita colapsos por sitios lentos
-            'concurrent_fragment_downloads': 10, # SPEED HACK: Hilos paralelos de fragmentos
             'extract_flat': 'in_playlist',
             'http_headers': {
                 'User-Agent': chosen_ua, 
@@ -1032,13 +1031,10 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
             await update.message.reply_text("❌ Error en verificación.")
         return
 
-    # LAZY LOADING B2B: AUTO-DETECCIÓN DE ENLACES (RESPUESTA < 1 SEGUNDO)
+    # AUTO-DETECCIÓN DE ENLACES (SIN HILOS FANTASMA NI LAG)
     if not state and re.match(r'^https?://', text):
         context.user_data["active_url"] = text
-        await update.message.reply_text("⚡ **PROCESANDO RELÁMPAGO...**\n*Analizando en segundo plano. Selecciona formato:*", reply_markup=EmpireUI.format_selector(), parse_mode="Markdown")
-        
-        # Enviar rastreo de metadatos al fondo para acelerar
-        asyncio.create_task(MediaEngine.get_metadata(text))
+        await update.message.reply_text("🛠 **Enlace detectado.** Selecciona formato:", reply_markup=EmpireUI.format_selector())
         return
 
     if text == "📥 EXTRACCIÓN":

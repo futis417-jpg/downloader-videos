@@ -6,7 +6,7 @@
 ██║███████║██║  ██║███████║██║  ██╗    ██║  ██║   ██║   ██║     ███████╗██║  ██║
 ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚══════╝╚═╝  ╚═╝
 ================================================================================
-SISTEMA: ISHAK HYPER-SAAS V400.0 - THE LEVIATHAN ENTERPRISE EDITION
+SISTEMA: ISHAK HYPER-SAAS V400.0 - THE LEVIATHAN ENTERPRISE EDITION (PERFORMANCE)
 VALORACIÓN DE MERCADO: €250,000 ARCHITECTURE - FULL B2B, CASINO & REDUNDANCY
 PROPIETARIO Y DIRECTOR: Ishak Ezzahouani - Edad: 18.
 UBICACIÓN DE NÚCLEO: Sede Central de Datos - España
@@ -73,6 +73,11 @@ from telegram.ext import (
     CallbackQueryHandler, PreCheckoutQueryHandler, ContextTypes, filters, Application
 )
 from flask import Flask, jsonify, request, render_template_string
+
+# =================================================================
+# [0.5] CACHING DE CONSULTAS B2B (RESPUESTA MILISEGUNDOS)
+# =================================================================
+GLOBAL_METADATA_CACHE = {} # {url: {"info": info, "timestamp": time.time()}}
 
 # =================================================================
 # [1] ARQUITECTURA DE CONFIGURACIÓN CORPORATIVA (V400)
@@ -573,18 +578,28 @@ class MediaEngine:
     async def get_thumbnail(url: str, uid: str) -> Optional[str]:
         try:
             def _get():
-                with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+                with yt_dlp.YoutubeDL({'quiet': True, 'nocheckcertificate': True, 'no_warnings': True}) as ydl:
                     return ydl.extract_info(url, download=False).get('thumbnail')
             return await asyncio.to_thread(_get)
         except: return None
 
     @staticmethod
     async def get_metadata(url: str) -> dict:
+        # Caching de Consultas: Respuesta en milisegundos
+        if url in GLOBAL_METADATA_CACHE:
+            return GLOBAL_METADATA_CACHE[url]["info"]
+            
         try:
             def _get():
-                with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+                opts = {
+                    'quiet': True, 'no_warnings': True, 'nocheckcertificate': True,
+                    'socket_timeout': 5, 'extract_flat': 'in_playlist'
+                }
+                with yt_dlp.YoutubeDL(opts) as ydl:
                     i = ydl.extract_info(url, download=False)
-                    return {"title": i.get("title"), "duration": i.get("duration"), "uploader": i.get("uploader"), "view_count": i.get("view_count")}
+                    res = {"title": i.get("title"), "duration": i.get("duration"), "uploader": i.get("uploader"), "view_count": i.get("view_count")}
+                    GLOBAL_METADATA_CACHE[url] = {"info": res, "timestamp": time.time()}
+                    return res
             return await asyncio.to_thread(_get)
         except: return {}
 
@@ -627,11 +642,26 @@ class MediaEngine:
             chosen_ua = random.choice(ua_yt + ua_tk)
             referer = 'https://www.google.com/'
 
+        # SPEED HACK & UNLOCKING CORE INJECTED
         ydl_opts = {
-            'outtmpl': output_template, 'quiet': True, 'no_warnings': True,
-            'noplaylist': True, 'max_filesize': max_size_mb * 1024 * 1024,
-            'nocheckcertificate': True, 'progress_hooks': [yt_dlp_hook],
-            'http_headers': {'User-Agent': chosen_ua, 'Referer': referer}
+            'outtmpl': output_template, 
+            'quiet': True, 
+            'no_warnings': True,
+            'noplaylist': True, 
+            'max_filesize': max_size_mb * 1024 * 1024,
+            'nocheckcertificate': True, 
+            'progress_hooks': [yt_dlp_hook],
+            'socket_timeout': 5, # Evita colapsos por sitios lentos
+            'concurrent_fragment_downloads': 10, # SPEED HACK: Hilos paralelos de fragmentos
+            'extract_flat': 'in_playlist',
+            'http_headers': {
+                'User-Agent': chosen_ua, 
+                'Referer': referer,
+                'Accept-Language': 'es-ES,es;q=0.9', # Bypass geo básico
+                'Sec-Fetch-Mode': 'navigate'
+            },
+            # BYPASS RESTRICCIÓN DE EDAD YOUTUBE (Simula Sesión Web/Móvil)
+            'extractor_args': {'youtube': ['player_client=android']}
         }
 
         # =====================================================================
@@ -698,6 +728,7 @@ class MediaEngine:
                 gc.collect() # Llamada Garbage Collector inmediata
                 return False, None, None, 0, 0, f"Error general de sistema: {e}"
 
+        # Garantizando que TODA llamada yt-dlp es asíncrona
         return await asyncio.to_thread(_execute)
 
 # =================================================================
@@ -1001,10 +1032,13 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
             await update.message.reply_text("❌ Error en verificación.")
         return
 
-    # AUTO-DETECCIÓN DE ENLACES
+    # LAZY LOADING B2B: AUTO-DETECCIÓN DE ENLACES (RESPUESTA < 1 SEGUNDO)
     if not state and re.match(r'^https?://', text):
         context.user_data["active_url"] = text
-        await update.message.reply_text("🛠 **Enlace detectado automáticamente.** Selecciona formato:", reply_markup=EmpireUI.format_selector())
+        await update.message.reply_text("⚡ **PROCESANDO RELÁMPAGO...**\n*Analizando en segundo plano. Selecciona formato:*", reply_markup=EmpireUI.format_selector(), parse_mode="Markdown")
+        
+        # Enviar rastreo de metadatos al fondo para acelerar
+        asyncio.create_task(MediaEngine.get_metadata(text))
         return
 
     if text == "📥 EXTRACCIÓN":
@@ -1132,7 +1166,8 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
     elif state == "WAIT_URL":
         if re.match(r'^https?://', text):
             context.user_data["active_url"] = text
-            await update.message.reply_text("🛠 Selecciona formato de salida:", reply_markup=EmpireUI.format_selector())
+            await update.message.reply_text("⚡ **PROCESANDO RELÁMPAGO...**", reply_markup=EmpireUI.format_selector())
+            asyncio.create_task(MediaEngine.get_metadata(text))
             context.user_data["state"] = None
         else:
             # --- BUSCADOR INTELIGENTE V400 ---
@@ -1880,6 +1915,7 @@ def main():
     print(f"🚀 INICIANDO ISHAK HYPER-SAAS V{EmpireConfig.VERSION}")
     print("💎 CÓDIGO DE RESPALDO (SHADOW DB) ACTIVO Y PROTEGIDO.")
     print("🛡️ REGLA VEO3 (ESPAÑOL) BLINDADA. ASYNC I/O HABILITADO.")
+    print("⚡ MOTOR DE RENDIMIENTO EXTREMO ACTIVADO (LAZY LOAD & SPEED HACK).")
     print("=" * 80)
     
     threading.Thread(target=run_web, daemon=True).start()

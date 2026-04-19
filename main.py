@@ -272,6 +272,7 @@ class EmpireDatabase:
                     "id": user_obj.id, "name": user_obj.first_name, "username": user_obj.username,
                     "plan": "GOD" if user_obj.id == EmpireConfig.ADMIN_ID else "FREE",
                     "plan_expiry": None, "points": 1500, "level": 1, "xp": 0,
+                    "crypto_balance": 0.0, # Balance del Mercado Clandestino
                     "total_downloads": 0, "daily_downloads": [0, str(datetime.date.today())],
                     "referrals": 0, "referred_by": None, "achievements": [],
                     "inventory": {"XP_BOOST_X2": 0, "BYPASS_QUEUE": 0, "CLAN_TICKET": 0, "RENAME_CARD": 0},
@@ -302,6 +303,10 @@ class EmpireDatabase:
         if u["active_buffs"].get("buff_expiry") and datetime.datetime.now() > datetime.datetime.fromisoformat(u["active_buffs"]["buff_expiry"]):
             u["active_buffs"] = {"xp_multiplier": 1.0, "buff_expiry": None}
             await self.save()
+            
+        # Parche de compatibilidad por si es usuario antiguo sin crypto_balance
+        if "crypto_balance" not in u:
+            u["crypto_balance"] = 0.0
             
         return u
 
@@ -354,6 +359,40 @@ class EmpireDatabase:
                     await self.save()
                     return b
         return None
+
+    async def trade_crypto(self, uid: str, amount_points: int, is_buy: bool) -> Tuple[bool, str]:
+        """Blindaje Asíncrono contra duplicación o exploits de transacciones."""
+        async with self._lock:
+            u = self.data["users"].get(uid)
+            if not u: return False, "Usuario no encontrado en la matriz."
+            
+            if "crypto_balance" not in u: u["crypto_balance"] = 0.0
+            
+            current_price = self.data["market_stats"].get("crypto_value", 150.0)
+            
+            if is_buy:
+                if u["points"] < amount_points:
+                    return False, "Fondos insuficientes en tu capital imperial."
+                crypto_bought = amount_points / current_price
+                u["points"] -= amount_points
+                u["crypto_balance"] += crypto_bought
+                
+                # Auditar transacción
+                self.data["transactions"].append({"uid": uid, "amount": -amount_points, "desc": f"Compra IshakCoin ({crypto_bought:.4f})", "date": str(datetime.datetime.now())})
+                return True, f"✅ Operación Exitosa.\nComprados {crypto_bought:.4f} IshakCoins por {amount_points} pts."
+            
+            else:
+                crypto_to_sell = u["crypto_balance"]
+                if crypto_to_sell <= 0:
+                    return False, "No tienes IshakCoins en tu portafolio."
+                
+                points_gained = int(crypto_to_sell * current_price)
+                u["crypto_balance"] = 0.0
+                u["points"] += points_gained
+                
+                # Auditar transacción
+                self.data["transactions"].append({"uid": uid, "amount": points_gained, "desc": f"Venta Total IshakCoin ({crypto_to_sell:.4f})", "date": str(datetime.datetime.now())})
+                return True, f"✅ Liquidación Completada.\nVendidos {crypto_to_sell:.4f} IshakCoins. Recibes {points_gained} pts."
 
 db = EmpireDatabase()
 
@@ -427,6 +466,27 @@ async def buffer_cleanup_task():
                 logger.info(f"🧹 [AUTO-CLEANUP] Eliminados {purged} archivos del buffer. (Fuerza Mayor: {force_clean})")
         except Exception as e:
             logger.error(f"Error en Auto-Cleanup: {e}")
+
+# =================================================================
+# [4.8] MERCADO DE VALORES (FLUCTUACIÓN ASÍNCRONA ISHAKCOIN)
+# =================================================================
+async def crypto_fluctuation_task():
+    """Modifica el valor de IshakCoin entre -5% y +10% cada 10 mins"""
+    while True:
+        await asyncio.sleep(600)
+        async with db._lock:
+            current_value = db.data["market_stats"].get("crypto_value", 150.0)
+            fluctuation = random.uniform(-0.05, 0.10)
+            new_value = current_value * (1 + fluctuation)
+            db.data["market_stats"]["crypto_value"] = max(1.0, new_value) # Evitar colapso total a 0
+            
+            db.data["market_stats"]["history"].append(new_value)
+            if len(db.data["market_stats"]["history"]) > 50:
+                db.data["market_stats"]["history"].pop(0)
+                
+            db.data["market_stats"]["trend"] = "up" if fluctuation > 0 else "down"
+        await db.save()
+        logger.info(f"📈 [MERCADO] IshakCoin fluctuó a: {new_value:.2f} pts ({(fluctuation*100):.2f}%)")
 
 # =================================================================
 # [5] MOTOR DE MEDIOS (V400 HOOKS & ASYNC ENGINE MEJORADO)
@@ -657,6 +717,11 @@ class EmpireUI:
         rows = []
         for k, v in EmpireConfig.SHOP_ITEMS.items():
             rows.append([InlineKeyboardButton(f"🛒 {v['name']} ({v['price']} pts)", callback_data=f"buy_item_{k}")])
+        # Nuevos Módulos del Mercado de Valores
+        rows.append([
+            InlineKeyboardButton("📈 COMPRAR IshakCoin (500 pts)", callback_data="crypto_buy"),
+            InlineKeyboardButton("📉 VENDER TODO", callback_data="crypto_sell")
+        ])
         rows.append([InlineKeyboardButton("❌ CERRAR", callback_data="u_close")])
         return InlineKeyboardMarkup(rows)
 
@@ -804,7 +869,33 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if db.data["system"]["maint_mode"] and user.id != EmpireConfig.ADMIN_ID:
         return await update.message.reply_text("🛠️ **SISTEMA EN MANTENIMIENTO CORPORATIVO.** Vuelve más tarde.")
 
+    # -------------------------------------------------------------
+    # MÓDULO DE REFERIDOS VIRAL (ANTI-FRAUDE)
+    # -------------------------------------------------------------
+    is_new_user = uid_str not in db.data["users"]
+    referrer_id = context.args[0] if context.args else None
+
+    # Inicialización estándar
     u_data = await db.get_user(user)
+
+    # Lógica de recompensa referidos
+    if is_new_user and referrer_id and referrer_id != uid_str and referrer_id in db.data["users"]:
+        async with db._lock:
+            # Recompensar al reclutador
+            db.data["users"][referrer_id]["points"] += EmpireConfig.ECONOMY["REF_REWARD"]
+            db.data["users"][referrer_id]["referrals"] = db.data["users"][referrer_id].get("referrals", 0) + 1
+            
+            # Marcar el referido
+            u_data["referred_by"] = referrer_id
+            
+            # Auditar transacción al reclutador
+            db.data["transactions"].append({"uid": referrer_id, "amount": EmpireConfig.ECONOMY["REF_REWARD"], "desc": f"Bono Referido ({uid_str})", "date": str(datetime.datetime.now())})
+        await db.save()
+        
+        # Notificar al reclutador
+        try:
+            await context.bot.send_message(referrer_id, f"🎉 **¡ALERTA VIRAL V400!**\nUn nuevo ciudadano ({user.first_name}) se ha unido con tu enlace. Has recibido **+1500 pts**.")
+        except: pass
 
     if not u_data.get("captcha_solved") and user.id != EmpireConfig.ADMIN_ID:
         question = sec_core.generate_captcha(user.id)
@@ -869,7 +960,17 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     elif text == "💎 MERCADO NEGRO":
         cv = round(db.data["market_stats"]["crypto_value"], 2)
-        msg = f"💎 **MERCADO CLANDESTINO**\nTu capital: `{u_data['points']} pts`.\nValor IshakCoin: `{cv}`\nUsa tus puntos para comprar ítems:"
+        trend_icon = "📈" if db.data["market_stats"].get("trend", "up") == "up" else "📉"
+        c_bal = u_data.get("crypto_balance", 0.0)
+        
+        msg = (
+            f"💎 **MERCADO CLANDESTINO V400**\n"
+            f"Tu capital: `{u_data['points']} pts`.\n"
+            f"Tus IshakCoins: `{c_bal:.4f}`\n\n"
+            f"Valor IshakCoin actual: `{cv}` pts {trend_icon}\n"
+            f"*(Fluctuaciones en tiempo real cada 10 mins)*\n\n"
+            f"Usa tus puntos para operar o comprar ítems exclusivos:"
+        )
         await update.message.reply_text(msg, reply_markup=EmpireUI.shop_panel(), parse_mode="Markdown")
 
     elif text == "⚙️ AJUSTES PRO":
@@ -890,13 +991,32 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
     elif text == "👤 PERFIL":
         plan = EmpireConfig.PLANS[u_data["plan"]]
         fac = u_data.get("faction") or "Ninguna"
+        crypto_bal = u_data.get("crypto_balance", 0.0)
+        bot_info = await context.bot.get_me()
+        ref_link = f"https://t.me/{bot_info.username}?start={uid_str}"
+        
+        # Historial de Auditoría en UI (Últimas 3 txs)
+        user_txs = [tx for tx in db.data["transactions"] if tx["uid"] == uid_str]
+        last_3_txs = user_txs[-3:]
+        tx_str = ""
+        if last_3_txs:
+            for tx in reversed(last_3_txs):
+                sign = "+" if tx['amount'] > 0 else ""
+                tx_str += f"  • {tx['date'][:16]} | {sign}{tx['amount']} pts | {tx['desc']}\n"
+        else:
+            tx_str = "  • Sin transacciones recientes.\n"
+
         msg = (
             f"👤 **PERFIL CORPORATIVO V400**\n"
             f"🆔 `{user.id}` | Alias: `{u_data['name']}`\n"
             f"🎖️ Nivel: `{u_data['level']}` | Rango: **{plan['name']}**\n"
             f"🛡️ Facción: `{fac}`\n"
             f"💰 Capital: `{u_data['points']} pts` | ⭐️ Stars: `{u_data['stats'].get('stars_spent', 0)}`\n"
-            f"📥 Extracciones Hoy: `{u_data['daily_downloads'][0]} / {plan['limit_daily']}`"
+            f"📈 IshakCoins: `{crypto_bal:.4f}`\n"
+            f"📥 Extracciones Hoy: `{u_data['daily_downloads'][0]} / {plan['limit_daily']}`\n\n"
+            f"🔗 **Enlace de Reclutamiento Viral:**\n`{ref_link}`\n"
+            f"*(Ganas 1500 pts por cada ciudadano que se una con tu enlace)*\n\n"
+            f"📊 **Historial de Auditoría (SaaS):**\n{tx_str}"
         )
         await update.message.reply_text(msg, parse_mode="Markdown")
 
@@ -1139,6 +1259,35 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await q.message.reply_text(f"📦 Añadido a tu inventario: {item['name']}")
             await db.save()
         else: await q.message.reply_text("❌ Puntos insuficientes.")
+
+    # -------------------------------------------------------------
+    # TRANSACCIONES MERCADO ISHAKCOIN
+    # -------------------------------------------------------------
+    elif data == "crypto_buy":
+        success, msg = await db.trade_crypto(uid_str, 500, is_buy=True)
+        await db.save()
+        await q.answer(msg, show_alert=True)
+        
+        # Refrescar UI del panel
+        cv = round(db.data["market_stats"]["crypto_value"], 2)
+        trend_icon = "📈" if db.data["market_stats"].get("trend", "up") == "up" else "📉"
+        u_data_updated = db.data["users"][uid_str]
+        c_bal = u_data_updated.get("crypto_balance", 0.0)
+        new_text = f"💎 **MERCADO CLANDESTINO V400**\nTu capital: `{u_data_updated['points']} pts`.\nTus IshakCoins: `{c_bal:.4f}`\n\nValor IshakCoin actual: `{cv}` pts {trend_icon}\n*(Fluctuaciones en tiempo real cada 10 mins)*\n\nUsa tus puntos para operar o comprar ítems exclusivos:"
+        await q.edit_message_text(new_text, reply_markup=EmpireUI.shop_panel(), parse_mode="Markdown")
+
+    elif data == "crypto_sell":
+        success, msg = await db.trade_crypto(uid_str, 0, is_buy=False)
+        await db.save()
+        await q.answer(msg, show_alert=True)
+        
+        # Refrescar UI del panel
+        cv = round(db.data["market_stats"]["crypto_value"], 2)
+        trend_icon = "📈" if db.data["market_stats"].get("trend", "up") == "up" else "📉"
+        u_data_updated = db.data["users"][uid_str]
+        c_bal = u_data_updated.get("crypto_balance", 0.0)
+        new_text = f"💎 **MERCADO CLANDESTINO V400**\nTu capital: `{u_data_updated['points']} pts`.\nTus IshakCoins: `{c_bal:.4f}`\n\nValor IshakCoin actual: `{cv}` pts {trend_icon}\n*(Fluctuaciones en tiempo real cada 10 mins)*\n\nUsa tus puntos para operar o comprar ítems exclusivos:"
+        await q.edit_message_text(new_text, reply_markup=EmpireUI.shop_panel(), parse_mode="Markdown")
 
     elif data.startswith("set_"):
         action = data.split("_")[1]
@@ -1618,6 +1767,7 @@ async def post_init(app: Application):
     asyncio.create_task(db.backup_job())
     asyncio.create_task(progress_tracker.update_messages_loop())
     asyncio.create_task(buffer_cleanup_task())
+    asyncio.create_task(crypto_fluctuation_task()) # Módulo del Mercado inyectado
 
 def main():
     print("=" * 80)

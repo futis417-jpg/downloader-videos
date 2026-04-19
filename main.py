@@ -249,16 +249,27 @@ class EmpireDatabase:
                 default_dict[k] = v
 
     def _sync_save_logic(self, data_copy):
-        """Lógica síncrona empujada a un hilo asíncrono para no bloquear."""
+        """Lógica síncrona empujada a un hilo asíncrono. Ahora con Atomic Writes blindados."""
+        # MASTER DB
         temp_path = f"{EmpireConfig.DATABASE_PATH}.tmp"
         with open(temp_path, 'w', encoding='utf-8') as f:
             json.dump(data_copy, f, indent=4, ensure_ascii=False)
-        os.replace(temp_path, EmpireConfig.DATABASE_PATH)
         
+        # Validar peso para evitar base de datos de 0 bytes por apagones (Atomic Check)
+        if os.path.getsize(temp_path) > 0:
+            os.replace(temp_path, EmpireConfig.DATABASE_PATH)
+        else:
+            logger.critical("⚠️ FALLO ATÓMICO: Intento de escritura de Master DB de 0 bytes evitado.")
+
+        # SHADOW DB
         shadow_temp = f"{EmpireConfig.SHADOW_DB_PATH}.tmp"
         with open(shadow_temp, 'w', encoding='utf-8') as f:
             json.dump(data_copy, f, indent=4, ensure_ascii=False)
-        os.replace(shadow_temp, EmpireConfig.SHADOW_DB_PATH)
+            
+        if os.path.getsize(shadow_temp) > 0:
+            os.replace(shadow_temp, EmpireConfig.SHADOW_DB_PATH)
+        else:
+            logger.critical("⚠️ FALLO ATÓMICO: Intento de escritura de Shadow DB de 0 bytes evitado.")
 
     async def save(self):
         async with self._lock:
@@ -281,9 +292,12 @@ class EmpireDatabase:
             except Exception as e:
                 logger.error(f"Error backup asíncrono: {e}")
 
-    async def get_user(self, user_obj):
+    async def get_user(self, user_obj, referrer_id=None):
         uid = str(user_obj.id)
         is_new = False
+        referrer_rewarded = False
+        
+        # RACE CONDITION BLINDADA: Checkeo y guardado de referidos OCURRE dentro del lock.
         async with self._lock:
             if uid not in self.data["users"]:
                 is_new = True
@@ -304,29 +318,45 @@ class EmpireDatabase:
                     "bounties": self._generate_daily_bounties()
                 }
                 self.data["stats"]["total_users"] += 1
+
+                # Lógica atómica de referido en la inserción
+                if referrer_id and referrer_id != uid and referrer_id in self.data["users"]:
+                    self.data["users"][referrer_id]["points"] += EmpireConfig.ECONOMY["REF_REWARD"]
+                    self.data["users"][referrer_id]["referrals"] = self.data["users"][referrer_id].get("referrals", 0) + 1
+                    self.data["users"][uid]["referred_by"] = referrer_id
+                    self.data["transactions"].append({"uid": referrer_id, "amount": EmpireConfig.ECONOMY["REF_REWARD"], "desc": f"Bono Referido ({uid})", "date": str(datetime.datetime.now())})
+                    referrer_rewarded = True
         
-        if is_new: await self.save()
+        if is_new: 
+            await self.save()
+            
         u = self.data["users"][uid]
         
+        # Validaciones de mantenimiento periódico (Daily, Expiry, Buffs)
+        needs_save = False
         today = str(datetime.date.today())
         if u["daily_downloads"][1] != today:
             u["daily_downloads"] = [0, today]
             u["bounties"] = self._generate_daily_bounties()
-            await self.save()
+            needs_save = True
             
         if u.get("plan_expiry") and datetime.datetime.now() > datetime.datetime.fromisoformat(u["plan_expiry"]):
             u["plan"] = "FREE"
             u["plan_expiry"] = None
-            await self.save()
+            needs_save = True
             
         if u["active_buffs"].get("buff_expiry") and datetime.datetime.now() > datetime.datetime.fromisoformat(u["active_buffs"]["buff_expiry"]):
             u["active_buffs"] = {"xp_multiplier": 1.0, "buff_expiry": None}
-            await self.save()
+            needs_save = True
             
         if "crypto_balance" not in u:
             u["crypto_balance"] = 0.0
+            needs_save = True
             
-        return u
+        if needs_save:
+            await self.save()
+            
+        return u, referrer_rewarded
 
     def _generate_daily_bounties(self):
         return [
@@ -573,19 +603,29 @@ class MediaEngine:
                         job['eta'] = d.get('_eta_str', 'Desconocido')
                     except: pass
 
-        # --- SISTEMA ANTI-BLOQUEO CORPORATIVO V400 ---
-        uas = [
+        # --- SISTEMA ANTI-BLOQUEO CORPORATIVO V400: AUTO-SCALE USER AGENTS ---
+        ua_yt = [
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0',
-            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36'
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0'
         ]
-        chosen_ua = random.choice(uas)
-        referer = 'https://www.google.com/'
+        ua_tk = [
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+            'Mozilla/5.0 (Linux; Android 13; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36'
+        ]
         
-        if 'tiktok.com' in url: referer = 'https://www.tiktok.com/'
-        elif 'youtube.com' in url or 'youtu.be' in url: referer = 'https://www.youtube.com/'
-        elif 'instagram.com' in url: referer = 'https://www.instagram.com/'
+        if 'tiktok.com' in url:
+            chosen_ua = random.choice(ua_tk)
+            referer = 'https://www.tiktok.com/'
+        elif 'youtube.com' in url or 'youtu.be' in url:
+            chosen_ua = random.choice(ua_yt)
+            referer = 'https://www.youtube.com/'
+        elif 'instagram.com' in url: 
+            chosen_ua = random.choice(ua_tk)
+            referer = 'https://www.instagram.com/'
+        else:
+            chosen_ua = random.choice(ua_yt + ua_tk)
+            referer = 'https://www.google.com/'
 
         ydl_opts = {
             'outtmpl': output_template, 'quiet': True, 'no_warnings': True,
@@ -599,12 +639,19 @@ class MediaEngine:
         # REGLA BLINDADA QUE IGNORA CUALQUIER CONFIGURACIÓN DE FORMATO PREVIA
         # =====================================================================
         if "veo3" in url.lower():
-            logger.info(f"🚨 [ALERTA CORE] Regla veo3 activada para UID {uid}. Forzando ESPAÑOL agresivamente e ignorando '{mode}'.")
+            # Extraer ID por seguridad (Expresión Regular)
+            match = re.search(r'veo3.*?/([a-zA-Z0-9_-]+)', url)
+            vid_id = match.group(1) if match else "Desconocido"
+            logger.info(f"🚨 [VEO3 DEFENSE] Veo3 detectado - Video ID: {vid_id} (UID: {uid}). Validando integridad corporativa.")
+            
+            if mode == "VNOA":
+                logger.warning(f"🛡️ [VEO3 DEFENSE] Bypass bloqueado para VNOA (sin audio). Restaurando a MP4 con audio en Español.")
+                mode = "MP4"
+
             ydl_opts['writesubtitles'] = True
             ydl_opts['subtitleslangs'] = ['es', 'spa']
             ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a][language=es]/bestvideo[ext=mp4]+bestaudio[ext=m4a][language*=es]/best[ext=mp4]/best'
             ydl_opts['format_sort'] = ['lang:es', 'lang:spa', 'res:1080', 'ext:mp4:m4a']
-            mode = "MP4" # Reset a formato MP4 para forzar el contenedor correcto
         else:
             # Flujo Normal para otros sitios / nuevas funciones PRO
             if mode == "MP3":
@@ -635,6 +682,7 @@ class MediaEngine:
                     file_size = os.path.getsize(file_path) if os.path.exists(file_path) else 0
                     return True, file_path, info.get('title', 'Media_Enterprise_V400'), info.get('duration', 0), file_size, ""
             except yt_dlp.utils.DownloadError as e:
+                gc.collect() # Llamada Garbage Collector inmediata
                 err_msg = str(e).lower()
                 user_msg = "Excepción en el satélite de extracción B2B."
                 if "copyright" in err_msg:
@@ -647,6 +695,7 @@ class MediaEngine:
                     user_msg = "Contenido restringido geográficamente."
                 return False, None, None, 0, 0, user_msg
             except Exception as e:
+                gc.collect() # Llamada Garbage Collector inmediata
                 return False, None, None, 0, 0, f"Error general de sistema: {e}"
 
         return await asyncio.to_thread(_execute)
@@ -844,7 +893,7 @@ async def successful_payment_callback(update: Update, context: ContextTypes.DEFA
         pack = EmpireConfig.STARS_PACKAGES.get(pack_key)
         
         if pack:
-            u_data = await db.get_user(update.message.from_user)
+            u_data, _ = await db.get_user(update.message.from_user)
             u_data["stats"]["stars_spent"] += payment.total_amount
             db.data["stats"]["stars_revenue"] += payment.total_amount
             
@@ -896,18 +945,10 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if db.data["system"]["maint_mode"] and user.id != EmpireConfig.ADMIN_ID:
         return await update.message.reply_text("🛠️ **SISTEMA EN MANTENIMIENTO CORPORATIVO.** Vuelve más tarde.")
 
-    is_new_user = uid_str not in db.data["users"]
     referrer_id = context.args[0] if context.args else None
+    u_data, referrer_rewarded = await db.get_user(user, referrer_id)
 
-    u_data = await db.get_user(user)
-
-    if is_new_user and referrer_id and referrer_id != uid_str and referrer_id in db.data["users"]:
-        async with db._lock:
-            db.data["users"][referrer_id]["points"] += EmpireConfig.ECONOMY["REF_REWARD"]
-            db.data["users"][referrer_id]["referrals"] = db.data["users"][referrer_id].get("referrals", 0) + 1
-            u_data["referred_by"] = referrer_id
-            db.data["transactions"].append({"uid": referrer_id, "amount": EmpireConfig.ECONOMY["REF_REWARD"], "desc": f"Bono Referido ({uid_str})", "date": str(datetime.datetime.now())})
-        await db.save()
+    if referrer_rewarded:
         try:
             await context.bot.send_message(referrer_id, f"🎉 **¡ALERTA VIRAL V400!**\nUn nuevo ciudadano ({user.first_name}) se ha unido con tu enlace. Has recibido **+1500 pts**.")
         except: pass
@@ -932,7 +973,7 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
     if sec_core.rate_limit(user.id): return
 
-    u_data = await db.get_user(user)
+    u_data, _ = await db.get_user(user)
     if u_data.get("is_banned"):
         return await update.message.reply_text("🚫 Cuenta suspendida por infracción corporativa.")
 
@@ -1270,14 +1311,16 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = q.data
     await q.answer()
 
-    u_data = await db.get_user(q.from_user)
+    u_data, _ = await db.get_user(q.from_user)
 
     if data.startswith("src_"): # Handler para Resultados de Búsqueda
         idx = data.split("_")[1]
         results = context.user_data.get("search_results", {})
         if idx in results:
-            context.user_data["active_url"] = results[idx]
-            await q.edit_message_text(f"🔗 **Objetivo Enlazado:**\n`{results[idx]}`\n\n🛠 Selecciona formato de salida:", reply_markup=EmpireUI.format_selector())
+            target_url = results[idx]
+            context.user_data["active_url"] = target_url
+            context.user_data.pop("search_results", None) # LIMPIEZA INMEDIATA RAM
+            await q.edit_message_text(f"🔗 **Objetivo Enlazado:**\n`{target_url}`\n\n🛠 Selecciona formato de salida:", reply_markup=EmpireUI.format_selector())
         else:
             await q.edit_message_text("❌ Búsqueda caducada en la sesión actual.")
 
@@ -1578,7 +1621,7 @@ async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
     url = context.user_data.get("active_url")
     fmt = context.user_data.get("active_fmt")
     qlty = context.user_data.get("active_qlty", "720p")
-    u_data = await db.get_user(q.from_user)
+    u_data, _ = await db.get_user(q.from_user)
 
     plan_info = EmpireConfig.PLANS[u_data["plan"]]
     max_size = plan_info["max_file_mb"]
@@ -1588,7 +1631,11 @@ async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
     progress_tracker.add_job(job_id, msg)
     
     try:
-        success, path, title, duration, f_size, err_msg = await MediaEngine.run(url, fmt, qlty, uid_str, max_size, job_id, u_data['settings'])
+        # PROTECCIÓN DE TIMEOUT 600s
+        success, path, title, duration, f_size, err_msg = await asyncio.wait_for(
+            MediaEngine.run(url, fmt, qlty, uid_str, max_size, job_id, u_data['settings']),
+            timeout=600.0
+        )
         
         if job_id in progress_tracker.active_jobs:
             progress_tracker.active_jobs[job_id]['finished'] = True
@@ -1638,6 +1685,11 @@ async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
         try: await msg.delete()
         except: pass
 
+    except asyncio.TimeoutError:
+        if job_id in progress_tracker.active_jobs: progress_tracker.active_jobs[job_id]['finished'] = True
+        logger.error(f"⌛ Timeout B2B superado para job {job_id} por UID: {uid}.")
+        await msg.edit_text("❌ **ERROR DE SISTEMA:**\nServidor de Extracción Saturado. La operación tomó más de 10 minutos y fue abortada.")
+        
     except Exception as e:
         if job_id in progress_tracker.active_jobs: progress_tracker.active_jobs[job_id]['finished'] = True
         logger.error(f"Fallo general asíncrono UID {uid}: {e}")
@@ -1645,7 +1697,7 @@ async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     finally:
         # [GC COLECTOR OPTIMIZACIÓN]
-        # Forzar la limpieza de caché y variables huérfanas de yt-dlp al terminar.
+        # Forzar la limpieza de caché y variables huérfanas de yt-dlp al terminar fallos y aciertos.
         gc.collect()
         logger.info(f"🧹 [MEMORY PURGE] Garbage Collector V400 ha liberado memoria para el job {job_id}.")
 

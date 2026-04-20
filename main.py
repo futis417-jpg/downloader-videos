@@ -2381,4 +2381,5 @@ if __name__ == '__main__':
     except Exception as e:
         logger.critical(f"COLAPSO DEL CORE B2B: {traceback.format_exc()}")
 
-```
+
+

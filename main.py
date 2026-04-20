@@ -2872,6 +2872,49 @@ def api_docs():
             },
             "/health": {"get": {"summary": "Health Check", "responses": {"200": {"description": "Sistema operativo"}}}},
             "/api/v4/metrics": {"get": {"summary": "Métricas JSON", "responses": {"200": {"description": "Métricas actuales"}}}},
-            "/metrics": {"get": {"summary": "Métricas Prometheus", "responses": {"200": {"description": "Formato Prometheus"}}}}
-        },
-        "components":
+           "/metrics": {"get": {"summary": "Métricas Prometheus", "responses": {"200": {"description": "Formato Prometheus"}}}}
+    },
+    "components": {}
+})
+
+# =================================================================
+# [12] ARRANQUE DEL SISTEMA (MAIN V400)
+# =================================================================
+
+def run_api():
+    """Ejecuta el servidor web SaaS en un hilo separado para que no bloquee el bot."""
+    port = int(os.environ.get("PORT", settings.port))
+    web_app.run(host="0.0.0.0", port=port, use_reloader=False)
+
+def main():
+    """Función principal de arranque del Leviathan V400."""
+    
+    # 1. Arrancar la API Web B2B en segundo plano
+    api_thread = threading.Thread(target=run_api, daemon=True)
+    api_thread.start()
+    logger.info("🌐 Web API SaaS B2B iniciada en segundo plano.")
+
+    # 2. Construir la aplicación de Telegram
+    application = ApplicationBuilder().token(EmpireConfig.TOKEN).build()
+
+    # 3. Registrar los controladores (Handlers)
+    application.add_handler(CommandHandler("start", start_handler))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_dispatcher))
+    application.add_handler(CallbackQueryHandler(callback_handler))
+    application.add_handler(PreCheckoutQueryHandler(precheckout_callback))
+    application.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment_callback))
+
+    # 4. Iniciar las tareas asíncronas de mantenimiento y economía
+    loop = asyncio.get_event_loop()
+    loop.create_task(db.backup_job())
+    loop.create_task(self_healing_core_task())
+    loop.create_task(buffer_cleanup_task())
+    loop.create_task(crypto_fluctuation_task())
+    loop.create_task(progress_tracker.update_messages_loop())
+
+    # 5. Ejecutar el Polling para escuchar mensajes
+    logger.info("🚀 SISTEMA LEVIATHAN V400 EN LÍNEA. Iniciando polling...")
+    application.run_polling(drop_pending_updates=True)
+
+if __name__ == "__main__":
+    main()

@@ -2887,7 +2887,7 @@ def run_api():
     web_app.run(host="0.0.0.0", port=port, use_reloader=False)
 
 def main():
-    """Función principal de arranque del Leviathan V400."""
+    """Función principal de arranque del Leviathan V400 mejorada para Python 3.14+."""
     
     # 1. Arrancar la API Web B2B en segundo plano
     api_thread = threading.Thread(target=run_api, daemon=True)
@@ -2895,6 +2895,7 @@ def main():
     logger.info("🌐 Web API SaaS B2B iniciada en segundo plano.")
 
     # 2. Construir la aplicación de Telegram
+    # Usamos el token que ya configuraste en Render como ISHAK_TELEGRAM_TOKEN
     application = ApplicationBuilder().token(EmpireConfig.TOKEN).build()
 
     # 3. Registrar los controladores (Handlers)
@@ -2904,17 +2905,22 @@ def main():
     application.add_handler(PreCheckoutQueryHandler(precheckout_callback))
     application.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment_callback))
 
-    # 4. Iniciar las tareas asíncronas de mantenimiento y economía
-    loop = asyncio.get_event_loop()
-    loop.create_task(db.backup_job())
-    loop.create_task(self_healing_core_task())
-    loop.create_task(buffer_cleanup_task())
-    loop.create_task(crypto_fluctuation_task())
-    loop.create_task(progress_tracker.update_messages_loop())
+    # 4. Iniciar las tareas asíncronas ANTES de arrancar el polling
+    async def setup_tasks(app):
+        # Creamos las tareas dentro del contexto de la aplicación
+        asyncio.create_task(db.backup_job())
+        asyncio.create_task(self_healing_core_task())
+        asyncio.create_task(buffer_cleanup_task())
+        asyncio.create_task(crypto_fluctuation_task())
+        asyncio.create_task(progress_tracker.update_messages_loop())
+        logger.info("⚙️ Tareas asíncronas de mantenimiento programadas.")
 
     # 5. Ejecutar el Polling para escuchar mensajes
     logger.info("🚀 SISTEMA LEVIATHAN V400 EN LÍNEA. Iniciando polling...")
+    
+    # Agregamos la inicialización de tareas al arranque de la app
+    application.post_init = setup_tasks
+    
     application.run_polling(drop_pending_updates=True)
-
 if __name__ == "__main__":
     main()

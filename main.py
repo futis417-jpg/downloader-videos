@@ -1,3 +1,4 @@
+```python
 """
 ██╗███████╗██╗  ██╗███████╗██╗  ██╗    ██╗  ██╗██╗   ██╗██████╗ ███████╗██████╗ 
 ██║██╔════╝██║  ██║██╔════╝██║ ██╔╝    ██║  ██║╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗
@@ -6,7 +7,7 @@
 ██║███████║██║  ██║███████║██║  ██╗    ██║  ██║   ██║   ██║     ███████╗██║  ██║
 ╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚══════╝╚═╝  ╚═╝
 ================================================================================
-SISTEMA: ISHAK HYPER-SAAS V400.0 - THE LEVIATHAN ENTERPRISE EDITION (PERFORMANCE)
+SISTEMA: ISHAK HYPER-SAAS V400.1 - THE LEVIATHAN ENTERPRISE EDITION (PERFORMANCE)
 VALORACIÓN DE MERCADO: €250,000 ARCHITECTURE - FULL B2B, CASINO & REDUNDANCY
 PROPIETARIO Y DIRECTOR: Ishak Ezzahouani - Edad: 18.
 UBICACIÓN DE NÚCLEO: Sede Central de Datos - España
@@ -32,6 +33,7 @@ import re
 import math
 import hashlib
 import base64
+import copy
 import gc  # Integrado: Optimización de Memoria (Garbage Collector)
 from typing import Dict, List, Any, Optional, Union, Tuple
 from functools import wraps
@@ -42,7 +44,7 @@ from functools import wraps
 def bootstrap_packages():
     """
     Garantiza la presencia del arsenal masivo de librerías para B2B.
-    BUG FIX: Sale del proceso si la instalación falla para evitar corrupciones.
+    BUG FIX: Sale del proceso si la instalación falla. Fuerza actualización de yt-dlp.
     """
     packages = [
         'python-telegram-bot', 'yt-dlp', 'flask', 'flask-cors', 'requests', 
@@ -51,9 +53,12 @@ def bootstrap_packages():
     for p in packages:
         try:
             __import__(p.replace('-', '_'))
+            if p == 'yt-dlp':
+                # FIX CRÍTICO: Siempre intenta actualizar yt-dlp al iniciar para evitar fallos de extracción
+                subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", "yt-dlp", "--quiet"])
         except ImportError:
             print(f"📦 [BOOTSTRAP] Instalando componente crítico B2B: {p}...")
-            if subprocess.call([sys.executable, "-m", "pip", "install", p, "--quiet"]) != 0:
+            if subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", p, "--quiet"]) != 0:
                 print(f"❌ FALLO CRÍTICO: No se pudo instalar el módulo {p}. Abortando despliegue.")
                 sys.exit(1)
 
@@ -110,7 +115,7 @@ def check_api_rate_limit(ip_address: str, limit: int = 10, window: int = 60) -> 
 class EmpireConfig:
     ADMIN_ID = int(os.getenv("ADMIN_ID", "8398522835"))
     TOKEN = os.getenv("TELEGRAM_TOKEN")
-    VERSION = "400.0.0-LEVIATHAN-TITAN"
+    VERSION = "400.1.0-LEVIATHAN-TITAN"
     
     if not TOKEN:
         print("❌ [ALERTA] TELEGRAM_TOKEN no definido en variables de entorno. Fallo crítico de seguridad.")
@@ -199,7 +204,7 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger("ISHAK_LEVIATHAN")
-logger.info(f"Arquitectura V400 iniciada. Sistemas de Respaldo Activados. Director: Ishak (18). Sede: España.")
+logger.info(f"Arquitectura V400.1 iniciada. Sistemas de Respaldo Activados. Director: Ishak (18). Sede: España.")
 
 # =================================================================
 # [3] NÚCLEO DE BASE DE DATOS NOSQL CON SHADOW BACKUP (ASYNC I/O)
@@ -298,7 +303,8 @@ class EmpireDatabase:
     async def _save_nolock(self):
         """Método de guardado interno para evitar Deadlocks cuando el candado ya está adquirido."""
         try:
-            data_copy = dict(self.data)
+            # FIX CRÍTICO: Usar deepcopy para evitar error 'dictionary changed size during iteration'
+            data_copy = copy.deepcopy(self.data)
             await asyncio.to_thread(self._sync_save_logic, data_copy)
         except Exception as e:
             logger.error(f"Fallo crítico en persistencia redundante asíncrona: {e}")
@@ -309,7 +315,6 @@ class EmpireDatabase:
             await self._save_nolock()
 
     async def deduct_points(self, uid: str, amount: int) -> bool:
-        """BUG FIX: Transacción de deducción atómica de puntos para evitar double spending en el Casino."""
         async with self._lock:
             if uid in self.data["users"] and self.data["users"][uid]["points"] >= amount:
                 self.data["users"][uid]["points"] -= amount
@@ -318,7 +323,6 @@ class EmpireDatabase:
             return False
 
     async def add_points(self, uid: str, amount: int):
-        """BUG FIX: Adición atómica de puntos de forma segura."""
         async with self._lock:
             if uid in self.data["users"]:
                 self.data["users"][uid]["points"] += amount
@@ -338,7 +342,6 @@ class EmpireDatabase:
                 logger.error(f"Error backup asíncrono: {e}")
 
     async def get_user(self, user_obj, referrer_id=None):
-        """BUG FIX: Toda la lógica de inicialización y chequeos de expiración ahora residen en el Lock."""
         uid = str(user_obj.id)
         referrer_rewarded = False
         
@@ -375,7 +378,6 @@ class EmpireDatabase:
             needs_save = is_new
             today = str(datetime.date.today())
             
-            # Validaciones de mantenimiento periódico (Daily, Expiry, Buffs)
             if u["daily_downloads"][1] != today:
                 u["daily_downloads"] = [0, today]
                 u["bounties"] = self._generate_daily_bounties()
@@ -395,7 +397,7 @@ class EmpireDatabase:
                 needs_save = True
                 
             if needs_save:
-                await self._save_nolock() # Guardamos de forma segura sin soltar o romper el Lock
+                await self._save_nolock() 
                 
         return u, referrer_rewarded
 
@@ -750,6 +752,7 @@ class MediaEngine:
                 }
                 with yt_dlp.YoutubeDL(opts) as ydl:
                     i = ydl.extract_info(url, download=False)
+                    if not i: return {}
                     res = {"title": i.get("title"), "duration": i.get("duration"), "uploader": i.get("uploader"), "view_count": i.get("view_count")}
                     GLOBAL_METADATA_CACHE[url] = {"info": res, "timestamp": time.time()}
                     return res
@@ -771,29 +774,9 @@ class MediaEngine:
                         job['eta'] = d.get('_eta_str', 'Desconocido')
                     except: pass
 
-        ua_yt = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.3 Safari/605.1.15',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0'
-        ]
-        ua_tk = [
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-            'Mozilla/5.0 (Linux; Android 13; SM-S918B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Mobile Safari/537.36'
-        ]
-        
-        if 'tiktok.com' in url:
-            chosen_ua = random.choice(ua_tk)
-            referer = 'https://www.tiktok.com/'
-        elif 'youtube.com' in url or 'youtu.be' in url:
-            chosen_ua = random.choice(ua_yt)
-            referer = 'https://www.youtube.com/'
-        elif 'instagram.com' in url: 
-            chosen_ua = random.choice(ua_tk)
-            referer = 'https://www.instagram.com/'
-        else:
-            chosen_ua = random.choice(ua_yt + ua_tk)
-            referer = 'https://www.google.com/'
-
+        # FIX CRÍTICO: Removidos cabeceras personalizadas estáticas (User-Agent/Referer)
+        # Esto solía romper el extractor de Youtube al bloquear el descifrado de firmas.
+        # yt-dlp manejará las cabeceras correctamente con el player_client seleccionado.
         ydl_opts = {
             'outtmpl': output_template, 
             'quiet': True, 
@@ -804,16 +787,11 @@ class MediaEngine:
             'progress_hooks': [yt_dlp_hook],
             'socket_timeout': 10,
             'extract_flat': 'in_playlist',
-            'http_headers': {
-                'User-Agent': chosen_ua, 
-                'Referer': referer,
-                'Accept-Language': 'es-ES,es;q=0.9',
-                'Sec-Fetch-Mode': 'navigate'
-            },
-            'extractor_args': {'youtube': ['player_client=android']}
+            # FIX: Ampliado clientes para evadir bloqueos 403 recientes de YT
+            'extractor_args': {'youtube': ['player_client=ios,android,web']}
         }
 
-        # REGLA BLINDADA - VEO3 EN ESPAÑOL OBLIGATORIO
+        # REGLA BLINDADA - VEO3 EN ESPAÑOL OBLIGATORIO (FIXED)
         if "veo3" in url.lower():
             match = re.search(r'veo3.*?/([a-zA-Z0-9_-]+)', url)
             vid_id = match.group(1) if match else "Desconocido"
@@ -825,7 +803,9 @@ class MediaEngine:
 
             ydl_opts['writesubtitles'] = True
             ydl_opts['subtitleslangs'] = ['es', 'spa']
-            ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a][language=es]/bestvideo[ext=mp4]+bestaudio[ext=m4a][language*=es]/best[ext=mp4]/best'
+            # FIX CRÍTICO: Relajado el format estricto que causaba crashes si las etiquetas de idioma estaban mal formadas.
+            # Delegamos la responsabilidad a format_sort, que buscará el español primero sin crashear si falla.
+            ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
             ydl_opts['format_sort'] = ['lang:es', 'lang:spa', 'res:1080', 'ext:mp4:m4a']
         else:
             if mode == "MP3":
@@ -848,6 +828,9 @@ class MediaEngine:
             try:
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     info = ydl.extract_info(url, download=True)
+                    if not info:
+                        return False, None, None, 0, 0, "No se pudo extraer información del archivo."
+                        
                     file_path = ydl.prepare_filename(info)
                     
                     if mode in ["MP3", "MP3U"]: file_path = os.path.splitext(file_path)[0] + ".mp3"
@@ -858,7 +841,8 @@ class MediaEngine:
             except yt_dlp.utils.DownloadError as e:
                 gc.collect() 
                 err_msg = str(e).lower()
-                user_msg = "Excepción en el satélite de extracción B2B."
+                # FIX CRÍTICO: Exponer el error real de yt-dlp para no ir a ciegas.
+                user_msg = f"Excepción en el satélite de extracción B2B.\nDetalles técnicos: `{str(e)}`"
                 if "copyright" in err_msg:
                     user_msg = "Contenido bloqueado por derechos de autor (Copyright) en el país de origen."
                 elif "too large" in err_msg or "filesize" in err_msg:
@@ -1158,7 +1142,6 @@ async def successful_payment_callback(update: Update, context: ContextTypes.DEFA
 # [8] CONTROLADORES DE COMANDOS Y MENSAJES (NÚCLEO V400)
 # =================================================================
 
-# BUG FIX: Envío particionado para evitar rebasar límite de Telegram (4096 chars)
 async def send_chunked_message(reply_func, text):
     lines = text.split('\n')
     chunk = ""
@@ -1340,7 +1323,6 @@ async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE)
             status = "✅" if k in u_data["achievements"] else "🔒"
             msg += f"{status} **{v['name']}**: {v['desc']}\n"
         
-        # BUG FIX: Envío seguro en fragmentos para mensajes muy largos
         await send_chunked_message(update.message.reply_text, msg)
 
     elif text == "🎧 SOPORTE":
@@ -1827,7 +1809,6 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         bet = int(parts[2])
         mult = float(parts[3])
         
-        # BUG FIX: Pop atómico seguro con el GIL de Python para evitar Double Spending y Race Conditions
         crash_point = context.user_data.pop("crash_point", -1) 
         
         if crash_point != -1 and mult <= crash_point:
@@ -2012,7 +1993,6 @@ async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await db.update_bounty(uid_str, "dl_3", 1)
         await db.add_xp(uid_str, EmpireConfig.ECONOMY["XP_PER_DOWNLOAD"])
         
-        # BUG FIX: Limpieza absoluta del servidor (Se ignora si existe o no Ghost Mode en local)
         if os.path.exists(path):
             await asyncio.to_thread(os.remove, path)
             
@@ -2308,7 +2288,6 @@ def api_real_extract():
 
     hashed_provided = hashlib.sha256(api_key_provided.encode()).hexdigest()
     
-    # BUG FIX: Uso seguro de .get() para evitar KeyError si la clave no existe o se elimina asíncronamente
     uid = db.data.get('b2b_api_keys', {}).get(hashed_provided)
     if not uid:
         return jsonify({"error": "No autorizado. Clave de API inválida o revocada."}), 401
@@ -2321,7 +2300,6 @@ def api_real_extract():
     try:
         opts = {'quiet': True, 'noplaylist': True}
         
-        # REGLA OBLIGATORIA A NIVEL DE API (Mantiene el mandato directo)
         if "veo3" in url.lower():
             opts['format_sort'] = ['lang:es', 'lang:spa', 'res:1080', 'ext:mp4:m4a']
             
@@ -2403,3 +2381,5 @@ if __name__ == '__main__':
         sys.exit(0)
     except Exception as e:
         logger.critical(f"COLAPSO DEL CORE B2B: {traceback.format_exc()}")
+
+```

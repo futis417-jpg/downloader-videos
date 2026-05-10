@@ -42,7 +42,7 @@ def titan_bootstrap():
         'python-telegram-bot', 'yt-dlp', 'flask', 'flask-cors', 'requests', 
         'psutil', 'Pillow', 'aiohttp', 'cryptography', 'qrcode', 'python-dotenv', 
         'gTTS', 'pydantic', 'pydantic-settings', 'sentry-sdk', 'beautifulsoup4',
-        'pycryptodome', 'python-jose', 'Flask-Limiter', 'apscheduler'
+        'pycryptodome', 'python-jose', 'Flask-Limiter'
     ]
     for p in pkgs:
         try:
@@ -50,8 +50,6 @@ def titan_bootstrap():
         except ImportError:
             print(f"📦 [TITAN CORE] Instalando módulo faltante: {p}...")
             subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", p, "--quiet"])
-    # Actualización crítica del motor de descargas
-    subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", "yt-dlp", "--quiet"])
 
 titan_bootstrap()
 
@@ -65,7 +63,6 @@ from flask_limiter.util import get_remote_address
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 from cryptography.fernet import Fernet
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from telegram import (
     Update, InlineKeyboardButton, InlineKeyboardMarkup, 
     ReplyKeyboardMarkup, KeyboardButton, LabeledPrice, constants, InputMediaPhoto
@@ -83,15 +80,14 @@ class TitanConfig(BaseSettings):
     token: str = Field(default=os.getenv("ISHAK_TELEGRAM_TOKEN", ""))
     secret_key: str = Field(default=os.getenv("TITAN_SECRET", "OMNIVERSE_ROOT_KEY_2026_ISHAK_CORP"))
     encryption_key: str = Field(default=Fernet.generate_key().decode())
-    port: int = Field(default=int(os.getenv("PORT", 8080)))
+    port: int = Field(default=int(os.getenv("PORT", 10000)))
     
-    class Config:
-        env_file = ".env"
+    model_config = {"env_file": ".env"} # Corregido warning de Pydantic V2
 
 settings = TitanConfig()
 fernet = Fernet(settings.encryption_key.encode())
 
-# DICCIONARIO MULTI-IDIOMA (Monetización Global)
+# DICCIONARIO MULTI-IDIOMA
 I18N = {
     "es": {
         "welcome": "🛡 **TITAN-V700 ACTIVO**\nBienvenido {name}. Estás en la red B2B más avanzada.",
@@ -223,7 +219,7 @@ class Gamification:
                 return "🔌 Ganaste **5000 Créditos API B2B**."
 
 # =================================================================
-# [5] MOTOR DE EXTRACCIÓN (YT-DLP MULTI-HILO & PLAYLISTS)
+# [5] MOTOR DE EXTRACCIÓN (YT-DLP MULTI-HILO)
 # =================================================================
 class MediaEngine:
     @staticmethod
@@ -234,7 +230,7 @@ class MediaEngine:
         
         opts = {
             'outtmpl': out_tmpl, 'quiet': True, 'nocheckcertificate': True,
-            'noplaylist': True, # Prevenir sobrecarga en versión bot
+            'noplaylist': True, 
             'max_filesize': 5000 * 1024 * 1024
         }
         
@@ -275,7 +271,7 @@ class UI:
         ])
 
 # =================================================================
-# [7] MANEJADORES DE PAGOS Y TELEGRAM STARS (MONETIZACIÓN REAL)
+# [7] MANEJADORES DE PAGOS Y TELEGRAM STARS
 # =================================================================
 async def precheckout_cb(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.pre_checkout_query
@@ -345,7 +341,7 @@ async def messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"🎖 Rango: `{user['plan']}`\n"
             f"💰 Puntos: `{user['points']}` | 🪙 IshakCoins: `{user['ishak_coins']:.2f}`\n"
             f"🔌 Créditos API: `{user['api_credits']}`\n"
-            f"🔑 JWT Key: `{user['api_key'][:15]}...` (Oculta)\n\n"
+            f"🔑 JWT Key: `{str(user['api_key'])[:15]}...` (Oculta)\n\n"
             f"👥 **Link Referidos (+2500 pts):**\n`https://t.me/{bot_usr}?start={user['id']}`"
         )
         await update.message.reply_text(msg)
@@ -370,7 +366,6 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
         url = context.user_data.get("url")
         user = db.get_user(q.from_user)
         
-        # Limit Logic
         if user["daily_dl"][0] >= PLANS[user["plan"]]["daily_limit"]:
             return await q.answer("❌ Límite diario excedido. Compra PRO.", show_alert=True)
             
@@ -407,7 +402,8 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # =================================================================
 web_app = Flask("Omniverse_B2B")
 CORS(web_app)
-limiter = Limiter(get_remote_address, app=web_app, default_limits=["200 per day", "50 per hour"])
+# Se silencia el warning de Flask-Limiter usando storage_uri="memory://"
+limiter = Limiter(get_remote_address, app=web_app, default_limits=["200 per day", "50 per hour"], storage_uri="memory://")
 
 HTML_DASHBOARD = """
 <!DOCTYPE html>
@@ -438,10 +434,12 @@ HTML_DASHBOARD = """
     </div>
     <script>
         setInterval(async()=>{
-            let r = await fetch('/api/stats'); let d = await r.json();
-            document.getElementById('m_usr').innerText = d.u;
-            document.getElementById('m_dl').innerText = d.d;
-            document.getElementById('m_rev').innerText = d.r + " ⭐️";
+            try {
+                let r = await fetch('/api/stats'); let d = await r.json();
+                document.getElementById('m_usr').innerText = d.u;
+                document.getElementById('m_dl').innerText = d.d;
+                document.getElementById('m_rev').innerText = d.r + " ⭐️";
+            } catch(e) {}
         }, 3000);
     </script>
 </body>
@@ -462,7 +460,6 @@ def b2b_download():
     if not auth or not auth.startswith("Bearer "): return jsonify({"error": "Unauthorized"}), 401
     token = auth.split(" ")[1]
     
-    # Validar JWT simple
     try:
         header, payload, sig = token.split(".")
         valid_sig = hmac.new(settings.secret_key.encode(), f"{header}.{payload}".encode(), hashlib.sha256).hexdigest()
@@ -476,7 +473,6 @@ def b2b_download():
         req_data = request.json
         if not req_data or "url" not in req_data: return jsonify({"error": "Missing URL"}), 400
         
-        # Simular consumo y devolver link falso o procesar real si se engancha a S3
         db.data["users"][uid]["api_credits"] -= 1
         db.save()
         return jsonify({"status": "success", "message": "Extraction queued via B2B API", "credits_left": db.data["users"][uid]["api_credits"]})
@@ -487,19 +483,44 @@ def b2b_download():
 # [10] MOTOR PRINCIPAL Y TAREAS EN SEGUNDO PLANO
 # =================================================================
 async def crypto_market_fluctuation():
-    """Hace fluctuar el mercado para el minijuego de criptomonedas."""
-    val = db.data["market"]["coin_price"]
-    change = val * random.uniform(-0.1, 0.15)
-    db.data["market"]["coin_price"] = max(1.0, val + change)
-    db.data["market"]["history"].append(db.data["market"]["coin_price"])
-    if len(db.data["market"]["history"]) > 50: db.data["market"]["history"].pop(0)
-    db.save()
+    """Bucle infinito para hacer fluctuar el mercado cada 15 minutos."""
+    while True:
+        await asyncio.sleep(900) # 15 minutos
+        try:
+            val = db.data["market"]["coin_price"]
+            change = val * random.uniform(-0.1, 0.15)
+            db.data["market"]["coin_price"] = max(1.0, val + change)
+            db.data["market"]["history"].append(db.data["market"]["coin_price"])
+            if len(db.data["market"]["history"]) > 50: db.data["market"]["history"].pop(0)
+            db.save()
+        except Exception as e:
+            print(f"Error en mercado cripto: {e}")
 
 def main():
     # Iniciar API Web en hilo
     threading.Thread(target=lambda: web_app.run(host="0.0.0.0", port=settings.port, use_reloader=False), daemon=True).start()
     
-    app = ApplicationBuilder().token(settings.token).build()
+    # 🚨 SALVAGUARDA DE RENDER 🚨
+    # Si olvidas poner el token, la web B2B se queda encendida para que Render no dé error.
+    if not settings.token or settings.token == "":
+        print("\n" + "="*60)
+        print("❌ [ALERTA DE SISTEMA] TOKEN DE TELEGRAM NO DETECTADO")
+        print("="*60)
+        print("Para que el bot funcione, debes añadir el token en Render:")
+        print("1. Ve a tu panel de Render.com -> Abre tu Web Service.")
+        print("2. Pestaña 'Environment' -> 'Add Environment Variable'.")
+        print("3. Key: ISHAK_TELEGRAM_TOKEN | Value: [Tu Token de BotFather]")
+        print("⚠️ Manteniendo servidor B2B vivo para evitar fallos de despliegue...\n")
+        while True: time.sleep(60)
+        return
+
+    # Enganchamos la tarea del mercado cripto AL MISMO BUCLE de Telegram
+    async def post_init(app: Application):
+        asyncio.create_task(crypto_market_fluctuation())
+        print("📈 Tarea de Fluctuación de Mercado iniciada con éxito.")
+
+    # Iniciar el bot con la tarea post_init
+    app = ApplicationBuilder().token(settings.token).post_init(post_init).build()
     
     # Handlers
     app.add_handler(CommandHandler("start", start))
@@ -507,11 +528,6 @@ def main():
     app.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment_cb))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, messages))
     app.add_handler(CallbackQueryHandler(callbacks))
-    
-    # Scheduler para tareas (Limpieza y Mercado)
-    scheduler = AsyncIOScheduler()
-    scheduler.add_job(crypto_market_fluctuation, 'interval', minutes=15)
-    scheduler.start()
     
     print(f"🚀 TITAN-V700 OMNIVERSE EN LÍNEA | CEO: Ishak (14) | Sant Hilari Sacalm")
     app.run_polling()

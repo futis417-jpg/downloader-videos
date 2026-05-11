@@ -1,797 +1,797 @@
 """
-██╗███████╗██╗  ██╗ █████╗ ██╗  ██╗    ██╗   ██╗███████╗ ██████╗  ██████╗
-██║██╔════╝██║  ██║██╔══██╗██║ ██╔╝    ██║   ██║██╔════╝██╔═████╗██╔═████╗
-██║███████╗███████║███████║█████╔╝     ██║   ██║███████╗██║██╔██║██║██╔██║
-██║╚════██║██╔══██║██╔══██║██╔═██╗     ╚██╗ ██╔╝╚════██║████╔╝██║████╔╝██║
-██║███████║██║  ██║██║  ██║██║  ██╗     ╚████╔╝ ███████║╚██████╔╝╚██████╔╝
-╚═╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝     ╚═══╝  ╚══════╝ ╚═════╝  ╚═════╝
+██╗███████╗██╗  ██╗███████╗██╗  ██╗    ██╗  ██╗██╗   ██╗██████╗ ███████╗██████╗ 
+██║██╔════╝██║  ██║██╔════╝██║ ██╔╝    ██║  ██║╚██╗ ██╔╝██╔══██╗██╔════╝██╔══██╗
+██║███████╗███████║███████╗█████╔╝     ███████║ ╚████╔╝ ██████╔╝█████╗  ██████╔╝
+██║╚════██║██╔══██║╚════██║██╔═██╗     ██╔══██║  ╚██╔╝  ██╔═══╝ ██╔══╝  ██╔══██╗
+██║███████║██║  ██║███████║██║  ██╗    ██║  ██║   ██║   ██║     ███████╗██║  ██║
+╚═╝╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚═╝  ╚═╝   ╚═╝   ╚═╝     ╚══════╝╚═╝  ╚═╝
 ================================================================================
-SISTEMA: ISHAK HYPER-SAAS V500.0 - THE LEVIATHAN ULTRA MAX EDITION
-VERSIÓN: 500.0.0-LEVIATHAN-ULTRA-MAX
-PROPIETARIO: Ishak Ezzahouani | Director General | España | Edad: 18
-ARQUITECTURA: Full Async • Shadow DB • Self-Healing • Multi-Tier Economy
-NUEVO V500: Poker, Mines, Plinko, Dados, Planes Empresariales, Seguridad 2FA,
-            Cola Inteligente, Mercado P2P, Guerra de Clanes, Admin Web Completo,
-            Batch Downloads, Historial, Favoritos, Eventos Automáticos
+SISTEMA: ISHAK HYPER-SAAS V401.0 - THE LEVIATHAN ULTRA EDITION (MONETIZED)
+VALORACIÓN DE MERCADO: €500,000 ARCHITECTURE - FULL B2B, CASINO, SUBSCRIPTIONS & AFFILIATE
+PROPIETARIO Y DIRECTOR: Ishak Ezzahouani - Edad: 18.
+UBICACIÓN DE NÚCLEO: Sede Central de Datos - España
+REGLA ESPECIAL (ESTRICTA BLINDADA): Contenido 'veo3' forzado a ESPAÑOL por mandato absoluto.
+NUEVO V401: Sistema de afiliados en cascada, suscripciones con Stripe/Stars, panel admin expandido,
+             rankings leaderboard, notificaciones push masivas, cupones de descuento, analytics avanzados.
 ================================================================================
 """
 
-# ============================================================
-# [0] BOOTSTRAP Y DEPENDENCIAS
-# ============================================================
-import os, sys, json, uuid, time, shutil, asyncio, logging
-import datetime, traceback, subprocess, threading, platform
-import random, re, math, hashlib, base64, copy, gc, html, string, csv, io
-from typing import Dict, List, Any, Optional, Union, Tuple, Callable
+import os
+import sys
+import json
+import uuid
+import time
+import shutil
+import asyncio
+import logging
+import datetime
+import traceback
+import subprocess
+import threading
+import platform
+import random
+import re
+import math
+import hashlib
+import base64
+import copy
+import gc
+import html
+import string
+from typing import Dict, List, Any, Optional, Union, Tuple, Callable, Awaitable
 from functools import wraps
 from dataclasses import dataclass, field
 from enum import Enum
 
+# =================================================================
+# [0] INICIALIZACIÓN DE DEPENDENCIAS Y BLINDAJE CORPORATIVO
+# =================================================================
 def bootstrap_packages():
+    """
+    Garantiza la presencia del arsenal masivo de librerías para B2B.
+    BUG FIX: Sale del proceso si la instalación falla. Fuerza actualización de yt-dlp.
+    """
     packages = [
-        'python-telegram-bot', 'yt-dlp', 'flask', 'flask-cors', 'requests',
-        'psutil', 'Pillow', 'aiohttp', 'cryptography', 'qrcode', 'python-dotenv',
-        'gTTS', 'pydantic', 'pydantic-settings', 'sentry-sdk', 'cachetools',
-        'Flask-Limiter', 'apscheduler', 'pyotp', 'python-jose'
+        'python-telegram-bot', 'yt-dlp', 'flask', 'flask-cors', 'requests', 
+        'psutil', 'Pillow', 'aiohttp', 'cryptography', 'qrcode', 'python-dotenv', 'gTTS',
+        'pydantic', 'pydantic-settings', 'sentry-sdk', 'cachetools'
     ]
     for p in packages:
         try:
-            __import__(p.replace('-', '_').replace('python_', ''))
+            __import__(p.replace('-', '_'))
             if p == 'yt-dlp':
                 subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", "yt-dlp", "--quiet"])
         except ImportError:
-            print(f"📦 [BOOTSTRAP V500] Instalando: {p}...")
+            print(f"📦 [BOOTSTRAP] Instalando componente crítico B2B: {p}...")
             if subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", p, "--quiet"]) != 0:
-                print(f"❌ CRÍTICO: No se pudo instalar {p}. Abortando.")
+                print(f"❌ FALLO CRÍTICO: No se pudo instalar el módulo {p}. Abortando despliegue.")
                 sys.exit(1)
 
 bootstrap_packages()
 
-import yt_dlp, requests, psutil, aiohttp, qrcode, pyotp
+import yt_dlp
+import requests
+import psutil
+import aiohttp
+import qrcode
 from dotenv import load_dotenv
 from flask_cors import CORS
 from gtts import gTTS
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, HttpUrl, validator
 from pydantic_settings import BaseSettings
 from cryptography.fernet import Fernet
-from flask import Flask, jsonify, request, render_template_string, abort, Response, send_file
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from telegram import (
-    Update, InlineKeyboardButton, InlineKeyboardMarkup,
-    ReplyKeyboardMarkup, KeyboardButton, LabeledPrice,
-    InputMediaPhoto, InputFile
-)
-from telegram.ext import (
-    ApplicationBuilder, CommandHandler, MessageHandler,
-    CallbackQueryHandler, PreCheckoutQueryHandler,
-    ContextTypes, filters, Application
-)
 
+CORS_APP = CORS
 load_dotenv()
 
-# ============================================================
-# [1] CONFIGURACIÓN CENTRAL V500
-# ============================================================
+# [11] SENTRY INTEGRATION - Error tracking en tiempo real
+SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        traces_sample_rate=1.0,
+        integrations=[FlaskIntegration(), LoggingIntegration(level=logging.INFO, event_level=logging.ERROR)],
+        environment=os.getenv("DEPLOY_ENV", "production")
+    )
+    logger = logging.getLogger("ISHAK_LEVIATHAN")
+    logger.info("✅ Sentry integrado. Errores enviados automáticamente al panel.")
+
+from telegram import (
+    Update, InlineKeyboardButton, InlineKeyboardMarkup, 
+    ReplyKeyboardMarkup, KeyboardButton, constants,
+    InputMediaPhoto, InputMediaVideo, InputFile,
+    LabeledPrice, PreCheckoutQuery
+)
+from telegram.ext import (
+    ApplicationBuilder, CommandHandler, MessageHandler, 
+    CallbackQueryHandler, PreCheckoutQueryHandler, ContextTypes, filters, Application
+)
+from flask import Flask, jsonify, request, render_template_string, abort, Response
+
+# =================================================================
+# [20] CONFIGURACIÓN CON PYDANTIC SETTINGS + TIPOS VALIDADOS
+# =================================================================
 class AppSettings(BaseSettings):
-    admin_id: int = Field(default=8398522835)
-    telegram_token: str = Field(...)
-    deploy_env: str = Field(default="production")
-    port: int = Field(default=8080)
-    redis_url: str = Field(default="redis://localhost:6379/0")
-    use_redis: bool = Field(default=False)
-    encryption_key: str = Field(default=Fernet.generate_key().decode())
-    webhook_enabled: bool = Field(default=False)
-    webhook_url: Optional[str] = Field(default=None)
-    default_language: str = Field(default="es")
-    alert_chat_id: Optional[int] = Field(default=None)
-    alert_threshold_errors: int = Field(default=5)
-    two_fa_enabled: bool = Field(default=True)
-    max_batch_urls: int = Field(default=10)
+    """Configuración centralizada y validada con Pydantic."""
+    admin_id: int = Field(default=8398522835, description="ID del administrador principal")
+    telegram_token: str = Field(..., description="Token del bot de Telegram")
+    deploy_env: str = Field(default="production", description="Entorno de despliegue")
+    port: int = Field(default=8080, description="Puerto del servidor web")
+    
+    # [2] REDIS CONFIGURACIÓN
+    redis_url: str = Field(default="redis://localhost:6379/0", description="URL de Redis")
+    use_redis: bool = Field(default=False, description="Activar Redis para caché y colas")
+    
+    # [6] SECRET MANAGEMENT (HashiCorp Vault / AWS)
+    vault_url: Optional[str] = Field(default=None, description="URL de HashiCorp Vault")
+    aws_region: Optional[str] = Field(default=None, description="Región AWS para Secrets Manager")
+    
+    # [5] CDN CONFIG
+    cdn_enabled: bool = Field(default=False, description="Activar CDN para entrega de archivos")
+    cdn_base_url: Optional[str] = Field(default=None, description="URL base del CDN")
+    
+    # [10] ENCRIPTACIÓN
+    encryption_key: str = Field(default=Fernet.generate_key().decode(), description="Clave Fernet para cifrar datos sensibles")
+    
+    # [12] WEBHOOKS
+    webhook_enabled: bool = Field(default=False, description="Activar Webhooks en lugar de Polling")
+    webhook_url: Optional[str] = Field(default=None, description="URL del Webhook")
+    webhook_secret: Optional[str] = Field(default=None, description="Secret para validar Webhook")
+    
+    # [21] MULTI-IDIOMA
+    default_language: str = Field(default="es", description="Idioma por defecto (es/en/fr/ar)")
+    
+    # [14] ALERTAS
+    alert_chat_id: Optional[int] = Field(default=None, description="Chat ID para alertas críticas")
+    alert_threshold_errors: int = Field(default=5, description="Umbral de errores por minuto para alertar")
+    
     class Config:
         env_prefix = "ISHAK_"
         env_file = ".env"
 
 settings = AppSettings()
+
+# [10] CRYPTOGRAPHY - Encriptación de datos sensibles
 fernet = Fernet(settings.encryption_key.encode() if isinstance(settings.encryption_key, str) else settings.encryption_key)
 
-def encrypt_data(data: str) -> str: return fernet.encrypt(data.encode()).decode()
-def decrypt_data(token: str) -> str: return fernet.decrypt(token.encode()).decode()
+def encrypt_sensitive(data: str) -> str:
+    """Encripta datos sensibles usando Fernet."""
+    return fernet.encrypt(data.encode()).decode()
 
-# ============================================================
-# [2] LOGGING ESTRUCTURADO
-# ============================================================
-class JsonFormatter(logging.Formatter):
-    def format(self, record):
-        return json.dumps({
-            "timestamp": datetime.datetime.utcnow().isoformat(),
-            "level": record.levelname, "message": record.getMessage(),
-            "module": record.module, "function": record.funcName,
-            **({"exception": self.formatException(record.exc_info)} if record.exc_info else {})
-        }, ensure_ascii=False)
+def decrypt_sensitive(token: str) -> str:
+    """Desencripta datos sensibles."""
+    return fernet.decrypt(token.encode()).decode()
 
-logging.basicConfig(level=logging.INFO,
-    format='%(asctime)s | %(name)s | %(levelname)s | %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)])
+# =================================================================
+# [0.5] CACHING DE CONSULTAS B2B Y SEGURIDAD API REAL (RATE LIMIT)
+# =================================================================
 
-logger = logging.getLogger("ISHAK_V500")
-
-# Sentry
-SENTRY_DSN = os.getenv("SENTRY_DSN", "")
-if SENTRY_DSN:
-    import sentry_sdk
-    from sentry_sdk.integrations.flask import FlaskIntegration
-    sentry_sdk.init(dsn=SENTRY_DSN, traces_sample_rate=1.0,
-        integrations=[FlaskIntegration()], environment=settings.deploy_env)
-
-# ============================================================
-# [3] EMPIRE CONFIG V500 - PLANES EXPANDIDOS
-# ============================================================
-class EmpireConfig:
-    ADMIN_ID   = settings.admin_id
-    TOKEN      = settings.telegram_token
-    VERSION    = "500.0.0-LEVIATHAN-ULTRA-MAX"
-
-    if not TOKEN:
-        print("❌ ISHAK_TELEGRAM_TOKEN no definido."); sys.exit(1)
-
-    ROOT       = os.getcwd()
-    VAULT_DIR  = os.path.join(ROOT, "empire_vault")
-    BUFFER_DIR = os.path.join(ROOT, "download_buffer")
-    LOGS_DIR   = os.path.join(ROOT, "system_logs")
-    BACKUP_DIR = os.path.join(VAULT_DIR, "backups")
-    EXPORT_DIR = os.path.join(VAULT_DIR, "exports")
-    DATABASE_PATH = os.path.join(VAULT_DIR, "empire_v500.json")
-    SHADOW_DB_PATH = os.path.join(VAULT_DIR, "empire_shadow_v500.json")
-    QR_DIR  = os.path.join(BUFFER_DIR, "qrcodes")
-    TTS_DIR = os.path.join(BUFFER_DIR, "tts_audio")
-
-    # ── PLANES V500 ──────────────────────────────────────────
-    PLANS = {
-        "FREE": {
-            "name": "🆓 CIUDADANO", "limit_daily": 3, "max_file_mb": 100,
-            "resolutions": ["360p", "720p"], "speed": "Básica",
-            "priority": 0, "max_duration_min": 10, "batch_urls": 0,
-            "price_weekly_stars": 0, "price_monthly_stars": 0, "price_annual_stars": 0,
-            "color": "⬜", "casino_multiplier": 1.0
-        },
-        "STARTER": {
-            "name": "🌱 INICIADO", "limit_daily": 15, "max_file_mb": 300,
-            "resolutions": ["360p", "720p", "1080p"], "speed": "Estándar (5MB/s)",
-            "priority": 1, "max_duration_min": 30, "batch_urls": 2,
-            "price_weekly_stars": 25, "price_monthly_stars": 80, "price_annual_stars": 700,
-            "color": "🟩", "casino_multiplier": 1.1
-        },
-        "BASIC": {
-            "name": "💠 BÁSICO", "limit_daily": 30, "max_file_mb": 600,
-            "resolutions": ["360p", "720p", "1080p"], "speed": "Media (10MB/s)",
-            "priority": 2, "max_duration_min": 60, "batch_urls": 3,
-            "price_weekly_stars": 50, "price_monthly_stars": 150, "price_annual_stars": 1300,
-            "color": "🔷", "casino_multiplier": 1.2
-        },
-        "PRO": {
-            "name": "💎 ÉLITE PRO", "limit_daily": 150, "max_file_mb": 1500,
-            "resolutions": ["360p", "720p", "1080p", "1440p"], "speed": "Alta (25MB/s)",
-            "priority": 3, "max_duration_min": 120, "batch_urls": 5,
-            "price_weekly_stars": 100, "price_monthly_stars": 250, "price_annual_stars": 2200,
-            "color": "💎", "casino_multiplier": 1.5
-        },
-        "ULTRA": {
-            "name": "🔥 SOBERANO ULTRA", "limit_daily": 500, "max_file_mb": 10000,
-            "resolutions": ["360p", "720p", "1080p", "1440p", "4K", "8K"],
-            "speed": "Instantánea (100MB/s)", "priority": 4,
-            "max_duration_min": 600, "batch_urls": 8,
-            "price_weekly_stars": 200, "price_monthly_stars": 500, "price_annual_stars": 4500,
-            "color": "🔥", "casino_multiplier": 2.0
-        },
-        "ENTERPRISE": {
-            "name": "🏢 CORPORATIVO ENTERPRISE", "limit_daily": 2000, "max_file_mb": 50000,
-            "resolutions": ["360p", "720p", "1080p", "1440p", "4K", "8K", "Original"],
-            "speed": "CDN Dedicado", "priority": 5,
-            "max_duration_min": 1200, "batch_urls": 10,
-            "price_weekly_stars": 500, "price_monthly_stars": 1200, "price_annual_stars": 10000,
-            "color": "🏢", "casino_multiplier": 2.5
-        },
-        "GOD": {
-            "name": "👁️ OMNIPRESENTE GOD", "limit_daily": float('inf'), "max_file_mb": float('inf'),
-            "resolutions": ["360p", "720p", "1080p", "1440p", "4K", "8K", "Original"],
-            "speed": "Quantum (Sin límite)", "priority": 6,
-            "max_duration_min": float('inf'), "batch_urls": 999,
-            "price_weekly_stars": 0, "price_monthly_stars": 0, "price_annual_stars": 0,
-            "color": "👁️", "casino_multiplier": 3.0
-        }
-    }
-
-    # ── ECONOMÍA V500 ─────────────────────────────────────────
-    ECONOMY = {
-        "DAILY_REWARD_MIN": 200, "DAILY_REWARD_MAX": 600,
-        "REF_REWARD": 2000, "REF_TIER2": 500, "REF_TIER3": 100,
-        "XP_PER_DOWNLOAD": 30, "XP_PER_MESSAGE": 3,
-        "STREAK_BONUS_DAY": 150, "MAX_STREAK_BONUS": 3000,
-        "AFFILIATE_T1_PCT": 0.12, "AFFILIATE_T2_PCT": 0.06, "AFFILIATE_T3_PCT": 0.02,
-        "WEEKLY_TOURNAMENT_ENTRY": 500,
-        "P2P_MARKET_FEE": 0.05,         # 5% comisión en ventas P2P
-        "CLAN_WAR_REWARD_TOP": 25000,
-        "GIFT_CARD_VALUES": [500, 1000, 2500, 5000, 10000],
-        "DAILY_SHOP_DISCOUNT": 0.30,     # 30% descuento en tienda rotativa
-    }
-
-    # ── PAQUETES STARS V500 ───────────────────────────────────
-    STARS_PACKAGES = {
-        # Puntos
-        "PTS_MICRO":  {"name": "🪙 2,000 Puntos",    "type": "points",  "stars": 20,   "value": 2000},
-        "PTS_SMALL":  {"name": "💰 5,000 Puntos",    "type": "points",  "stars": 45,   "value": 5000},
-        "PTS_MEDIUM": {"name": "💎 15,000 Puntos",   "type": "points",  "stars": 120,  "value": 15000},
-        "PTS_LARGE":  {"name": "🏆 50,000 Puntos",   "type": "points",  "stars": 350,  "value": 50000},
-        "PTS_WHALE":  {"name": "🐋 200,000 Puntos",  "type": "points",  "stars": 1200, "value": 200000},
-        # Suscripciones semanales
-        "SUB_STARTER_W": {"name": "🌱 STARTER Semanal",    "type": "sub_week", "stars": 25,   "value": "STARTER"},
-        "SUB_BASIC_W":   {"name": "💠 BÁSICO Semanal",     "type": "sub_week", "stars": 50,   "value": "BASIC"},
-        "SUB_PRO_W":     {"name": "💎 PRO Semanal",        "type": "sub_week", "stars": 100,  "value": "PRO"},
-        "SUB_ULTRA_W":   {"name": "🔥 ULTRA Semanal",      "type": "sub_week", "stars": 200,  "value": "ULTRA"},
-        # Suscripciones mensuales
-        "SUB_STARTER_M": {"name": "🌱 STARTER 30 días",   "type": "sub_month","stars": 80,   "value": "STARTER"},
-        "SUB_BASIC_M":   {"name": "💠 BÁSICO 30 días",    "type": "sub_month","stars": 150,  "value": "BASIC"},
-        "SUB_PRO_M":     {"name": "💎 PRO 30 días",       "type": "sub_month","stars": 250,  "value": "PRO"},
-        "SUB_ULTRA_M":   {"name": "🔥 ULTRA 30 días",     "type": "sub_month","stars": 500,  "value": "ULTRA"},
-        "SUB_ENT_M":     {"name": "🏢 ENTERPRISE 30 días","type": "sub_month","stars": 1200, "value": "ENTERPRISE"},
-        # Suscripciones anuales (ahorro 30%)
-        "SUB_PRO_Y":     {"name": "💎 PRO ANUAL (Ahorra 30%)",  "type": "sub_year","stars": 2200, "value": "PRO"},
-        "SUB_ULTRA_Y":   {"name": "🔥 ULTRA ANUAL (Ahorra 30%)","type": "sub_year","stars": 4500, "value": "ULTRA"},
-        # Especiales
-        "VIP_MONTH":     {"name": "🥂 Sala VIP 30 días",  "type": "vip",      "stars": 150,  "value": "VIP"},
-        "GIFT_500":      {"name": "🎁 Tarjeta 500 pts",   "type": "gift_card","stars": 10,   "value": 500},
-        "GIFT_2500":     {"name": "🎁 Tarjeta 2,500 pts", "type": "gift_card","stars": 40,   "value": 2500},
-        "GIFT_10000":    {"name": "🎁 Tarjeta 10,000 pts","type": "gift_card","stars": 150,  "value": 10000},
-        "BOOST_XP_W":    {"name": "🧪 XP Boost x3 Semanal","type":"boost",   "stars": 60,   "value": "xp3_week"},
-        "CLAN_SLOT":     {"name": "🛡️ Slot Extra en Clan", "type":"clan_slot","stars": 80,   "value": 5},
-    }
-
-    # ── TIENDA DE ÍTEMS ───────────────────────────────────────
-    SHOP_ITEMS = {
-        "XP_BOOST_X2":   {"name": "🧪 XP x2 (24h)",        "price": 5000,  "desc": "Doble XP por 24 horas."},
-        "XP_BOOST_X3":   {"name": "🔬 XP x3 (24h)",        "price": 12000, "desc": "Triple XP (solo ULTRA+)."},
-        "BYPASS_QUEUE":  {"name": "🚀 Bypass Cola",         "price": 3000,  "desc": "Descarga prioritaria."},
-        "CLAN_TICKET":   {"name": "🛡️ Fundar Facción",      "price": 10000, "desc": "Crea tu propio clan."},
-        "RENAME_CARD":   {"name": "📝 Cambio Apodo",        "price": 2000,  "desc": "Cambia tu nombre."},
-        "SHIELD":        {"name": "🛡️ Escudo Anti-Robo 24h","price": 4000,  "desc": "Nadie puede robarte puntos."},
-        "LOOT_BOX":      {"name": "🎁 Caja Loot Aleatoria", "price": 1500,  "desc": "Premio aleatorio: 500-50,000 pts."},
-        "CLAN_WAR_PASS": {"name": "⚔️ Pase de Guerra",      "price": 8000,  "desc": "Participa en Guerra de Clanes."},
-        "EXTRA_DL":      {"name": "➕ +10 Descargas Hoy",   "price": 2500,  "desc": "10 extracciones adicionales hoy."},
-        "PRESTIGE_TOKEN":{"name": "👑 Token Prestigio",     "price": 50000, "desc": "Símbolo de estatus máximo."},
-        "LUCK_CHARM":    {"name": "🍀 Amuleto Suerte 24h",  "price": 6000,  "desc": "+15% ganancias casino 24h."},
-        "DOUBLE_REF":    {"name": "🔗 Referido x2 48h",     "price": 7000,  "desc": "Doble recompensa por referidos 48h."},
-    }
-
-    # ── LOGROS V500 ───────────────────────────────────────────
-    ACHIEVEMENTS = {
-        "FIRST_BLOOD":    {"name": "Primera Sangre",     "desc": "Primera descarga.",            "reward": 500},
-        "CENTURION":      {"name": "Centurión",          "desc": "100 descargas.",               "reward": 5000},
-        "DOWNLOADER_500": {"name": "Extractor Leyenda",  "desc": "500 descargas.",               "reward": 25000},
-        "BATCH_MASTER":   {"name": "Maestro Batch",      "desc": "10 descargas en lote.",        "reward": 3000},
-        "INFLUENCER":     {"name": "Influencer",         "desc": "10 referidos.",                "reward": 10000},
-        "MEGA_REF":       {"name": "Mega Referido",      "desc": "50 referidos.",                "reward": 50000},
-        "GAMBLER":        {"name": "Ludópata Imperial",  "desc": "100 partidas casino.",         "reward": 2000},
-        "GUILD_MASTER":   {"name": "Maestro de Gremio",  "desc": "Funda una Facción.",           "reward": 3000},
-        "INVESTOR":       {"name": "Inversor Privado",   "desc": "Primera compra Stars.",        "reward": 5000},
-        "WHALE":          {"name": "Ballena Cripto",     "desc": "100,000 pts en Stars.",        "reward": 15000},
-        "CARD_SHARK":     {"name": "Tiburón de Cartas",  "desc": "10 victorias Blackjack.",      "reward": 3000},
-        "MINES_MASTER":   {"name": "Maestro de Minas",   "desc": "20 victorias en Mines.",       "reward": 4000},
-        "PLINKO_KING":    {"name": "Rey del Plinko",     "desc": "Jackpot en Plinko.",           "reward": 5000},
-        "POKER_PRO":      {"name": "Profesional Poker",  "desc": "50 manos ganadas en Poker.",   "reward": 8000},
-        "STREAK_WEEK":    {"name": "Racha Semanal",      "desc": "7 días seguidos.",             "reward": 5000},
-        "STREAK_MONTH":   {"name": "Racha Mensual",      "desc": "30 días seguidos.",            "reward": 30000},
-        "AFFILIATE_BOSS": {"name": "Jefe Afiliado",      "desc": "10,000 pts en comisiones.",    "reward": 8000},
-        "TOURNAMENT_WIN": {"name": "Campeón Imperial",   "desc": "Gana un torneo.",              "reward": 20000},
-        "VIP_MEMBER":     {"name": "VIP Exclusivo",      "desc": "Accede a la Sala VIP.",        "reward": 2000},
-        "CLAN_WAR_WIN":   {"name": "Guerrero Victorioso","desc": "Gana una guerra de clanes.",   "reward": 10000},
-        "MARKET_BARON":   {"name": "Barón del Mercado",  "desc": "10 ventas en mercado P2P.",    "reward": 5000},
-        "HACKER":         {"name": "Cyber-Hacker",       "desc": "Genera API Key.",              "reward": 1000},
-        "TWO_FA_GUARDIAN":{"name": "Guardián 2FA",       "desc": "Activa 2FA.",                  "reward": 1500},
-        "PRESTIGE":       {"name": "Símbolo de Prestigio","desc": "Compra Token Prestigio.",     "reward": 100000},
-    }
-
-    # ── IDIOMAS ───────────────────────────────────────────────
-    LANGUAGES = {
-        "es": {"welcome": "👑 **BIENVENIDO AL IMPERIO V500**\nInfraestructura blindada. Sin límites."},
-        "en": {"welcome": "👑 **WELCOME TO THE EMPIRE V500**\nFortified infrastructure. No limits."},
-        "fr": {"welcome": "👑 **BIENVENUE À L'EMPIRE V500**\nInfrastructure blindée. Sans limites."},
-        "ar": {"welcome": "👑 **مرحبًا في الإمبراطورية V500**\nبنية محصنة. بلا حدود."},
-        "de": {"welcome": "👑 **WILLKOMMEN IM IMPERIUM V500**\nGesicherte Infrastruktur. Keine Grenzen."},
-        "it": {"welcome": "👑 **BENVENUTO ALL'IMPERO V500**\nInfrastruttura blindata. Nessun limite."},
-    }
-
-    @classmethod
-    def init_filesystem(cls):
-        for d in [cls.VAULT_DIR, cls.BUFFER_DIR, cls.LOGS_DIR, cls.BACKUP_DIR,
-                  cls.QR_DIR, cls.TTS_DIR, cls.EXPORT_DIR]:
-            os.makedirs(d, exist_ok=True)
-
-EmpireConfig.init_filesystem()
-
-# Añadir handler de logs estructurados
-json_handler = logging.FileHandler(os.path.join(EmpireConfig.LOGS_DIR, "structured_v500.jsonl"), encoding='utf-8')
-json_handler.setFormatter(JsonFormatter())
-logger.addHandler(json_handler)
-file_handler = logging.FileHandler(os.path.join(EmpireConfig.LOGS_DIR, "audit_v500.log"), encoding='utf-8')
-file_handler.setLevel(logging.INFO)
-logger.addHandler(file_handler)
-
-# ============================================================
-# [4] AUDITORÍA Y ALERTAS
-# ============================================================
-class AuditLogger:
-    def __init__(self):
-        self.log_file = os.path.join(EmpireConfig.LOGS_DIR, "audit_v500.jsonl")
-
-    def log(self, action: str, user_id=None, details: Dict = None, severity: str = "INFO"):
-        entry = {"timestamp": datetime.datetime.utcnow().isoformat(), "action": action,
-                 "user_id": user_id, "details": details or {}, "severity": severity, "pid": os.getpid()}
-        with open(self.log_file, 'a', encoding='utf-8') as f:
-            f.write(json.dumps(entry, ensure_ascii=False) + '\n')
-
-    def export_csv(self, limit: int = 1000) -> str:
-        """Exporta los últimos N logs a CSV."""
-        path = os.path.join(EmpireConfig.EXPORT_DIR, f"audit_{datetime.date.today()}.csv")
-        rows = []
-        if os.path.exists(self.log_file):
-            with open(self.log_file, 'r', encoding='utf-8') as f:
-                for line in f:
-                    try: rows.append(json.loads(line))
-                    except: pass
-        rows = rows[-limit:]
-        with open(path, 'w', newline='', encoding='utf-8') as f:
-            if rows:
-                w = csv.DictWriter(f, fieldnames=rows[0].keys())
-                w.writeheader(); w.writerows(rows)
-        return path
-
-audit_logger = AuditLogger()
-
-class AlertSystem:
-    def __init__(self):
-        self.error_count = 0
-        self.last_reset  = time.time()
-        self.bot_ref     = None  # se inyecta al arrancar
-
-    def track_error(self, msg: str = ""):
-        now = time.time()
-        if now - self.last_reset > 60:
-            self.error_count = 0; self.last_reset = now
-        self.error_count += 1
-        if self.error_count >= settings.alert_threshold_errors:
-            logger.critical(f"🚨 ALERTA SISTEMA: {self.error_count} errores/min. {msg}")
-            audit_logger.log("SYSTEM_ALERT", details={"count": self.error_count, "msg": msg}, severity="CRITICAL")
-
-alert_system = AlertSystem()
-
-# ============================================================
-# [5] SEGURIDAD V500 — Rate Limit, Captcha, 2FA, IP Blacklist
-# ============================================================
-class SecurityCoreV500:
-    def __init__(self):
-        self.spam_cache      = {}       # uid -> (timestamp, count)
-        self.captcha_cache   = {}       # uid -> expected_answer
-        self.anomaly_cache   = {}       # uid -> (last_text, time, count)
-        self.ip_blacklist    = set()    # IPs bloqueadas
-        self.session_log     = {}       # uid -> [session_entries]
-        self.login_attempts  = {}       # uid -> (count, last_time)
-        self.blocked_ips     = {}       # ip -> block_until
-        self.totp_secrets    = {}       # uid -> totp_secret (in-memory cache)
-
-    # ── Rate limiting ──────────────────────────────────────
-    def rate_limit(self, uid: int, limit: int = 5, window: float = 3.0) -> bool:
-        now = time.time()
-        if uid in self.spam_cache:
-            last, count = self.spam_cache[uid]
-            if now - last < window:
-                count += 1
-                self.spam_cache[uid] = (now, count)
-                if count > limit:
-                    audit_logger.log("RATE_LIMIT", user_id=uid, severity="WARNING")
-                    return True
-            else:
-                self.spam_cache[uid] = (now, 1)
+# [2] REDIS INTEGRATION - Caché y Rate Limiting distribuido
+class RedisCache:
+    """Caché distribuido con Redis (fallback a memoria si no está disponible)."""
+    def __init__(self, use_redis: bool = False, url: str = "redis://localhost:6379/0"):
+        self.use_redis = use_redis
+        self._redis = None
+        self._memory_cache = {}
+        
+        if use_redis:
+            try:
+                import redis
+                self._redis = redis.from_url(url, decode_responses=True)
+                self._redis.ping()
+                logger.info("✅ Redis conectado. Caché y rate limiting distribuido activado.")
+            except Exception as e:
+                logger.warning(f"⚠️ Redis no disponible, usando caché en memoria: {e}")
+                self.use_redis = False
+    
+    def get(self, key: str) -> Optional[Any]:
+        if self.use_redis and self._redis:
+            val = self._redis.get(key)
+            return json.loads(val) if val else None
+        return self._memory_cache.get(key)
+    
+    def set(self, key: str, value: Any, ttl: int = 3600):
+        if self.use_redis and self._redis:
+            self._redis.setex(key, ttl, json.dumps(value))
         else:
-            self.spam_cache[uid] = (now, 1)
+            self._memory_cache[key] = value
+    
+    def delete(self, key: str):
+        if self.use_redis and self._redis:
+            self._redis.delete(key)
+        elif key in self._memory_cache:
+            del self._memory_cache[key]
+    
+    def exists(self, key: str) -> bool:
+        if self.use_redis and self._redis:
+            return self._redis.exists(key)
+        return key in self._memory_cache
+
+redis_cache = RedisCache(use_redis=settings.use_redis, url=settings.redis_url)
+
+API_RATE_LIMITS = {}
+
+def check_api_rate_limit(ip_address: str, limit: int = 10, window: int = 60) -> bool:
+    """Rate limiting con soporte Redis para distribución."""
+    now = time.time()
+    key = f"rate:{ip_address}"
+    
+    if redis_cache.use_redis:
+        count = redis_cache._redis.zcard(key)
+        if count >= limit:
+            return True
+        redis_cache._redis.zadd(key, {str(now): now})
+        redis_cache._redis.zremrangebyscore(key, 0, now - window)
+        return False
+    else:
+        if ip_address not in API_RATE_LIMITS:
+            API_RATE_LIMITS[ip_address] = [now]
+            return False
+        API_RATE_LIMITS[ip_address] = [t for t in API_RATE_LIMITS[ip_address] if now - t < window]
+        if len(API_RATE_LIMITS[ip_address]) >= limit:
+            return True
+        API_RATE_LIMITS[ip_address].append(now)
         return False
 
-    # ── Anomaly detection ──────────────────────────────────
-    def check_anomaly(self, uid: int, text: str) -> bool:
-        now = time.time()
-        if uid in self.anomaly_cache:
-            last_text, last_time, count = self.anomaly_cache[uid]
-            if text == last_text and (now - last_time < 2):
-                count += 1
-                self.anomaly_cache[uid] = (text, now, count)
-                return count > 5
-            else:
-                self.anomaly_cache[uid] = (text, now, 1)
-        else:
-            self.anomaly_cache[uid] = (text, now, 1)
-        return False
+# =================================================================
+# [9] INPUT SANITIZATION & [7] PYDANTIC VALIDATION
+# =================================================================
 
-    # ── Captcha matemático ────────────────────────────────
-    def generate_captcha(self, uid: int) -> str:
-        ops = ['+', '-', '*']
-        a, b = random.randint(10, 99), random.randint(2, 19)
-        op = random.choice(ops)
-        ans = eval(f"{a}{op}{b}")
-        self.captcha_cache[uid] = int(ans)
-        return f"🔐 CAPTCHA: `{a} {op} {b} = ?`"
+# [7] PYDANTIC MODELS PARA VALIDACIÓN DE INPUTS
+class ExtractRequest(BaseModel):
+    url: HttpUrl
+    format: Optional[str] = "mp4"
+    quality: Optional[str] = "720p"
+    
+    @validator('url')
+    def validate_url(cls, v):
+        allowed_domains = ["youtube.com", "youtu.be", "tiktok.com", "instagram.com", "twitter.com", "veo3.com", "vimeo.com"]
+        url_lower = str(v).lower()
+        if not any(domain in url_lower for domain in allowed_domains):
+            raise ValueError("Dominio no soportado o URL inválida.")
+        return v
 
-    def verify_captcha(self, uid: int, text: str) -> bool:
-        try:
-            if uid in self.captcha_cache and int(text.strip()) == self.captcha_cache[uid]:
-                del self.captcha_cache[uid]; return True
-        except: pass
-        return False
+class TicketRequest(BaseModel):
+    text: str
+    category: Optional[str] = "general"
 
-    # ── 2FA con TOTP ──────────────────────────────────────
-    def generate_2fa_secret(self, uid: str) -> Tuple[str, str]:
-        """Genera un secreto TOTP y devuelve (secret, otpauth_uri)."""
-        secret = pyotp.random_base32()
-        totp   = pyotp.TOTP(secret)
-        uri    = totp.provisioning_uri(name=f"User_{uid}", issuer_name="IshakEmpireV500")
-        self.totp_secrets[uid] = secret
-        return secret, uri
-
-    def verify_2fa(self, uid: str, code: str, stored_secret: str) -> bool:
-        totp = pyotp.TOTP(stored_secret)
-        return totp.verify(code, valid_window=1)
-
-    # ── Blacklist IPs ─────────────────────────────────────
-    def block_ip(self, ip: str, duration_min: int = 60):
-        self.blocked_ips[ip] = time.time() + duration_min * 60
-        self.ip_blacklist.add(ip)
-        audit_logger.log("IP_BLOCKED", details={"ip": ip, "duration_min": duration_min}, severity="WARNING")
-
-    def is_ip_blocked(self, ip: str) -> bool:
-        if ip in self.blocked_ips:
-            if time.time() < self.blocked_ips[ip]: return True
-            del self.blocked_ips[ip]; self.ip_blacklist.discard(ip)
-        return False
-
-    # ── Registro de sesiones ──────────────────────────────
-    def log_session(self, uid: str, action: str, meta: dict = None):
-        entry = {"action": action, "time": datetime.datetime.utcnow().isoformat(), "meta": meta or {}}
-        if uid not in self.session_log: self.session_log[uid] = []
-        self.session_log[uid].append(entry)
-        if len(self.session_log[uid]) > 50: self.session_log[uid].pop(0)
-
-    def get_session_log(self, uid: str) -> List[dict]:
-        return self.session_log.get(uid, [])
-
-    # ── Sanitización ──────────────────────────────────────
+# [9] SANITIZACIÓN DE INPUTS
+class InputSanitizer:
+    """Previene XSS, Path Traversal e inyecciones."""
+    DANGEROUS_CHARS = re.compile(r'[<>"\';\\]')
+    PATH_TRAVERSAL = re.compile(r'\.\./|\.\.\\')
+    MAX_LENGTH = 5000
+    
     @staticmethod
     def sanitize_text(text: str, max_len: int = 1000) -> str:
-        if not text: return ""
-        return html.escape(re.sub(r'\.\./|\.\.\\', '', text))[:max_len]
-
+        if not text:
+            return ""
+        text = html.escape(text)
+        text = InputSanitizer.PATH_TRAVERSAL.sub('', text)
+        return text[:max_len]
+    
     @staticmethod
     def sanitize_url(url: str) -> Optional[str]:
-        if not url: return None
+        if not url:
+            return None
         url = url.strip()
-        if not re.match(r'^https?://[a-zA-Z0-9\-._~:/?#\[\]@!$&\'()*+,;=%]+$', url): return None
-        if re.search(r'\.\./|\.\.\\', url): return None
+        if InputSanitizer.PATH_TRAVERSAL.search(url):
+            return None
+        if not re.match(r'^https?://[a-zA-Z0-9\-._~:/?#\[\]@!$&\'()*+,;=%]+$', url):
+            return None
         return url
-
+    
     @staticmethod
     def validate_username(username: str) -> bool:
         return bool(re.match(r'^[a-zA-Z0-9_]{3,32}$', username)) if username else False
 
-sec = SecurityCoreV500()
+sanitizer = InputSanitizer()
 
-# ============================================================
-# [6] REDIS CACHE
-# ============================================================
-class RedisCache:
+# =================================================================
+# [13] LOGGING ESTRUCTURADO JSON
+# =================================================================
+
+# [13] JSON FORMATTER PARA LOGS
+class JsonFormatter(logging.Formatter):
+    def format(self, record):
+        log_record = {
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno
+        }
+        if record.exc_info:
+            log_record["exception"] = self.formatException(record.exc_info)
+        if hasattr(record, 'user_id'):
+            log_record["user_id"] = record.user_id
+        if hasattr(record, 'action'):
+            log_record["action"] = record.action
+        return json.dumps(log_record, ensure_ascii=False)
+
+# [15] AUDIT LOGS DETALLADOS
+class AuditLogger:
+    """Registra cada acción crítica con trazabilidad completa."""
+    def __init__(self, log_file: str = "audit_logs.jsonl"):
+        self.log_file = os.path.join(EmpireConfig.LOGS_DIR if 'EmpireConfig' in dir() else "system_logs", log_file)
+        os.makedirs(os.path.dirname(self.log_file), exist_ok=True)
+    
+    def log(self, action: str, user_id: Optional[int] = None, details: Dict = None, severity: str = "INFO"):
+        entry = {
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "action": action,
+            "user_id": user_id,
+            "details": details or {},
+            "severity": severity,
+            "pid": os.getpid()
+        }
+        with open(self.log_file, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+
+audit_logger = AuditLogger()
+
+# [14] SISTEMA DE ALERTAS AUTOMÁTICAS
+class AlertSystem:
+    """Envía alertas a Telegram cuando se superan umbrales críticos."""
+    def __init__(self, admin_id: int, alert_chat_id: Optional[int] = None, threshold: int = 5):
+        self.admin_id = admin_id
+        self.alert_chat_id = alert_chat_id or admin_id
+        self.threshold = threshold
+        self.error_count = 0
+        self.last_reset = time.time()
+    
+    def track_error(self):
+        now = time.time()
+        if now - self.last_reset > 60:
+            self.error_count = 0
+            self.last_reset = now
+        self.error_count += 1
+        if self.error_count >= self.threshold:
+            self.send_alert(f"⚠️ **ALERTA CRÍTICA**: {self.error_count} errores en el último minuto.")
+    
+    def send_alert(self, message: str):
+        logger.critical(message)
+        audit_logger.log("ALERT_SENT", details={"message": message}, severity="CRITICAL")
+
+alert_system = AlertSystem(settings.admin_id, settings.alert_chat_id, settings.alert_threshold_errors)
+
+# =================================================================
+# [1] ARQUITECTURA DE CONFIGURACIÓN CORPORATIVA (V400)
+# =================================================================
+class EmpireConfig:
+    ADMIN_ID = settings.admin_id
+    TOKEN = settings.telegram_token
+    VERSION = "401.0.0-LEVIATHAN-ULTRA-MONETIZED"
+    
+    if not TOKEN:
+        print("❌ [ALERTA] TELEGRAM_TOKEN no definido en variables de entorno. Fallo crítico de seguridad.")
+        sys.exit(1)
+        
+    ROOT = os.getcwd()
+    VAULT_DIR = os.path.join(ROOT, "empire_vault")
+    BUFFER_DIR = os.path.join(ROOT, "download_buffer")
+    LOGS_DIR = os.path.join(ROOT, "system_logs")
+    BACKUP_DIR = os.path.join(VAULT_DIR, "backups")
+    
+    DATABASE_PATH = os.path.join(VAULT_DIR, "empire_master_v400.json")
+    SHADOW_DB_PATH = os.path.join(VAULT_DIR, "empire_shadow_v400.json")
+    QR_DIR = os.path.join(BUFFER_DIR, "qrcodes")
+    TTS_DIR = os.path.join(BUFFER_DIR, "tts_audio")
+    
+    PLANS = {
+        "FREE": {
+            "name": "🆓 CIUDADANO", "limit_daily": 5, "max_file_mb": 150,
+            "resolutions": ["360p", "720p"], "speed": "Estándar (2MB/s)",
+            "priority": 0, "max_duration_min": 15
+        },
+        "PRO": {
+            "name": "💎 ELITE (PRO)", "limit_daily": 150, "max_file_mb": 1500,
+            "resolutions": ["360p", "720p", "1080p"], "speed": "Alta (25MB/s)",
+            "priority": 1, "max_duration_min": 120
+        },
+        "ULTRA": {
+            "name": "🔥 SOBERANO (ULTRA)", "limit_daily": 500, "max_file_mb": 10000,
+            "resolutions": ["360p", "720p", "1080p", "1440p", "4K", "8K"], 
+            "speed": "Instántanea", "priority": 2, "max_duration_min": 600
+        },
+        "GOD": {
+            "name": "👁️ OMNIPRESENTE (GOD)", "limit_daily": float('inf'), "max_file_mb": float('inf'),
+            "resolutions": ["360p", "720p", "1080p", "1440p", "4K", "8K", "Original"], 
+            "speed": "Quantum", "priority": 3, "max_duration_min": float('inf')
+        }
+    }
+
+    ECONOMY = {
+        "DAILY_REWARD_MIN": 150, "DAILY_REWARD_MAX": 500,
+        "REF_REWARD": 1500, "PRICE_PRO_DAY": 1000, "PRICE_ULTRA_DAY": 3500,
+        "XP_PER_DOWNLOAD": 25, "XP_PER_MESSAGE": 2,
+        # V401 nuevas mecánicas de ingresos
+        "STREAK_BONUS_DAY": 100,          # bonus extra por racha diaria
+        "AFFILIATE_TIER1_PCT": 0.10,      # 10% de las Stars que gastan los referidos tier-1
+        "AFFILIATE_TIER2_PCT": 0.05,      # 5% de tier-2 (referidos de tus referidos)
+        "WEEKLY_TOURNAMENT_ENTRY": 500,   # coste inscripción torneo semanal
+        "VIP_LOUNGE_MONTHLY": 1500,       # coste sala VIP mensual en puntos
+        "GIFT_CARD_VALUES": [500, 1000, 2500, 5000],  # valores tarjetas regalo
+    }
+
+    SHOP_ITEMS = {
+        "XP_BOOST_X2": {"name": "🧪 Multiplicador XP x2 (24h)", "price": 5000, "desc": "Gana el doble de XP por un día."},
+        "BYPASS_QUEUE": {"name": "🚀 Bypass de Cola", "price": 3000, "desc": "Prioridad máxima en tu próxima descarga."},
+        "CLAN_TICKET": {"name": "🛡️ Permiso Fundación Facción", "price": 10000, "desc": "Te permite crear tu propia Facción."},
+        "RENAME_CARD": {"name": "📝 Tarjeta Cambio de Nombre", "price": 2000, "desc": "Cambia tu apodo en el Imperio."}
+    }
+
+    STARS_PACKAGES = {
+        "PACK_SMALL": {"name": "💰 5,000 Puntos (Packs)", "type": "points", "stars": 50, "value": 5000},
+        "PACK_MEDIUM": {"name": "💎 15,000 Puntos (Packs)", "type": "points", "stars": 120, "value": 15000},
+        "PACK_LARGE": {"name": "🏆 50,000 Puntos (Whale)", "type": "points", "stars": 350, "value": 50000},
+        "SUB_PRO_30D": {"name": "👑 SUSCRIPCIÓN PRO (30 DÍAS)", "type": "sub", "stars": 250, "value": "PRO"},
+        "SUB_ULTRA_30D": {"name": "🔥 SUSCRIPCIÓN ULTRA (30 DÍAS)", "type": "sub", "stars": 500, "value": "ULTRA"},
+        "GIFT_500": {"name": "🎁 Tarjeta Regalo 500 pts", "type": "gift_card", "stars": 10, "value": 500},
+        "GIFT_2500": {"name": "🎁 Tarjeta Regalo 2,500 pts", "type": "gift_card", "stars": 40, "value": 2500},
+        "VIP_MONTH": {"name": "🥂 Sala VIP (30 días)", "type": "vip", "stars": 150, "value": "VIP"},
+    }
+
+    ACHIEVEMENTS = {
+        "FIRST_BLOOD": {"name": "Primera Sangre", "desc": "Realiza tu primera descarga.", "reward": 500},
+        "CENTURION": {"name": "Centurión", "desc": "Alcanza 100 descargas.", "reward": 5000},
+        "INFLUENCER": {"name": "Influencer", "desc": "Invita a 10 ciudadanos.", "reward": 10000},
+        "GAMBLER": {"name": "Ludópata Imperial", "desc": "Juega 50 veces en el casino.", "reward": 2000},
+        "GUILD_MASTER": {"name": "Maestro de Gremio", "desc": "Funda una Facción.", "reward": 3000},
+        "INVESTOR": {"name": "Inversor Privado", "desc": "Compra con Telegram Stars.", "reward": 5000},
+        "HACKER": {"name": "Cyber-Hacker", "desc": "Genera una API Key B2B.", "reward": 1000},
+        "CARD_SHARK": {"name": "Tiburón de Cartas", "desc": "Gana 10 partidas de Blackjack.", "reward": 3000},
+        # V401 nuevos logros
+        "STREAK_WEEK": {"name": "Racha Semanal", "desc": "7 días seguidos de tributo.", "reward": 5000},
+        "WHALE": {"name": "Ballena Cripto", "desc": "Compra 100,000 pts en Stars.", "reward": 15000},
+        "AFFILIATE_BOSS": {"name": "Jefe Afiliado", "desc": "Gana 10,000 pts por comisiones.", "reward": 8000},
+        "TOURNAMENT_WINNER": {"name": "Campeón Imperial", "desc": "Gana un torneo semanal.", "reward": 20000},
+        "VIP_MEMBER": {"name": "VIP Exclusivo", "desc": "Accede a la Sala VIP.", "reward": 2000},
+        "DOWNLOADER_500": {"name": "Extractor Legendario", "desc": "Llega a 500 descargas.", "reward": 25000},
+    }
+    
+    # [21] MULTI-IDIOMA
+    LANGUAGES = {
+        "es": {"welcome": "👑 **BIENVENIDO A ISHAK ENTERPRISE V400 (LEVIATHAN)**\nInfraestructura blindada. No hay fallos. No hay límites."},
+        "en": {"welcome": "👑 **WELCOME TO ISHAK ENTERPRISE V400 (LEVIATHAN)**\nFortified infrastructure. Zero failures. Zero limits."},
+        "fr": {"welcome": "👑 **BIENVENUE À ISHAK ENTERPRISE V400 (LÉVIATHAN)**\nInfrastructure blindée. Aucune défaillance. Aucune limite."},
+        "ar": {"welcome": "👑 **مرحبًا بكم في ISHAK ENTERPRISE V400 (LEVIATHAN)**\nبنية تحتية محصنة. لا أخطاء. لا حدود."}
+    }
+
+    @classmethod
+    def init_filesystem(cls):
+        for d in [cls.VAULT_DIR, cls.BUFFER_DIR, cls.LOGS_DIR, cls.BACKUP_DIR, cls.QR_DIR, cls.TTS_DIR]:
+            os.makedirs(d, exist_ok=True)
+
+EmpireConfig.init_filesystem()
+
+# =================================================================
+# [2] SISTEMA DE AUDITORÍA Y REGISTROS PROFUNDOS
+# =================================================================
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s | %(name)s | %(levelname)s | %(message)s',
+    handlers=[
+        logging.FileHandler(os.path.join(EmpireConfig.LOGS_DIR, "enterprise_audit_v400.log"), encoding='utf-8'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+# Añadir handler JSON estructurado
+json_handler = logging.FileHandler(os.path.join(EmpireConfig.LOGS_DIR, "structured_logs.jsonl"), encoding='utf-8')
+json_handler.setFormatter(JsonFormatter())
+logging.getLogger("ISHAK_LEVIATHAN").addHandler(json_handler)
+
+logger = logging.getLogger("ISHAK_LEVIATHAN")
+logger.info(f"Arquitectura V400.2 Enterprise iniciada. Sistemas de Respaldo Activados. Director: Ishak (18). Sede: España.")
+
+# =================================================================
+# [18] DEPENDENCY INJECTION
+# =================================================================
+class ServiceContainer:
+    """Contenedor de inyección de dependencias para desacoplar componentes."""
     def __init__(self):
-        self._mem = {}
-        self._redis = None
-        if settings.use_redis:
-            try:
-                import redis
-                self._redis = redis.from_url(settings.redis_url, decode_responses=True)
-                self._redis.ping(); logger.info("✅ Redis conectado.")
-            except Exception as e:
-                logger.warning(f"Redis no disponible ({e}), usando memoria.")
-                self._redis = None
+        self._services = {}
+        self._singletons = {}
+    
+    def register(self, name: str, factory: Callable):
+        self._services[name] = factory
+    
+    def register_singleton(self, name: str, instance):
+        self._singletons[name] = instance
+    
+    def resolve(self, name: str):
+        if name in self._singletons:
+            return self._singletons[name]
+        if name in self._services:
+            instance = self._services[name]()
+            self._singletons[name] = instance
+            return instance
+        raise KeyError(f"Servicio '{name}' no registrado.")
 
-    def get(self, key: str):
-        if self._redis:
-            v = self._redis.get(key); return json.loads(v) if v else None
-        return self._mem.get(key)
+services = ServiceContainer()
 
-    def set(self, key: str, value, ttl: int = 3600):
-        if self._redis: self._redis.setex(key, ttl, json.dumps(value))
-        else: self._mem[key] = value
-
-    def delete(self, key: str):
-        if self._redis: self._redis.delete(key)
-        self._mem.pop(key, None)
-
-    def exists(self, key: str) -> bool:
-        if self._redis: return bool(self._redis.exists(key))
-        return key in self._mem
-
-cache = RedisCache()
-METADATA_CACHE: Dict[str, dict] = {}
-
-# ============================================================
-# [7] BASE DE DATOS V500 — NOSQL + SHADOW + SELF-HEALING
-# ============================================================
-API_RATE_LIMITS: Dict = {}
-
+# =================================================================
+# [3] NÚCLEO DE BASE DE DATOS NOSQL CON SHADOW BACKUP (ASYNC I/O)
+# =================================================================
 class EmpireDatabase:
     def __init__(self):
         self._lock = asyncio.Lock()
-        self.data  = self._default_structure()
-        self.sync_load()
+        self.data = self._get_default_structure()
+        self.sync_load() 
 
-    def _default_structure(self) -> dict:
+    def _get_default_structure(self):
         return {
             "users": {}, "coupons": {}, "blacklist": [],
             "factions": {}, "transactions": [], "tickets": {},
-            "b2b_api_keys": {}, "p2p_market": [],
-            "clan_wars": {}, "events": [],
-            "market_stats": {
-                "crypto_value": 150.0, "trend": "up",
-                "history": [], "volume_24h": 0
-            },
+            "b2b_api_keys": {},
+            "market_stats": {"crypto_value": 150.0, "trend": "up", "history": []},
             "stats": {
                 "total_downloads": 0, "total_users": 0, "bytes_processed": 0,
                 "boot_time": str(datetime.datetime.now()), "commands_executed": 0,
                 "stars_revenue": 0, "fraud_attempts_blocked": 0,
                 "casino_spins": 0, "self_healing_fixes": 0,
+                # V401
                 "affiliate_payouts": 0, "gift_cards_sold": 0,
-                "tournament_prize_pool": 0, "p2p_volume": 0,
-                "batch_downloads": 0, "clan_wars_total": 0,
+                "tournament_prize_pool": 0,
             },
             "system": {
                 "maint_mode": False,
-                "global_welcome": EmpireConfig.LANGUAGES["es"]["welcome"],
-                "tournament": {"active": False, "end_time": None, "prize_pool": 0,
-                               "participants": {}, "winners": []},
-                "clan_war": {"active": False, "end_time": None, "factions": [],
-                             "scores": {}, "prize": 25000},
-                "daily_shop": {"items": [], "date": None},
-                "vip_group_id": None,
-                "announcement_channel": None,
-                "scheduled_events": [],
+                "global_welcome": "👑 **BIENVENIDO A ISHAK ENTERPRISE V401 (LEVIATHAN ULTRA)**\nInfraestructura blindada. No hay fallos. No hay límites.",
+                # V401
+                "tournament": {
+                    "active": False, "end_time": None, "prize_pool": 0,
+                    "participants": {}, "winners": []
+                },
+                "vip_group_id": None,  # ID del grupo/canal VIP de Telegram
+                "announcement_channel": None,  # Canal para anuncios
             },
-            "leaderboard_cache": {"top_points": [], "top_downloads": [], "updated": None},
+            # V401: leaderboard global caché
+            "leaderboard_cache": {"top_downloads": [], "top_points": [], "updated": None},
         }
 
-    # ── DB I/O ─────────────────────────────────────────────
-    def _auto_repair(self):
+    def _auto_repair_json(self):
         if not os.path.exists(EmpireConfig.DATABASE_PATH): return
+        corrupted = False
         try:
             with open(EmpireConfig.DATABASE_PATH, 'r', encoding='utf-8') as f:
                 json.load(f)
-        except:
-            logger.critical("⚠️ DB PRINCIPAL CORRUPTA. Restaurando desde shadow...")
+        except Exception as e:
+            logger.critical(f"⚠️ CORRUPCIÓN DETECTADA EN DB PRINCIPAL ({e}). INICIANDO REPARACIÓN AUTÓNOMA.")
+            corrupted = True
+            
+        if corrupted:
             if os.path.exists(EmpireConfig.SHADOW_DB_PATH):
-                shutil.copy2(EmpireConfig.SHADOW_DB_PATH, EmpireConfig.DATABASE_PATH)
-                audit_logger.log("DB_AUTO_REPAIR", severity="WARNING")
+                try:
+                    shutil.copy2(EmpireConfig.SHADOW_DB_PATH, EmpireConfig.DATABASE_PATH)
+                    logger.info("✅ RESTAURACIÓN AUTOMÁTICA DESDE SHADOW DB COMPLETADA CON ÉXITO.")
+                    audit_logger.log("DB_AUTO_REPAIR", severity="WARNING")
+                except Exception as ex:
+                    logger.critical(f"❌ FALLO AL RESTAURAR DESDE SHADOW DB: {ex}")
             else:
-                logger.critical("❌ Shadow DB inexistente. Pérdida de datos posible.")
+                logger.critical("❌ NO EXISTE SHADOW DB. RIESGO DE PÉRDIDA DE DATOS TOTAL.")
 
     def sync_load(self):
-        self._auto_repair()
-        for path in [EmpireConfig.DATABASE_PATH, EmpireConfig.SHADOW_DB_PATH]:
-            if os.path.exists(path):
-                try:
-                    with open(path, 'r', encoding='utf-8') as f:
-                        self._merge(self.data, json.load(f)); return
-                except: pass
-
-    def _merge(self, base: dict, saved: dict):
-        for k, v in saved.items():
-            if isinstance(v, dict) and k in base and isinstance(base[k], dict):
-                self._merge(base[k], v)
-            else:
-                base[k] = v
-
-    def _write(self, data_copy: dict):
-        for path in [EmpireConfig.DATABASE_PATH, EmpireConfig.SHADOW_DB_PATH]:
-            tmp = path + ".tmp"
+        self._auto_repair_json()
+        loaded = False
+        if os.path.exists(EmpireConfig.DATABASE_PATH):
             try:
-                with open(tmp, 'w', encoding='utf-8') as f:
-                    json.dump(data_copy, f, indent=2, ensure_ascii=False)
-                if os.path.getsize(tmp) > 0:
-                    os.replace(tmp, path)
+                with open(EmpireConfig.DATABASE_PATH, 'r', encoding='utf-8') as f:
+                    saved_data = json.load(f)
+                    self._merge_dicts(self.data, saved_data)
+                    loaded = True
             except Exception as e:
-                logger.error(f"Error escribiendo DB {path}: {e}")
+                logger.error(f"⚠️ Fallo post-reparación en DB PRINCIPAL: {e}")
+        
+        if not loaded and os.path.exists(EmpireConfig.SHADOW_DB_PATH):
+            logger.warning("🔄 CARGANDO DIRECTAMENTE DESDE SHADOW DB...")
+            try:
+                with open(EmpireConfig.SHADOW_DB_PATH, 'r', encoding='utf-8') as f:
+                    saved_data = json.load(f)
+                    self._merge_dicts(self.data, saved_data)
+            except Exception as e:
+                logger.critical(f"❌ FALLO TOTAL DE DATOS: {e}")
+
+    def _merge_dicts(self, default_dict, saved_dict):
+        for k, v in saved_dict.items():
+            if isinstance(v, dict) and k in default_dict and isinstance(default_dict[k], dict):
+                self._merge_dicts(default_dict[k], v)
+            else:
+                default_dict[k] = v
+
+    def _sync_save_logic(self, data_copy):
+        temp_path = f"{EmpireConfig.DATABASE_PATH}.tmp"
+        with open(temp_path, 'w', encoding='utf-8') as f:
+            json.dump(data_copy, f, indent=4, ensure_ascii=False)
+        
+        if os.path.getsize(temp_path) > 0:
+            os.replace(temp_path, EmpireConfig.DATABASE_PATH)
+        else:
+            logger.critical("⚠️ FALLO ATÓMICO evitado en Master DB.")
+
+        shadow_temp = f"{EmpireConfig.SHADOW_DB_PATH}.tmp"
+        with open(shadow_temp, 'w', encoding='utf-8') as f:
+            json.dump(data_copy, f, indent=4, ensure_ascii=False)
+            
+        if os.path.getsize(shadow_temp) > 0:
+            os.replace(shadow_temp, EmpireConfig.SHADOW_DB_PATH)
+        else:
+            logger.critical("⚠️ FALLO ATÓMICO evitado en Shadow DB.")
+
+    async def _save_nolock(self):
+        try:
+            data_copy = copy.deepcopy(self.data)
+            await asyncio.to_thread(self._sync_save_logic, data_copy)
+        except Exception as e:
+            logger.error(f"Fallo crítico en persistencia redundante asíncrona: {e}")
+            alert_system.track_error()
 
     async def save(self):
         async with self._lock:
             await self._save_nolock()
 
-    async def _save_nolock(self):
-        try:
-            data_copy = copy.deepcopy(self.data)
-            await asyncio.to_thread(self._write, data_copy)
-        except Exception as e:
-            logger.error(f"Error en save: {e}"); alert_system.track_error()
+    async def deduct_points(self, uid: str, amount: int) -> bool:
+        async with self._lock:
+            if uid in self.data["users"] and self.data["users"][uid]["points"] >= amount:
+                self.data["users"][uid]["points"] -= amount
+                await self._save_nolock()
+                return True
+            return False
 
-    # ── Gestión de puntos ─────────────────────────────────
     async def add_points(self, uid: str, amount: int):
         async with self._lock:
             if uid in self.data["users"]:
                 self.data["users"][uid]["points"] += amount
                 await self._save_nolock()
 
-    async def deduct_points(self, uid: str, amount: int) -> bool:
-        async with self._lock:
-            u = self.data["users"].get(uid)
-            if u and u["points"] >= amount:
-                u["points"] -= amount
-                await self._save_nolock(); return True
-            return False
+    async def backup_job(self):
+        while True:
+            await asyncio.sleep(60 * 60 * 2) 
+            try:
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                backup_path = os.path.join(EmpireConfig.BACKUP_DIR, f"db_backup_{timestamp}.json")
+                def _copy_backup():
+                    shutil.copy2(EmpireConfig.DATABASE_PATH, backup_path)
+                await asyncio.to_thread(_copy_backup)
+                logger.info(f"💾 Respaldo profundo generado: {backup_path}")
+            except Exception as e:
+                logger.error(f"Error backup asíncrono: {e}")
+                alert_system.track_error()
 
-    # ── Registro de transacciones ─────────────────────────
-    async def log_tx(self, uid: str, amount: int, desc: str):
-        async with self._lock:
-            self.data["transactions"].append({
-                "uid": uid, "amount": amount, "desc": desc,
-                "date": str(datetime.datetime.now())})
-            if len(self.data["transactions"]) > 10000:
-                self.data["transactions"] = self.data["transactions"][-8000:]
-            await self._save_nolock()
-
-    # ── GET / CREATE USER ─────────────────────────────────
-    async def get_user(self, user_obj, referrer_id: str = None) -> Tuple[dict, bool]:
+    async def get_user(self, user_obj, referrer_id=None):
         uid = str(user_obj.id)
-        ref_rewarded = False
+        referrer_rewarded = False
+        
         async with self._lock:
-            is_new = uid not in self.data["users"]
-            if is_new:
-                self.data["users"][uid] = self._new_user(user_obj)
+            is_new = False
+            if uid not in self.data["users"]:
+                is_new = True
+                self.data["users"][uid] = {
+                    "id": user_obj.id, "name": sanitizer.sanitize_text(user_obj.first_name, 50), "username": user_obj.username,
+                    "plan": "GOD" if user_obj.id == EmpireConfig.ADMIN_ID else "FREE",
+                    "plan_expiry": None, "points": 1500, "level": 1, "xp": 0,
+                    "crypto_balance": 0.0,
+                    "total_downloads": 0, "daily_downloads": [0, str(datetime.date.today())],
+                    "referrals": 0, "referred_by": None, "achievements": [],
+                    "inventory": {"XP_BOOST_X2": 0, "BYPASS_QUEUE": 0, "CLAN_TICKET": 0, "RENAME_CARD": 0},
+                    "active_buffs": {"xp_multiplier": 1.0, "buff_expiry": None},
+                    "settings": {"watermark": None, "auto_transcribe": False, "ghost_mode": False, "send_as_doc": False, 
+                                 "theme": "dark", "language": settings.default_language, "notifications_enabled": True},
+                    "faction": None, "joined": str(datetime.date.today()),
+                    "is_banned": False, "captcha_solved": False, "fraud_warnings": 0,
+                    "stats": {"casino_played": 0, "bounties_done": 0, "stars_spent": 0, "blackjack_wins": 0},
+                    "last_daily": None, "api_key": None,
+                    "bounties": self._generate_daily_bounties(),
+                    "notification_queue": [],
+                    # V401 nuevos campos
+                    "streak": 0,                    # racha de días consecutivos
+                    "last_streak_date": None,
+                    "affiliate_earnings": 0,        # total ganado por afiliados
+                    "referrals_tier2": [],          # referidos de segundo nivel
+                    "vip_expiry": None,             # fecha expiración VIP
+                    "gift_cards_owned": [],         # tarjetas regalo recibidas
+                    "tournament_score": 0,          # puntuación en torneo activo
+                    "total_spent_stars": 0,         # total Stars gastadas históricas
+                    "coupon_used": None,            # último cupón usado
+                }
                 self.data["stats"]["total_users"] += 1
-                ref_rewarded = await self._process_referral(uid, referrer_id)
 
+                if referrer_id and referrer_id != uid and referrer_id in self.data["users"]:
+                    self.data["users"][referrer_id]["points"] += EmpireConfig.ECONOMY["REF_REWARD"]
+                    self.data["users"][referrer_id]["referrals"] = self.data["users"][referrer_id].get("referrals", 0) + 1
+                    self.data["users"][uid]["referred_by"] = referrer_id
+                    self.data["transactions"].append({"uid": referrer_id, "amount": EmpireConfig.ECONOMY["REF_REWARD"], "desc": f"Bono Referido ({uid})", "date": str(datetime.datetime.now())})
+                    referrer_rewarded = True
+                    # V401: rastrear tier-2 para el referidor del referidor
+                    tier1_ref = self.data["users"][referrer_id].get("referred_by")
+                    if tier1_ref and tier1_ref in self.data["users"]:
+                        tier2_bonus = int(EmpireConfig.ECONOMY["REF_REWARD"] * 0.25)
+                        self.data["users"][tier1_ref]["points"] += tier2_bonus
+                        self.data["users"][tier1_ref].setdefault("referrals_tier2", []).append(uid)
+                        self.data["users"][tier1_ref]["affiliate_earnings"] = self.data["users"][tier1_ref].get("affiliate_earnings", 0) + tier2_bonus
+                        self.data["transactions"].append({"uid": tier1_ref, "amount": tier2_bonus, "desc": f"Comisión Tier-2 ({uid})", "date": str(datetime.datetime.now())})
+            
             u = self.data["users"][uid]
+            needs_save = is_new
             today = str(datetime.date.today())
-            changed = False
-
-            # Reset diario
+            
             if u["daily_downloads"][1] != today:
                 u["daily_downloads"] = [0, today]
-                u["bounties"] = self._gen_bounties()
-                changed = True
-
-            # Expiración de plan
-            for field in ["plan_expiry", "vip_expiry"]:
-                if u.get(field):
-                    try:
-                        if datetime.datetime.now() > datetime.datetime.fromisoformat(u[field]):
-                            if field == "plan_expiry": u["plan"] = "FREE"; u["plan_expiry"] = None
-                            else: u["vip_expiry"] = None
-                            changed = True
-                    except: u[field] = None; changed = True
-
-            # Expiración de buffs
-            if u["active_buffs"].get("buff_expiry"):
+                u["bounties"] = self._generate_daily_bounties()
+                needs_save = True
+                
+            if u.get("plan_expiry") and datetime.datetime.now() > datetime.datetime.fromisoformat(u["plan_expiry"]):
+                u["plan"] = "FREE"
+                u["plan_expiry"] = None
+                needs_save = True
+                
+            # V401: check VIP expiry
+            if u.get("vip_expiry") and datetime.datetime.now() > datetime.datetime.fromisoformat(u["vip_expiry"]):
+                u["vip_expiry"] = None
+                needs_save = True
+                
+            if u["active_buffs"].get("buff_expiry") and datetime.datetime.now() > datetime.datetime.fromisoformat(u["active_buffs"]["buff_expiry"]):
+                u["active_buffs"] = {"xp_multiplier": 1.0, "buff_expiry": None}
+                needs_save = True
+                
+            if "crypto_balance" not in u:
+                u["crypto_balance"] = 0.0
+                needs_save = True
+                
+            # [10] Desencriptar API key si está encriptada
+            if u.get("api_key") and u["api_key"].startswith("gAAAAA"):
                 try:
-                    if datetime.datetime.now() > datetime.datetime.fromisoformat(u["active_buffs"]["buff_expiry"]):
-                        u["active_buffs"] = {"xp_multiplier": 1.0, "buff_expiry": None, "luck_bonus": 0}
-                        changed = True
-                except: u["active_buffs"] = {"xp_multiplier": 1.0, "buff_expiry": None, "luck_bonus": 0}; changed = True
+                    u["api_key"] = decrypt_sensitive(u["api_key"])
+                except:
+                    pass
+                
+            if needs_save:
+                await self._save_nolock() 
+                
+        return u, referrer_rewarded
 
-            if changed or is_new: await self._save_nolock()
-        return u, ref_rewarded
-
-    def _new_user(self, user_obj) -> dict:
-        uid = str(user_obj.id)
-        return {
-            "id": user_obj.id,
-            "name": sec.sanitize_text(user_obj.first_name or "Usuario", 50),
-            "username": user_obj.username,
-            "plan": "GOD" if user_obj.id == EmpireConfig.ADMIN_ID else "FREE",
-            "plan_expiry": None,
-            "points": 2000, "level": 1, "xp": 0,
-            "crypto_balance": 0.0,
-            "total_downloads": 0,
-            "daily_downloads": [0, str(datetime.date.today())],
-            "extra_downloads_today": 0,
-            "download_history": [],      # [{url, title, date, format}]
-            "favorites": [],             # [url]
-            "batch_queue": [],           # [{url, fmt, quality, status}]
-            "referrals": 0, "referred_by": None,
-            "referrals_tier2": [], "referrals_tier3": [],
-            "achievements": [], "inventory": {k: 0 for k in EmpireConfig.SHOP_ITEMS},
-            "active_buffs": {"xp_multiplier": 1.0, "buff_expiry": None, "luck_bonus": 0},
-            "settings": {
-                "watermark": None, "auto_transcribe": False,
-                "ghost_mode": False, "send_as_doc": False,
-                "theme": "dark", "language": settings.default_language,
-                "notifications_enabled": True, "auto_dl_best": False,
-            },
-            "security": {
-                "two_fa_enabled": False, "two_fa_secret": None,
-                "two_fa_verified": False, "login_history": [],
-                "trusted_ips": [],
-            },
-            "faction": None, "joined": str(datetime.date.today()),
-            "is_banned": False, "ban_reason": None,
-            "captcha_solved": False, "fraud_warnings": 0,
-            "stats": {
-                "casino_played": 0, "bounties_done": 0, "stars_spent": 0,
-                "blackjack_wins": 0, "mines_wins": 0, "poker_wins": 0,
-                "plinko_jackpots": 0, "p2p_sales": 0, "p2p_purchases": 0,
-            },
-            "last_daily": None, "api_key": None,
-            "bounties": self._gen_bounties(),
-            "notification_queue": [],
-            "streak": 0, "last_streak_date": None,
-            "affiliate_earnings": 0,
-            "vip_expiry": None,
-            "gift_cards_owned": [],
-            "tournament_score": 0,
-            "total_spent_stars": 0,
-            "prestige_level": 0,
-            "poker_hand": None,          # estado mano activa de poker
-            "mines_state": None,         # estado juego mines activo
-            "rename_pending": False,
-        }
-
-    def _gen_bounties(self) -> list:
-        pool = [
-            {"id": "dl_3",     "desc": "Extrae 3 archivos",          "target": 3,  "progress": 0, "reward": 600,  "done": False},
-            {"id": "dl_10",    "desc": "Extrae 10 archivos",         "target": 10, "progress": 0, "reward": 2500, "done": False},
-            {"id": "casino_5", "desc": "Juega 5 veces al casino",    "target": 5,  "progress": 0, "reward": 900,  "done": False},
-            {"id": "casino_20","desc": "Juega 20 veces al casino",   "target": 20, "progress": 0, "reward": 4000, "done": False},
-            {"id": "share_1",  "desc": "Invita a 1 amigo",           "target": 1,  "progress": 0, "reward": 1500, "done": False},
-            {"id": "batch_1",  "desc": "Usa modo lote 1 vez",        "target": 1,  "progress": 0, "reward": 800,  "done": False},
+    def _generate_daily_bounties(self):
+        return [
+            {"id": "dl_3", "desc": "Extrae 3 archivos de la red", "target": 3, "progress": 0, "reward": 500, "done": False},
+            {"id": "casino_5", "desc": "Juega 5 veces al Casino Imperial", "target": 5, "progress": 0, "reward": 800, "done": False},
         ]
-        return random.sample(pool, min(4, len(pool)))
 
-    async def _process_referral(self, uid: str, referrer_id: str) -> bool:
-        if not referrer_id or referrer_id == uid or referrer_id not in self.data["users"]:
-            return False
-        r1 = self.data["users"][referrer_id]
-        bonus = EmpireConfig.ECONOMY["REF_REWARD"]
-        if r1.get("inventory", {}).get("DOUBLE_REF", 0) > 0: bonus *= 2
-        r1["points"] += bonus; r1["referrals"] = r1.get("referrals", 0) + 1
-        self.data["users"][uid]["referred_by"] = referrer_id
-        self.data["transactions"].append({"uid": referrer_id, "amount": bonus, "desc": f"Referido T1 ({uid})", "date": str(datetime.datetime.now())})
-        # Tier 2
-        t2 = r1.get("referred_by")
-        if t2 and t2 in self.data["users"]:
-            t2_bonus = EmpireConfig.ECONOMY["REF_TIER2"]
-            self.data["users"][t2]["points"] += t2_bonus
-            self.data["users"][t2].setdefault("referrals_tier2", []).append(uid)
-            self.data["users"][t2]["affiliate_earnings"] = self.data["users"][t2].get("affiliate_earnings", 0) + t2_bonus
-            self.data["transactions"].append({"uid": t2, "amount": t2_bonus, "desc": f"Referido T2 ({uid})", "date": str(datetime.datetime.now())})
-            # Tier 3
-            t3 = self.data["users"][t2].get("referred_by")
-            if t3 and t3 in self.data["users"]:
-                t3_bonus = EmpireConfig.ECONOMY["REF_TIER3"]
-                self.data["users"][t3]["points"] += t3_bonus
-                self.data["users"][t3].setdefault("referrals_tier3", []).append(uid)
-                self.data["transactions"].append({"uid": t3, "amount": t3_bonus, "desc": f"Referido T3 ({uid})", "date": str(datetime.datetime.now())})
-        return True
-
-    # ── XP y niveles ──────────────────────────────────────
-    async def add_xp(self, uid: str, amount: int) -> Tuple[bool, int]:
+    async def add_xp(self, uid: str, amount: int):
         async with self._lock:
             u = self.data["users"][uid]
             multi = u["active_buffs"]["xp_multiplier"]
-            if u.get("faction") and u["faction"] in self.data["factions"]:
-                multi += self.data["factions"][u["faction"]].get("level", 1) * 0.05
-            u["xp"] += int(amount * multi)
-            xp_needed = u["level"] * 120
-            leveled = False
+            
+            fac_name = u.get("faction")
+            if fac_name and fac_name in self.data["factions"]:
+                fac_level = self.data["factions"][fac_name].get("level", 1)
+                multi += (fac_level * 0.05)
+                
+            final_xp = int(amount * multi)
+            u["xp"] += final_xp
+            xp_needed = u["level"] * 100
+            leveled_up = False
             while u["xp"] >= xp_needed:
-                u["xp"] -= xp_needed; u["level"] += 1
-                u["points"] += u["level"] * 150; xp_needed = u["level"] * 120; leveled = True
+                u["xp"] -= xp_needed
+                u["level"] += 1
+                u["points"] += u["level"] * 100
+                xp_needed = u["level"] * 100
+                leveled_up = True
             await self._save_nolock()
-            return leveled, u["level"]
+            return leveled_up, u["level"]
 
-    # ── Misiones ─────────────────────────────────────────
-    async def update_bounty(self, uid: str, bounty_id: str, amount: int = 1):
+    async def log_tx(self, uid, amount, desc):
+        async with self._lock:
+            self.data["transactions"].append({
+                "uid": uid, "amount": amount, "desc": desc, "date": str(datetime.datetime.now())
+            })
+            if len(self.data["transactions"]) > 5000: self.data["transactions"].pop(0)
+            await self._save_nolock()
+
+    async def update_bounty(self, uid, bounty_id, amount=1):
         async with self._lock:
             u = self.data["users"].get(uid)
             if not u: return None
@@ -799,2681 +799,2782 @@ class EmpireDatabase:
                 if b["id"] == bounty_id and not b["done"]:
                     b["progress"] += amount
                     if b["progress"] >= b["target"]:
-                        b["done"] = True; u["points"] += b["reward"]
+                        b["done"] = True
+                        u["points"] += b["reward"]
                         u["stats"]["bounties_done"] += 1
-                        await self._save_nolock(); return b
+                        await self._save_nolock()
+                        return b
             return None
 
-    # ── Crypto ───────────────────────────────────────────
-    async def trade_crypto(self, uid: str, amount_pts: int, buy: bool) -> Tuple[bool, str]:
+    async def trade_crypto(self, uid: str, amount_points: int, is_buy: bool) -> Tuple[bool, str]:
         async with self._lock:
             u = self.data["users"].get(uid)
-            if not u: return False, "Usuario no encontrado."
-            price = self.data["market_stats"]["crypto_value"]
-            if buy:
-                if u["points"] < amount_pts: return False, "Fondos insuficientes."
-                coins = amount_pts / price
-                u["points"] -= amount_pts; u["crypto_balance"] += coins
-                self.data["market_stats"]["volume_24h"] += amount_pts
-                msg = f"✅ Comprados `{coins:.4f}` IshakCoins por `{amount_pts} pts`."
+            if not u: return False, "Usuario no encontrado en la matriz."
+            
+            if "crypto_balance" not in u: u["crypto_balance"] = 0.0
+            current_price = self.data["market_stats"].get("crypto_value", 150.0)
+            
+            if is_buy:
+                if u["points"] < amount_points:
+                    return False, "Fondos insuficientes en tu capital imperial."
+                crypto_bought = amount_points / current_price
+                u["points"] -= amount_points
+                u["crypto_balance"] += crypto_bought
+                self.data["transactions"].append({"uid": uid, "amount": -amount_points, "desc": f"Compra IshakCoin ({crypto_bought:.4f})", "date": str(datetime.datetime.now())})
+                return True, f"✅ Operación Exitosa.\nComprados {crypto_bought:.4f} IshakCoins por {amount_points} pts."
             else:
-                coins = u.get("crypto_balance", 0)
-                if coins <= 0: return False, "No tienes IshakCoins."
-                gained = int(coins * price)
-                u["crypto_balance"] = 0; u["points"] += gained
-                self.data["market_stats"]["volume_24h"] += gained
-                msg = f"✅ Vendidos `{coins:.4f}` coins. Recibes `{gained} pts`."
-            self.data["transactions"].append({"uid": uid, "amount": amount_pts if buy else gained, "desc": "Crypto trade", "date": str(datetime.datetime.now())})
-            await self._save_nolock(); return True, msg
+                crypto_to_sell = u["crypto_balance"]
+                if crypto_to_sell <= 0:
+                    return False, "No tienes IshakCoins en tu portafolio."
+                
+                points_gained = int(crypto_to_sell * current_price)
+                u["crypto_balance"] = 0.0
+                u["points"] += points_gained
+                self.data["transactions"].append({"uid": uid, "amount": points_gained, "desc": f"Venta Total IshakCoin ({crypto_to_sell:.4f})", "date": str(datetime.datetime.now())})
+                return True, f"✅ Liquidación Completada.\nVendidos {crypto_to_sell:.4f} IshakCoins. Recibes {points_gained} pts."
 
-    # ── Racha diaria ─────────────────────────────────────
-    async def process_daily_streak(self, uid: str) -> Tuple[int, int, bool, bool]:
+    # =============================================
+    # V401 NUEVOS MÉTODOS DE DB
+    # =============================================
+    
+    async def process_daily_streak(self, uid: str) -> Tuple[int, int, bool]:
+        """Procesa la racha diaria y devuelve (reward, streak, achieved_week)."""
         async with self._lock:
             u = self.data["users"].get(uid)
-            if not u: return 0, 0, False, False
+            if not u:
+                return 0, 0, False
             today = str(datetime.date.today())
             yesterday = str(datetime.date.today() - datetime.timedelta(days=1))
-            if u.get("last_daily") == today: return 0, u.get("streak", 0), False, False
+            last = u.get("last_streak_date")
+            if last == today:
+                return 0, u.get("streak", 0), False  # ya reclamado hoy
+            
             streak = u.get("streak", 0)
-            streak = (streak + 1) if u.get("last_streak_date") == yesterday else 1
-            u["streak"] = streak; u["last_streak_date"] = today
-            base = random.randint(EmpireConfig.ECONOMY["DAILY_REWARD_MIN"],
-                                  EmpireConfig.ECONOMY["DAILY_REWARD_MAX"])
-            streak_bonus = min(streak * EmpireConfig.ECONOMY["STREAK_BONUS_DAY"],
-                               EmpireConfig.ECONOMY["MAX_STREAK_BONUS"])
-            plan = u["plan"]
-            multi = {"FREE":1.0,"STARTER":1.3,"BASIC":1.6,"PRO":2.0,"ULTRA":3.0,"ENTERPRISE":4.0,"GOD":5.0}.get(plan, 1.0)
-            total = int((base + streak_bonus) * multi)
-            u["points"] += total; u["last_daily"] = today
-            self.data["transactions"].append({"uid": uid, "amount": total, "desc": f"Tributo Diario (racha {streak})", "date": str(datetime.datetime.now())})
-            week_ach  = streak == 7  and "STREAK_WEEK"  not in u.get("achievements",[])
-            month_ach = streak == 30 and "STREAK_MONTH" not in u.get("achievements",[])
-            for ach, key in [(week_ach,"STREAK_WEEK"),(month_ach,"STREAK_MONTH")]:
-                if ach:
-                    u.setdefault("achievements",[]).append(key)
-                    u["points"] += EmpireConfig.ACHIEVEMENTS[key]["reward"]
+            if last == yesterday:
+                streak += 1
+            else:
+                streak = 1  # reinicia racha si rompió
+            
+            u["streak"] = streak
+            u["last_streak_date"] = today
+            
+            base = random.randint(EmpireConfig.ECONOMY["DAILY_REWARD_MIN"], EmpireConfig.ECONOMY["DAILY_REWARD_MAX"])
+            streak_bonus = min(streak * EmpireConfig.ECONOMY["STREAK_BONUS_DAY"], 2000)
+            if u["plan"] == "PRO": base = int(base * 1.5)
+            elif u["plan"] in ["ULTRA", "GOD"]: base = int(base * 3)
+            total = base + streak_bonus
+            
+            u["points"] += total
+            u["last_daily"] = today
+            self.data["transactions"].append({"uid": uid, "amount": total, "desc": f"Tributo Diario (Racha {streak})", "date": str(datetime.datetime.now())})
+            
+            week_achieved = streak == 7 and "STREAK_WEEK" not in u.get("achievements", [])
+            if week_achieved:
+                u.setdefault("achievements", []).append("STREAK_WEEK")
+                u["points"] += EmpireConfig.ACHIEVEMENTS["STREAK_WEEK"]["reward"]
+            
             await self._save_nolock()
-            return total, streak, week_ach, month_ach
+            return total, streak, week_achieved
 
-    # ── Afiliados ─────────────────────────────────────────
-    async def pay_affiliate_commission(self, buyer_uid: str, stars: int):
+    async def pay_affiliate_commission(self, buyer_uid: str, stars_amount: int):
+        """Paga comisiones en cascada cuando alguien compra Stars."""
         async with self._lock:
-            t1 = self.data["users"].get(buyer_uid, {}).get("referred_by")
-            if t1 and t1 in self.data["users"]:
-                c1 = int(stars * EmpireConfig.ECONOMY["AFFILIATE_T1_PCT"] * 10)
-                self.data["users"][t1]["points"] += c1
-                self.data["users"][t1]["affiliate_earnings"] = self.data["users"][t1].get("affiliate_earnings",0)+c1
-                self.data["stats"]["affiliate_payouts"] += c1
-                t2 = self.data["users"][t1].get("referred_by")
-                if t2 and t2 in self.data["users"]:
-                    c2 = int(stars * EmpireConfig.ECONOMY["AFFILIATE_T2_PCT"] * 10)
-                    self.data["users"][t2]["points"] += c2
-                    self.data["users"][t2]["affiliate_earnings"] = self.data["users"][t2].get("affiliate_earnings",0)+c2
-                    t3 = self.data["users"][t2].get("referred_by")
-                    if t3 and t3 in self.data["users"]:
-                        c3 = int(stars * EmpireConfig.ECONOMY["AFFILIATE_T3_PCT"] * 10)
-                        self.data["users"][t3]["points"] += c3
+            tier1_uid = self.data["users"].get(buyer_uid, {}).get("referred_by")
+            if tier1_uid and tier1_uid in self.data["users"]:
+                commission = int(stars_amount * EmpireConfig.ECONOMY["AFFILIATE_TIER1_PCT"] * 10)
+                self.data["users"][tier1_uid]["points"] += commission
+                self.data["users"][tier1_uid]["affiliate_earnings"] = self.data["users"][tier1_uid].get("affiliate_earnings", 0) + commission
+                self.data["transactions"].append({"uid": tier1_uid, "amount": commission, "desc": f"Comisión Stars T1 de {buyer_uid}", "date": str(datetime.datetime.now())})
+                self.data["stats"]["affiliate_payouts"] += commission
+                
+                # tier-2
+                tier2_uid = self.data["users"].get(tier1_uid, {}).get("referred_by")
+                if tier2_uid and tier2_uid in self.data["users"]:
+                    commission2 = int(stars_amount * EmpireConfig.ECONOMY["AFFILIATE_TIER2_PCT"] * 10)
+                    self.data["users"][tier2_uid]["points"] += commission2
+                    self.data["users"][tier2_uid]["affiliate_earnings"] = self.data["users"][tier2_uid].get("affiliate_earnings", 0) + commission2
+                    self.data["transactions"].append({"uid": tier2_uid, "amount": commission2, "desc": f"Comisión Stars T2 de {buyer_uid}", "date": str(datetime.datetime.now())})
             await self._save_nolock()
 
-    # ── Gift cards ────────────────────────────────────────
     async def generate_gift_card(self, value: int) -> str:
+        """Genera un código de tarjeta regalo único."""
         async with self._lock:
             code = "GFT-" + uuid.uuid4().hex[:10].upper()
-            self.data["coupons"][code] = {"type": "gift_card", "value": value,
-                                          "used": False, "created": str(datetime.datetime.now())}
+            self.data["coupons"][code] = {"type": "gift_card", "value": value, "used": False, "created": str(datetime.datetime.now())}
             self.data["stats"]["gift_cards_sold"] += 1
-            await self._save_nolock(); return code
+            await self._save_nolock()
+            return code
 
     async def redeem_gift_card(self, uid: str, code: str) -> Tuple[bool, str]:
+        """Canjea una tarjeta regalo."""
         async with self._lock:
             code = code.strip().upper()
-            if code not in self.data["coupons"]: return False, "Código inválido."
+            if code not in self.data["coupons"]:
+                return False, "Código de tarjeta inválido."
             card = self.data["coupons"][code]
-            if card.get("used"): return False, "Tarjeta ya canjeada."
-            if card.get("type") != "gift_card": return False, "No es tarjeta regalo."
+            if card.get("used"):
+                return False, "Esta tarjeta ya fue canjeada."
+            if card.get("type") != "gift_card":
+                return False, "Código no es una tarjeta regalo."
+            
             self.data["coupons"][code]["used"] = True
             self.data["coupons"][code]["used_by"] = uid
             self.data["users"][uid]["points"] += card["value"]
-            self.data["transactions"].append({"uid":uid,"amount":card["value"],"desc":f"Gift Card ({code})","date":str(datetime.datetime.now())})
-            await self._save_nolock(); return True, f"✅ Recibidos **{card['value']} pts**."
+            self.data["transactions"].append({"uid": uid, "amount": card["value"], "desc": f"Tarjeta Regalo Canjeada ({code})", "date": str(datetime.datetime.now())})
+            await self._save_nolock()
+            return True, f"✅ Tarjeta canjeada. Has recibido **{card['value']} pts**."
 
-    # ── Leaderboard ───────────────────────────────────────
-    async def get_leaderboard(self, cat: str = "points", n: int = 10) -> list:
+    async def get_leaderboard(self, category: str = "points", top_n: int = 10) -> list:
+        """Devuelve el leaderboard actualizado."""
         users = list(self.data["users"].values())
-        key_map = {"points":"points","downloads":"total_downloads",
-                   "referrals":"referrals","affiliate":"affiliate_earnings","level":"level"}
-        key = key_map.get(cat, "points")
-        s = sorted(users, key=lambda x: x.get(key, 0), reverse=True)
-        return [(u.get("name","?"), u.get("username",""), u.get(key,0), u.get("plan","FREE")) for u in s[:n]]
+        if category == "points":
+            sorted_users = sorted(users, key=lambda x: x.get("points", 0), reverse=True)
+        elif category == "downloads":
+            sorted_users = sorted(users, key=lambda x: x.get("total_downloads", 0), reverse=True)
+        elif category == "referrals":
+            sorted_users = sorted(users, key=lambda x: x.get("referrals", 0), reverse=True)
+        elif category == "affiliate":
+            sorted_users = sorted(users, key=lambda x: x.get("affiliate_earnings", 0), reverse=True)
+        else:
+            sorted_users = sorted(users, key=lambda x: x.get("level", 0), reverse=True)
+        
+        return [(u.get("name", "?"), u.get("username", ""), u.get(category, 0)) for u in sorted_users[:top_n]]
 
-    # ── Torneos ───────────────────────────────────────────
-    async def start_tournament(self, hours: int = 24, seed: int = 5000):
+    async def start_tournament(self, duration_hours: int = 24, prize_pool_seed: int = 5000):
+        """Inicia un torneo semanal de descargas."""
         async with self._lock:
-            end = datetime.datetime.now() + datetime.timedelta(hours=hours)
+            end = datetime.datetime.now() + datetime.timedelta(hours=duration_hours)
             self.data["system"]["tournament"] = {
                 "active": True, "end_time": end.isoformat(),
-                "prize_pool": seed, "participants": {}, "winners": []}
+                "prize_pool": prize_pool_seed, "participants": {}, "winners": []
+            }
             await self._save_nolock()
 
     async def add_tournament_score(self, uid: str, score: int = 1):
+        """Añade puntuación al torneo activo para un usuario."""
         async with self._lock:
-            t = self.data["system"]["tournament"]
-            if not t.get("active"): return
+            t = self.data["system"].get("tournament", {})
+            if not t.get("active"):
+                return
+            # auto-finalizar si expiró
             if t.get("end_time") and datetime.datetime.now() > datetime.datetime.fromisoformat(t["end_time"]):
-                t["active"] = False; await self._save_nolock(); return
+                t["active"] = False
+                await self._save_nolock()
+                return
             t["participants"][uid] = t["participants"].get(uid, 0) + score
-            t["prize_pool"] += 15
+            self.data["users"][uid]["tournament_score"] = t["participants"][uid]
+            t["prize_pool"] += 10  # cada acción añade 10 pts al bote
             await self._save_nolock()
 
     async def finalize_tournament(self) -> list:
+        """Finaliza el torneo, reparte premios y devuelve ganadores."""
         async with self._lock:
-            t = self.data["system"]["tournament"]
-            p = t.get("participants", {})
-            if not p: t["active"] = False; await self._save_nolock(); return []
-            sorted_p = sorted(p.items(), key=lambda x: x[1], reverse=True)
+            t = self.data["system"].get("tournament", {})
+            if not t.get("participants"):
+                t["active"] = False
+                await self._save_nolock()
+                return []
+            
+            sorted_p = sorted(t["participants"].items(), key=lambda x: x[1], reverse=True)
             pool = t["prize_pool"]
-            dist = [0.50, 0.30, 0.20]
             winners = []
+            prizes = [int(pool * 0.5), int(pool * 0.30), int(pool * 0.20)]
+            
             for i, (uid, score) in enumerate(sorted_p[:3]):
-                prize = int(pool * dist[i])
-                if uid in self.data["users"]:
+                prize = prizes[i] if i < len(prizes) else 0
+                if prize and uid in self.data["users"]:
                     self.data["users"][uid]["points"] += prize
-                    if i == 0 and "TOURNAMENT_WIN" not in self.data["users"][uid].get("achievements",[]):
-                        self.data["users"][uid]["achievements"].append("TOURNAMENT_WIN")
-                        self.data["users"][uid]["points"] += EmpireConfig.ACHIEVEMENTS["TOURNAMENT_WIN"]["reward"]
-                    self.data["transactions"].append({"uid":uid,"amount":prize,"desc":f"Premio Torneo #{i+1}","date":str(datetime.datetime.now())})
+                    if "TOURNAMENT_WINNER" not in self.data["users"][uid].get("achievements", []) and i == 0:
+                        self.data["users"][uid]["achievements"].append("TOURNAMENT_WINNER")
+                        self.data["users"][uid]["points"] += EmpireConfig.ACHIEVEMENTS["TOURNAMENT_WINNER"]["reward"]
+                    self.data["transactions"].append({"uid": uid, "amount": prize, "desc": f"Premio Torneo #{i+1}", "date": str(datetime.datetime.now())})
                     winners.append((uid, score, prize))
-            t["active"] = False; t["winners"] = [{"uid":w[0],"score":w[1],"prize":w[2]} for w in winners]
-            t["participants"] = {}; self.data["stats"]["tournament_prize_pool"] += pool
-            await self._save_nolock(); return winners
-
-    # ── Guerra de Clanes ──────────────────────────────────
-    async def start_clan_war(self, faction1: str, faction2: str, hours: int = 48):
-        async with self._lock:
-            if faction1 not in self.data["factions"] or faction2 not in self.data["factions"]:
-                return False, "Una o ambas facciones no existen."
-            end = datetime.datetime.now() + datetime.timedelta(hours=hours)
-            war_id = f"war_{uuid.uuid4().hex[:8]}"
-            self.data["clan_wars"][war_id] = {
-                "factions": [faction1, faction2], "end_time": end.isoformat(),
-                "scores": {faction1: 0, faction2: 0}, "active": True,
-                "prize": EmpireConfig.ECONOMY["CLAN_WAR_REWARD_TOP"]
-            }
-            self.data["system"]["clan_war"] = {
-                "active": True, "war_id": war_id, "factions": [faction1, faction2],
-                "end_time": end.isoformat(), "scores": {faction1: 0, faction2: 0},
-                "prize": EmpireConfig.ECONOMY["CLAN_WAR_REWARD_TOP"]
-            }
-            self.data["stats"]["clan_wars_total"] += 1
+            
+            t["active"] = False
+            t["winners"] = [{"uid": w[0], "score": w[1], "prize": w[2]} for w in winners]
+            t["participants"] = {}
+            self.data["stats"]["tournament_prize_pool"] += pool
             await self._save_nolock()
-            return True, war_id
+            return winners
 
-    async def add_clan_war_score(self, uid: str, points: int = 1):
+    async def add_to_queue(self, uid: str, url: str, fmt: str, quality: str):
         async with self._lock:
-            u = self.data["users"].get(uid, {})
-            faction = u.get("faction")
-            cw = self.data["system"].get("clan_war", {})
-            if not cw.get("active") or not faction: return
-            if faction in cw.get("factions", []):
-                cw["scores"][faction] = cw["scores"].get(faction, 0) + points
-            await self._save_nolock()
-
-    async def finalize_clan_war(self) -> dict:
-        async with self._lock:
-            cw = self.data["system"].get("clan_war", {})
-            if not cw.get("active"): return {}
-            scores = cw.get("scores", {})
-            if not scores: cw["active"] = False; await self._save_nolock(); return {}
-            winner = max(scores, key=scores.get)
-            loser  = [f for f in cw["factions"] if f != winner][0]
-            prize  = cw["prize"]
-            if winner in self.data["factions"]:
-                for member_uid in self.data["factions"][winner].get("members", []):
-                    if member_uid in self.data["users"]:
-                        self.data["users"][member_uid]["points"] += prize // max(len(self.data["factions"][winner]["members"]),1)
-                        self.data["users"][member_uid].setdefault("achievements",[])
-                        if "CLAN_WAR_WIN" not in self.data["users"][member_uid]["achievements"]:
-                            self.data["users"][member_uid]["achievements"].append("CLAN_WAR_WIN")
-                            self.data["users"][member_uid]["points"] += EmpireConfig.ACHIEVEMENTS["CLAN_WAR_WIN"]["reward"]
-            cw["active"] = False
-            result = {"winner": winner, "loser": loser, "scores": scores, "prize": prize}
-            await self._save_nolock(); return result
-
-    # ── Mercado P2P ───────────────────────────────────────
-    async def create_p2p_listing(self, seller_uid: str, item_type: str, amount: int, price: int) -> Tuple[bool, str]:
-        async with self._lock:
-            u = self.data["users"].get(seller_uid)
-            if not u: return False, "Usuario no encontrado."
-            if item_type == "points":
-                if u["points"] < amount: return False, "Puntos insuficientes."
-                u["points"] -= amount  # escrow
-            listing_id = f"p2p_{uuid.uuid4().hex[:8]}"
-            self.data["p2p_market"].append({
-                "id": listing_id, "seller": seller_uid, "type": item_type,
-                "amount": amount, "price": price, "active": True,
-                "created": str(datetime.datetime.now())
+            if "download_queue" not in self.data["users"][uid]:
+                self.data["users"][uid]["download_queue"] = []
+            self.data["users"][uid]["download_queue"].append({
+                "id": str(uuid.uuid4()), "url": url, "format": fmt, "quality": quality, 
+                "status": "pending", "added_at": datetime.datetime.now().isoformat()
             })
             await self._save_nolock()
-            return True, listing_id
+    
+    async def get_queue(self, uid: str):
+        return self.data["users"].get(uid, {}).get("download_queue", [])
 
-    async def buy_p2p_listing(self, buyer_uid: str, listing_id: str) -> Tuple[bool, str]:
+    # [22] NOTIFICACIONES PUSH
+    async def push_notification(self, uid: str, message: str, category: str = "general"):
         async with self._lock:
-            listing = next((l for l in self.data["p2p_market"] if l["id"] == listing_id and l["active"]), None)
-            if not listing: return False, "Anuncio no encontrado o ya cerrado."
-            buyer = self.data["users"].get(buyer_uid)
-            if not buyer: return False, "Comprador no encontrado."
-            if buyer["points"] < listing["price"]: return False, "Puntos insuficientes."
-            fee = int(listing["price"] * EmpireConfig.ECONOMY["P2P_MARKET_FEE"])
-            seller_gets = listing["price"] - fee
-            buyer["points"] -= listing["price"]
-            seller = self.data["users"].get(listing["seller"])
-            if seller:
-                seller["points"] += seller_gets + listing["amount"]  # devolver escrow + pago
-                seller["stats"]["p2p_sales"] = seller.get("stats",{}).get("p2p_sales",0)+1
-            buyer["stats"]["p2p_purchases"] = buyer.get("stats",{}).get("p2p_purchases",0)+1
-            self.data["stats"]["p2p_volume"] += listing["price"]
-            listing["active"] = False
-            await self._save_nolock()
-            return True, f"✅ Compra P2P completada. +{listing['amount']} {listing['type']}."
-
-    # ── Historial de descargas ────────────────────────────
-    async def add_download_history(self, uid: str, url: str, title: str, fmt: str, size_mb: float):
-        async with self._lock:
-            u = self.data["users"].get(uid)
-            if not u: return
-            u.setdefault("download_history", []).append({
-                "url": url, "title": title[:60], "format": fmt,
-                "size_mb": round(size_mb, 2), "date": str(datetime.datetime.now())
-            })
-            if len(u["download_history"]) > 100:
-                u["download_history"] = u["download_history"][-80:]
-            await self._save_nolock()
-
-    # ── Favoritos ────────────────────────────────────────
-    async def toggle_favorite(self, uid: str, url: str) -> bool:
-        async with self._lock:
-            u = self.data["users"].get(uid)
-            if not u: return False
-            favs = u.setdefault("favorites", [])
-            if url in favs: favs.remove(url); added = False
-            else: favs.append(url); added = True
-            await self._save_nolock(); return added
-
-    # ── Tienda diaria rotativa ────────────────────────────
-    async def refresh_daily_shop(self):
-        async with self._lock:
-            today = str(datetime.date.today())
-            shop = self.data["system"]["daily_shop"]
-            if shop.get("date") == today: return
-            all_items = list(EmpireConfig.SHOP_ITEMS.items())
-            selected = random.sample(all_items, min(4, len(all_items)))
-            discount = EmpireConfig.ECONOMY["DAILY_SHOP_DISCOUNT"]
-            self.data["system"]["daily_shop"] = {
-                "items": [{"key": k, "name": v["name"], "desc": v["desc"],
-                           "original_price": v["price"],
-                           "price": int(v["price"] * (1 - discount))}
-                          for k, v in selected],
-                "date": today
-            }
-            await self._save_nolock()
-
-    # ── Notificaciones push ───────────────────────────────
-    async def push_notification(self, uid: str, msg: str, cat: str = "general"):
-        async with self._lock:
-            u = self.data["users"].get(uid)
-            if not u: return
-            if u.get("settings",{}).get("notifications_enabled", True):
-                u.setdefault("notification_queue",[]).append({
-                    "message": msg, "category": cat,
+            if uid not in self.data["users"]:
+                return
+            user = self.data["users"][uid]
+            if user.get("settings", {}).get("notifications_enabled", True):
+                user.setdefault("notification_queue", []).append({
+                    "message": message, "category": category, 
                     "timestamp": datetime.datetime.now().isoformat(), "read": False
                 })
-                if len(u["notification_queue"]) > 25:
-                    u["notification_queue"] = u["notification_queue"][-20:]
+                if len(user["notification_queue"]) > 20:
+                    user["notification_queue"] = user["notification_queue"][-20:]
                 await self._save_nolock()
 
-    # ── Backup automático ─────────────────────────────────
-    async def backup_job(self):
-        while True:
-            await asyncio.sleep(7200)
-            try:
-                ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                dst = os.path.join(EmpireConfig.BACKUP_DIR, f"db_{ts}.json")
-                await asyncio.to_thread(shutil.copy2, EmpireConfig.DATABASE_PATH, dst)
-                # Mantener solo los últimos 30 backups
-                backups = sorted(os.listdir(EmpireConfig.BACKUP_DIR))
-                for old in backups[:-30]:
-                    os.remove(os.path.join(EmpireConfig.BACKUP_DIR, old))
-                logger.info(f"💾 Backup creado: {dst}")
-            except Exception as e:
-                logger.error(f"Error backup: {e}"); alert_system.track_error()
-
-    # ── Exportar usuarios a CSV ───────────────────────────
-    def export_users_csv(self) -> str:
-        path = os.path.join(EmpireConfig.EXPORT_DIR, f"users_{datetime.date.today()}.csv")
-        users = list(self.data["users"].values())
-        with open(path, 'w', newline='', encoding='utf-8') as f:
-            fields = ["id","name","username","plan","points","level","total_downloads",
-                      "referrals","affiliate_earnings","streak","joined","is_banned"]
-            w = csv.DictWriter(f, fieldnames=fields, extrasaction='ignore')
-            w.writeheader(); w.writerows(users)
-        return path
-
-    # ── Self-healing loop ─────────────────────────────────
-    async def self_healing_loop(self):
-        while True:
-            await asyncio.sleep(1800)
-            async with self._lock:
-                fixed = 0
-                for uid, u in self.data["users"].items():
-                    if not isinstance(u.get("points"), (int,float)) or u["points"] < 0:
-                        u["points"] = 0; fixed += 1
-                    if not isinstance(u.get("crypto_balance"), (int,float)) or u["crypto_balance"] < 0:
-                        u["crypto_balance"] = 0.0; fixed += 1
-                    if not isinstance(u.get("level"), int) or u.get("level",0) < 1:
-                        u["level"] = 1; fixed += 1
-                    if "settings" not in u:
-                        u["settings"] = {"watermark":None,"auto_transcribe":False,
-                                         "ghost_mode":False,"send_as_doc":False,
-                                         "theme":"dark","language":settings.default_language,
-                                         "notifications_enabled":True,"auto_dl_best":False}; fixed += 1
-                    if "security" not in u:
-                        u["security"] = {"two_fa_enabled":False,"two_fa_secret":None,
-                                         "two_fa_verified":False,"login_history":[],"trusted_ips":[]}; fixed += 1
-                    if "download_history" not in u: u["download_history"] = []; fixed += 1
-                    if "favorites" not in u: u["favorites"] = []; fixed += 1
-                    if "batch_queue" not in u: u["batch_queue"] = []; fixed += 1
-                    # Asegura inventario completo
-                    for item_key in EmpireConfig.SHOP_ITEMS:
-                        if item_key not in u.get("inventory", {}):
-                            u.setdefault("inventory",{})[item_key] = 0; fixed += 1
-                if fixed > 0:
-                    self.data["stats"]["self_healing_fixes"] += fixed
-                    logger.warning(f"🛠️ Self-Healing: {fixed} reparaciones.")
-                await self._save_nolock()
+    async def process_notifications(self, uid: str, bot):
+        async with self._lock:
+            user = self.data["users"].get(uid)
+            if not user:
+                return
+            queue = user.get("notification_queue", [])
+            for notif in queue:
+                if not notif.get("read"):
+                    try:
+                        await bot.send_message(uid, f"📢 **NOTIFICACIÓN IMPERIAL**\n{notif['message']}", parse_mode="Markdown")
+                        notif["read"] = True
+                    except Exception as e:
+                        logger.error(f"Fallo enviando notificación a {uid}: {e}")
+            await self._save_nolock()
 
 db = EmpireDatabase()
+services.register_singleton("db", db)
 
-# ============================================================
-# [8] MOTORES: CASINO V500 (SLOTS, RULETA, BJ, CRASH, MINES, PLINKO, POKER, DADOS)
-# ============================================================
-class CasinoV500:
-    CARD_VALUES = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':10,'Q':10,'K':10,'A':11}
-    SUITS = ["♠","♥","♦","♣"]
-    RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A']
-
-    # ── Slots ─────────────────────────────────────────────
-    @staticmethod
-    def play_slots(bet: int, luck_bonus: float = 0) -> Tuple[int, str]:
-        syms = ["🍒","🍋","🍊","🔔","💎","👑","🎰","⚡"]
-        weights = [30,25,20,12,7,4,1,1]
-        res = random.choices(syms, weights=weights, k=3)
-        msg = f"🎰 **SLOTS IMPERIAL**\n[ {res[0]} | {res[1]} | {res[2]} ]\n"
-        if res[0] == res[1] == res[2]:
-            mults = {"🎰":100,"👑":50,"💎":25,"⚡":20,"🔔":10,"🍊":7,"🍋":5,"🍒":3}
-            m = mults.get(res[0], 3)
-            w = int(bet * m * (1 + luck_bonus))
-            msg += f"🎉 **{'MEGA ' if m >= 20 else ''}JACKPOT! x{m}**\nGanaste **{w} pts**!"
-            return w, msg
-        elif len(set(res)) == 2:
-            w = int(bet * 1.5 * (1 + luck_bonus))
-            msg += f"👍 Par. Recuperas **{w} pts**."
-            return w, msg
-        msg += "💀 Perdiste la apuesta."
-        return 0, msg
-
-    # ── Ruleta ────────────────────────────────────────────
-    @staticmethod
-    def play_roulette(bet: int, choice: str, luck_bonus: float = 0) -> Tuple[int, str]:
-        num = random.randint(0, 36)
-        reds = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
-        color = "🟢" if num==0 else ("🔴" if num in reds else "⚫")
-        msg = f"🎡 **RULETA**\nBola cayó en **{num} {color}**\n"
-        win = 0
-        c = choice.lower()
-        if c == "verde" and num == 0:
-            win = int(bet * 35 * (1+luck_bonus)); msg += f"🎉 ¡VERDE! x35 → +{win} pts"
-        elif c == "rojo" and color == "🔴":
-            win = int(bet * 2 * (1+luck_bonus)); msg += f"✅ Rojo → +{win} pts"
-        elif c == "negro" and color == "⚫":
-            win = int(bet * 2 * (1+luck_bonus)); msg += f"✅ Negro → +{win} pts"
-        elif c == "par" and num > 0 and num % 2 == 0:
-            win = int(bet * 2 * (1+luck_bonus)); msg += f"✅ Par → +{win} pts"
-        elif c == "impar" and num > 0 and num % 2 == 1:
-            win = int(bet * 2 * (1+luck_bonus)); msg += f"✅ Impar → +{win} pts"
-        elif c.isdigit() and int(c) == num:
-            win = int(bet * 35 * (1+luck_bonus)); msg += f"🎯 Número exacto! x35 → +{win} pts"
-        else:
-            msg += "💀 Perdiste."
-        return win, msg
-
-    # ── Blackjack ─────────────────────────────────────────
-    @staticmethod
-    def draw_card() -> str:
-        return random.choice(CasinoV500.RANKS)
-
-    @staticmethod
-    def hand_value(hand: List[str]) -> int:
-        v = 0; aces = 0
-        for c in hand:
-            if c == 'A': aces += 1; v += 11
-            else: v += CasinoV500.CARD_VALUES.get(c, 0)
-        while v > 21 and aces: v -= 10; aces -= 1
-        return v
-
-    # ── Crash ──────────────────────────────────────────────
-    @staticmethod
-    def calc_crash() -> float:
-        r = random.random()
-        if r < 0.04: return 1.00
-        return min(100.0, 1.0 / (1.0 - r))
-
-    # ── Mines ──────────────────────────────────────────────
-    @staticmethod
-    def init_mines(mines_count: int = 5, grid_size: int = 25) -> dict:
-        positions = list(range(grid_size))
-        mines = set(random.sample(positions, mines_count))
-        return {
-            "grid_size": grid_size, "mines": list(mines),
-            "revealed": [], "mines_count": mines_count,
-            "safe_clicked": 0, "game_over": False, "won": False
-        }
-
-    @staticmethod
-    def mines_click(state: dict, pos: int) -> Tuple[bool, bool, float]:
-        """Devuelve (es_mina, juego_terminado, multiplicador_actual)."""
-        if pos in state["mines"]:
-            state["game_over"] = True; return True, True, 0.0
-        if pos not in state["revealed"]:
-            state["revealed"].append(pos)
-            state["safe_clicked"] += 1
-        safe = state["safe_clicked"]
-        m = state["mines_count"]
-        g = state["grid_size"]
-        mult = max(1.0, (g / (g - m)) ** safe * 0.97)  # house edge 3%
-        if len(state["revealed"]) >= (g - m):
-            state["won"] = True; state["game_over"] = True
-        return False, state["game_over"], round(mult, 2)
-
-    # ── Plinko ─────────────────────────────────────────────
-    @staticmethod
-    def play_plinko(bet: int, rows: int = 8, luck_bonus: float = 0) -> Tuple[int, str, float]:
-        pos = 0
-        for _ in range(rows):
-            pos += random.choice([-1, 1])
-        # Distribución normal → posición determina multiplicador
-        buckets = {0: 0.2, 1: 0.5, 2: 1.0, 3: 2.0, 4: 3.0, 5: 5.0, 6: 10.0, 7: 25.0, 8: 100.0}
-        abs_pos = min(abs(pos), rows)
-        mult = buckets.get(abs_pos, 0.2) * (1 + luck_bonus)
-        win = int(bet * mult)
-        emoji = "🎯" if mult >= 10 else ("✅" if mult >= 1 else "💀")
-        msg = f"🎱 **PLINKO**\nLa bola cayó en slot `{pos:+d}`\nMultiplicador: `x{mult:.1f}` {emoji}\n"
-        if win > bet: msg += f"Ganaste **+{win} pts**!"
-        elif win == 0: msg += "💀 Perdiste la apuesta."
-        else: msg += f"Recuperas **{win} pts**."
-        return win, msg, mult
-
-    # ── Dados ──────────────────────────────────────────────
-    @staticmethod
-    def play_dice(bet: int, prediction: str, luck_bonus: float = 0) -> Tuple[int, str]:
-        d1, d2 = random.randint(1,6), random.randint(1,6)
-        total = d1 + d2
-        dice_str = f"🎲`{d1}` + 🎲`{d2}` = **{total}**"
-        msg = f"🎲 **DADOS IMPERIALES**\n{dice_str}\n"
-        win = 0; pred = prediction.lower()
-        if pred == "alto" and total > 7:
-            win = int(bet * 1.8 * (1+luck_bonus)); msg += f"✅ Alto → +{win} pts"
-        elif pred == "bajo" and total < 7:
-            win = int(bet * 1.8 * (1+luck_bonus)); msg += f"✅ Bajo → +{win} pts"
-        elif pred == "exacto_7" and total == 7:
-            win = int(bet * 4.0 * (1+luck_bonus)); msg += f"🎯 Exacto 7! → +{win} pts"
-        elif pred == "doble" and d1 == d2:
-            win = int(bet * 5.0 * (1+luck_bonus)); msg += f"🎰 ¡Doble! → +{win} pts"
-        else:
-            msg += "💀 Perdiste."
-        return win, msg
-
-    # ── Poker (5 cartas) ──────────────────────────────────
-    @staticmethod
-    def deal_poker_hand() -> List[str]:
-        deck = [f"{r}{s}" for r in CasinoV500.RANKS for s in CasinoV500.SUITS]
-        return random.sample(deck, 5)
-
-    @staticmethod
-    def eval_poker_hand(hand: List[str]) -> Tuple[str, float]:
-        ranks = sorted([c[:-1] for c in hand])
-        rank_vals = sorted([CasinoV500.CARD_VALUES.get(r,0) for r in ranks])
-        suits = [c[-1] for c in hand]
-        is_flush   = len(set(suits)) == 1
-        rank_v2    = [CasinoV500.CARD_VALUES.get(r,0) for r in ranks]
-        sorted_rv  = sorted(rank_v2)
-        is_straight = (sorted_rv == list(range(sorted_rv[0], sorted_rv[0]+5)))
-        from collections import Counter
-        cnt = Counter(ranks)
-        counts = sorted(cnt.values(), reverse=True)
-        if is_straight and is_flush and sorted_rv[-1] == 14: return "🃏 Royal Flush",    800.0
-        if is_straight and is_flush:                          return "🎴 Straight Flush", 50.0
-        if counts == [4,1]:                                   return "4️⃣ Póker",           25.0
-        if counts == [3,2]:                                   return "🏠 Full House",      10.0
-        if is_flush:                                          return "♠ Color",             6.0
-        if is_straight:                                       return "📈 Escalera",          4.0
-        if counts == [3,1,1]:                                 return "3️⃣ Trío",              3.0
-        if counts == [2,2,1]:                                 return "2️⃣ Dos Pares",         2.0
-        if counts == [2,1,1,1]:                               return "1️⃣ Un Par",            1.0
-        return "❌ Nada",                                                                    0.0
-
-casino = CasinoV500()
-
-# ============================================================
-# [9] MOTOR DE MEDIOS V500
-# ============================================================
-class ProgressTracker:
+# =================================================================
+# [4] FRAUD DETECTION & SECURITY CORE + SELF HEALING
+# =================================================================
+class SecurityCore:
     def __init__(self):
-        self.jobs: Dict[str, dict] = {}
+        self.spam_cache = {}
+        self.captcha_cache = {}
+        self.anomaly_detector = {}
 
-    def add(self, job_id: str, msg_obj):
-        self.jobs[job_id] = {"msg": msg_obj, "percent": 0, "speed": "0B/s",
-                             "eta": "...", "finished": False, "last_upd": time.time()}
+    def rate_limit(self, uid: int, limit: int = 5) -> bool:
+        now = time.time()
+        if uid in self.spam_cache:
+            last_time, count = self.spam_cache[uid]
+            if now - last_time < 3:
+                self.spam_cache[uid] = (now, count + 1)
+                if count + 1 > limit:
+                    db.data["stats"]["fraud_attempts_blocked"] += 1
+                    audit_logger.log("RATE_LIMIT_HIT", user_id=uid, severity="WARNING")
+                    return True
+            else:
+                self.spam_cache[uid] = (now, 1)
+        else:
+            self.spam_cache[uid] = (now, 1)
+        return False
 
-    async def loop(self):
-        while True:
-            await asyncio.sleep(3)
-            now = time.time()
-            for jid, d in list(self.jobs.items()):
-                if d["finished"] or (now - d["last_upd"] > 900):
-                    self.jobs.pop(jid, None); continue
-                try:
-                    filled = int(15 * d["percent"] / 100)
-                    bar = '█'*filled + '░'*(15-filled)
-                    txt = (f"⚡ **SINTETIZANDO...**\n`{bar}` {d['percent']:.1f}%\n"
-                           f"Vel: `{d['speed']}` | ETA: `{d['eta']}`")
-                    if d.get("last_txt") != txt:
-                        await d["msg"].edit_text(txt, parse_mode="Markdown")
-                        d["last_txt"] = txt; d["last_upd"] = now
-                except: pass
+    def check_anomaly(self, uid: int, text: str) -> bool:
+        now = time.time()
+        if uid in self.anomaly_detector:
+            last_text, last_time, count = self.anomaly_detector[uid]
+            if text == last_text and (now - last_time < 2):
+                count += 1
+                self.anomaly_detector[uid] = (text, now, count)
+                if count > 4: return True 
+            else:
+                self.anomaly_detector[uid] = (text, now, 1)
+        else:
+            self.anomaly_detector[uid] = (text, now, 1)
+        return False
 
-progress = ProgressTracker()
+    def generate_captcha(self, uid):
+        a = random.randint(10, 50)
+        b = random.randint(1, 10)
+        ans = a + b
+        self.captcha_cache[uid] = ans
+        return f"Suma de verificación Anti-Bot: {a} + {b}"
 
-class MediaEngineV500:
-    @staticmethod
-    async def get_metadata(url: str) -> dict:
-        if url in METADATA_CACHE and time.time() - METADATA_CACHE[url].get("ts",0) < 3600:
-            return METADATA_CACHE[url]["data"]
-        try:
-            def _get():
-                with yt_dlp.YoutubeDL({"quiet":True,"no_warnings":True,"nocheckcertificate":True}) as ydl:
-                    i = ydl.extract_info(url, download=False)
-                    if not i: return {}
-                    return {"title":i.get("title"),"duration":i.get("duration"),
-                            "uploader":i.get("uploader"),"view_count":i.get("view_count"),
-                            "thumbnail":i.get("thumbnail"),"description":i.get("description","")[:200]}
-            data = await asyncio.to_thread(_get)
-            METADATA_CACHE[url] = {"data": data, "ts": time.time()}
-            return data
-        except: return {}
-
-    @staticmethod
-    async def run(url: str, mode: str, quality: str, uid: str,
-                  max_mb: float, job_id: str, user_settings: dict) -> tuple:
-        out = os.path.join(EmpireConfig.BUFFER_DIR, f"{job_id}.%(ext)s")
-
-        def hook(d):
-            job = progress.jobs.get(job_id)
-            if job and d["status"] == "downloading":
-                try:
-                    p = float(d.get("_percent_str","0%").replace("%","").strip())
-                    job["percent"] = p; job["speed"] = d.get("_speed_str","0B/s")
-                    job["eta"] = d.get("_eta_str","...")
-                except: pass
-
-        opts = {
-            "outtmpl": out, "quiet": True, "no_warnings": True,
-            "noplaylist": True, "nocheckcertificate": True,
-            "progress_hooks": [hook], "socket_timeout": 15,
-            "max_filesize": max_mb * 1024 * 1024,
-            "extractor_args": {"youtube": ["player_client=ios,android,web"]},
-        }
-
-        if mode == "MP3":
-            opts.update({"format":"bestaudio/best","postprocessors":[{"key":"FFmpegExtractAudio","preferredcodec":"mp3","preferredquality":"192"}]})
-        elif mode == "MP3U":
-            opts.update({"format":"bestaudio/best","postprocessors":[{"key":"FFmpegExtractAudio","preferredcodec":"mp3","preferredquality":"320"}]})
-        elif mode == "VOICE":
-            opts.update({"format":"bestaudio/best","postprocessors":[{"key":"FFmpegExtractAudio","preferredcodec":"vorbis","preferredquality":"128"}]})
-        elif mode == "VNOA":
-            h = quality.replace("p","") if quality != "Original" else "1080"
-            opts["format"] = f"bestvideo[height<={h}][ext=mp4]/bestvideo"
-        elif mode == "GIF":
-            opts["format"] = "bestvideo[height<=480][ext=mp4]/best"
-        elif mode == "WEBM":
-            h = quality.replace("p","") if quality != "Original" else "1080"
-            opts["format"] = f"bestvideo[height<={h}][ext=webm]+bestaudio/best"
-        elif mode == "FLAC":
-            opts.update({"format":"bestaudio/best","postprocessors":[{"key":"FFmpegExtractAudio","preferredcodec":"flac"}]})
-        else:  # MP4
-            h = quality.replace("p","") if quality != "Original" else "2160"
-            opts["format"] = f"bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"
-
-        def _run():
+    def verify_captcha(self, uid, text):
+        if uid in self.captcha_cache:
             try:
-                with yt_dlp.YoutubeDL(opts) as ydl:
-                    info = ydl.extract_info(url, download=True)
-                    if not info: return False,None,None,0,0,"Sin información."
-                    path = ydl.prepare_filename(info)
-                    ext_map = {"MP3":"mp3","MP3U":"mp3","VOICE":"ogg","FLAC":"flac"}
-                    if mode in ext_map: path = os.path.splitext(path)[0]+"."+ext_map[mode]
-                    size = os.path.getsize(path) if os.path.exists(path) else 0
-                    return True, path, info.get("title","Media"), info.get("duration",0), size, ""
-            except yt_dlp.utils.DownloadError as e:
-                err = str(e).lower()
-                msg = str(e)
-                if "copyright" in err: msg = "Bloqueado por derechos de autor."
-                elif "too large" in err: msg = f"Archivo supera el límite de {max_mb:.0f}MB."
-                elif "private" in err or "sign in" in err: msg = "Contenido privado o con login requerido."
-                elif "geo" in err: msg = "Restricción geográfica."
-                gc.collect(); return False,None,None,0,0,msg
-            except Exception as e:
-                gc.collect(); return False,None,None,0,0,f"Error: {e}"
+                if int(text.strip()) == self.captcha_cache[uid]:
+                    del self.captcha_cache[uid]
+                    return True
+            except: pass
+        return False
 
-        return await asyncio.to_thread(_run)
+sec_core = SecurityCore()
 
-    @staticmethod
-    async def batch_download(urls: List[str], mode: str, quality: str,
-                             uid: str, max_mb: float) -> List[Tuple[bool, str, str]]:
-        """Descarga múltiples URLs secuencialmente."""
-        results = []
-        for url in urls[:settings.max_batch_urls]:
-            jid = f"batch_{uid}_{uuid.uuid4().hex[:6]}"
-            ok, path, title, dur, size, err = await MediaEngineV500.run(
-                url, mode, quality, uid, max_mb, jid, {})
-            results.append((ok, path or "", title or url, err))
-        return results
+async def self_healing_core_task():
+    while True:
+        await asyncio.sleep(1800)
+        async with db._lock:
+            fixed_count = 0
+            for uid, user_data in db.data["users"].items():
+                if isinstance(user_data.get("points"), (int, float)) and user_data["points"] < 0:
+                    user_data["points"] = 0
+                    fixed_count += 1
+                
+                if isinstance(user_data.get("crypto_balance"), (int, float)) and user_data["crypto_balance"] < 0:
+                    user_data["crypto_balance"] = 0.0
+                    fixed_count += 1
+                
+                if not isinstance(user_data.get("level"), int) or user_data.get("level", 0) < 1:
+                    user_data["level"] = 1
+                    fixed_count += 1
+                
+                if "settings" not in user_data:
+                    user_data["settings"] = {"watermark": None, "auto_transcribe": False, "ghost_mode": False, "send_as_doc": False, "theme": "dark", "language": settings.default_language, "notifications_enabled": True}
+                    fixed_count += 1
+                
+                # [25] Personalización de interfaz
+                if "theme" not in user_data.get("settings", {}):
+                    user_data["settings"]["theme"] = "dark"
+                    fixed_count += 1
+                if "language" not in user_data.get("settings", {}):
+                    user_data["settings"]["language"] = settings.default_language
+                    fixed_count += 1
+            
+            if fixed_count > 0:
+                db.data["stats"]["self_healing_fixes"] += fixed_count
+                logger.warning(f"🛠️ [SELF-HEALING CORE] Se han reparado {fixed_count} discrepancias automáticamente.")
+            await db._save_nolock()
 
-media = MediaEngineV500()
-
-# ============================================================
-# [10] HERRAMIENTAS REALES (TTS, QR, PING, B64, HASH)
-# ============================================================
-class RealTools:
-    @staticmethod
-    async def tts(text: str, uid: str, lang: str = "es") -> Optional[str]:
+# =================================================================
+# [4.5] SISTEMA DE LIMPIEZA AUTOMÁTICA (BUFFER CLEANER)
+# =================================================================
+async def buffer_cleanup_task():
+    while True:
+        await asyncio.sleep(1800)
         try:
-            def _gen():
-                tts = gTTS(text=text[:500], lang=lang)
-                p = os.path.join(EmpireConfig.TTS_DIR, f"tts_{uid}_{uuid.uuid4().hex[:6]}.ogg")
-                tts.save(p); return p
-            return await asyncio.to_thread(_gen)
+            disk_percent = psutil.disk_usage('/').percent
+            force_clean = disk_percent > 90.0
+            now = time.time()
+            
+            def _clean():
+                purged_count = 0
+                for d in [EmpireConfig.BUFFER_DIR, EmpireConfig.QR_DIR, EmpireConfig.TTS_DIR]:
+                    for filename in os.listdir(d):
+                        filepath = os.path.join(d, filename)
+                        if os.path.isfile(filepath):
+                            file_age = now - os.path.getmtime(filepath)
+                            if file_age > 3600 or force_clean:
+                                try:
+                                    os.remove(filepath)
+                                    purged_count += 1
+                                except Exception: pass
+                return purged_count
+
+            purged = await asyncio.to_thread(_clean)
+            if purged > 0:
+                logger.info(f"🧹 [AUTO-CLEANUP] Eliminados {purged} archivos del buffer. (Fuerza Mayor: {force_clean})")
         except Exception as e:
-            logger.error(f"TTS error: {e}"); return None
+            logger.error(f"Error en Auto-Cleanup: {e}")
+            alert_system.track_error()
 
-    @staticmethod
-    async def qr(data: str, uid: str) -> Optional[str]:
-        try:
-            def _gen():
-                q = qrcode.QRCode(version=1, box_size=10, border=5)
-                q.add_data(data); q.make(fit=True)
-                img = q.make_image(fill_color="black", back_color="white")
-                p = os.path.join(EmpireConfig.QR_DIR, f"qr_{uid}_{uuid.uuid4().hex[:6]}.png")
-                img.save(p); return p
-            return await asyncio.to_thread(_gen)
-        except Exception as e:
-            logger.error(f"QR error: {e}"); return None
-
-    @staticmethod
-    async def ping(host: str = "8.8.8.8") -> str:
-        try:
-            param = "-n" if platform.system().lower() == "windows" else "-c"
-            out = await asyncio.to_thread(
-                lambda: subprocess.check_output(["ping", param, "4", host],
-                                                stderr=subprocess.STDOUT, universal_newlines=True))
-            m = re.search(r"avg[/ =]+([\d.]+)", out)
-            return f"{m.group(1)}ms" if m else "OK (latencia no parseada)"
-        except: return "Host inalcanzable."
-
-    @staticmethod
-    def b64enc(text: str) -> str: return base64.b64encode(text.encode()).decode()
-    @staticmethod
-    def b64dec(text: str) -> str:
-        try: return base64.b64decode(text.encode()).decode()
-        except: return "Error: Base64 inválido."
-    @staticmethod
-    def sha256(text: str) -> str: return hashlib.sha256(text.encode()).hexdigest()
-    @staticmethod
-    def md5(text: str) -> str: return hashlib.md5(text.encode()).hexdigest()
-    @staticmethod
-    def rot13(text: str) -> str:
-        return text.translate(str.maketrans(
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-            'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm'))
-
-tools = RealTools()
-
-# ============================================================
-# [11] INTERFAZ DE USUARIO V500
-# ============================================================
-class UI:
-    # ── Teclados principales ──────────────────────────────
-    @staticmethod
-    def main_kb(u: dict) -> ReplyKeyboardMarkup:
-        if u.get("is_banned"):
-            return ReplyKeyboardMarkup([[KeyboardButton("🎧 SOPORTE")]], resize_keyboard=True)
-        is_admin = u["id"] == EmpireConfig.ADMIN_ID
-        is_vip   = u.get("vip_expiry") and datetime.datetime.now() < datetime.datetime.fromisoformat(u["vip_expiry"])
-        is_god   = u["plan"] == "GOD"
-        rows = [
-            [KeyboardButton("📥 EXTRACCIÓN"),     KeyboardButton("📦 LOTE DE URLs")],
-            [KeyboardButton("👤 PERFIL"),          KeyboardButton("📊 MIS ESTADÍSTICAS")],
-            [KeyboardButton("⭐️ TIENDA STARS"),   KeyboardButton("🏪 MERCADO NEGRO")],
-            [KeyboardButton("🎰 CASINO IMPERIAL"), KeyboardButton("⚙️ AJUSTES PRO")],
-            [KeyboardButton("🛠️ HERRAMIENTAS"),   KeyboardButton("🛡️ FACCIONES")],
-            [KeyboardButton("🎁 TRIBUTO DIARIO"), KeyboardButton("🎮 MISIONES Y LOGROS")],
-            [KeyboardButton("🏆 RANKING GLOBAL"), KeyboardButton("🔔 NOTIFICACIONES")],
-            [KeyboardButton("📜 MI HISTORIAL"),   KeyboardButton("⭐ MIS FAVORITOS")],
-            [KeyboardButton("🛒 TIENDA DIARIA"),  KeyboardButton("🎫 CANJEAR CÓDIGO")],
-            [KeyboardButton("🤝 MERCADO P2P"),    KeyboardButton("🎧 SOPORTE")],
-        ]
-        if is_vip:  rows.insert(2, [KeyboardButton("🥂 SALA VIP")])
-        if is_god:  rows.append([KeyboardButton("🏢 ÁREA B2B")])
-        if is_admin:
-            rows.append([KeyboardButton("👑 PANEL OVERLORD"), KeyboardButton("🌐 TELEMETRÍA")])
-            rows.append([KeyboardButton("🏟️ TORNEOS ADMIN"),  KeyboardButton("⚔️ GUERRA DE CLANES")])
-        return ReplyKeyboardMarkup(rows, resize_keyboard=True)
-
-    # ── Panel Overlord ────────────────────────────────────
-    @staticmethod
-    def overlord_panel(page: int = 0) -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("📋 Listar Usuarios",    callback_data=f"adm_list_{page}"),
-             InlineKeyboardButton("📢 Broadcast",          callback_data="adm_bc")],
-            [InlineKeyboardButton("🚫 Banear",             callback_data="adm_ban"),
-             InlineKeyboardButton("🔓 Desbanear",          callback_data="adm_unban")],
-            [InlineKeyboardButton("💰 Dar Puntos",         callback_data="adm_pts"),
-             InlineKeyboardButton("🎫 Crear Cupón",        callback_data="adm_cp")],
-            [InlineKeyboardButton("🎭 Cambiar Plan",       callback_data="adm_edit_plan"),
-             InlineKeyboardButton("📂 Ver Tickets",        callback_data="adm_tickets")],
-            [InlineKeyboardButton("⚠️ Mantenimiento",      callback_data="adm_maint"),
-             InlineKeyboardButton("💾 Backup DB",          callback_data="adm_backup")],
-            [InlineKeyboardButton("🎁 Generar Gift Card",  callback_data="adm_giftcard"),
-             InlineKeyboardButton("📊 Analíticas Full",    callback_data="adm_analytics")],
-            [InlineKeyboardButton("📣 Push VIP Masivo",    callback_data="adm_vip_push"),
-             InlineKeyboardButton("🔑 API Keys",           callback_data="adm_apikeys")],
-            [InlineKeyboardButton("📥 Exportar CSV",       callback_data="adm_export_csv"),
-             InlineKeyboardButton("🔍 Buscar Usuario",     callback_data="adm_search_user")],
-            [InlineKeyboardButton("🗑️ Limpiar Buffer",     callback_data="adm_clean_buffer"),
-             InlineKeyboardButton("💸 Ver Transacciones",  callback_data="adm_txns")],
-            [InlineKeyboardButton("🏟️ Gestionar Torneo",   callback_data="adm_tournament"),
-             InlineKeyboardButton("⚔️ Gestionar Guerra",   callback_data="adm_clan_war")],
-            [InlineKeyboardButton("🔒 Ver Blacklist IPs",  callback_data="adm_blacklist"),
-             InlineKeyboardButton("📅 Programar Evento",   callback_data="adm_schedule")],
-            [InlineKeyboardButton("❌ CERRAR",              callback_data="u_close")],
-        ])
-
-    # ── Selectores de formato/calidad ─────────────────────
-    @staticmethod
-    def format_selector() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("🎬 MP4",        callback_data="fmt_MP4"),
-             InlineKeyboardButton("🎵 MP3 (192k)", callback_data="fmt_MP3")],
-            [InlineKeyboardButton("🔥 MP3 ULTRA",  callback_data="fmt_MP3U"),
-             InlineKeyboardButton("🎵 FLAC",        callback_data="fmt_FLAC")],
-            [InlineKeyboardButton("🎞️ Sin Audio",  callback_data="fmt_VNOA"),
-             InlineKeyboardButton("🎙️ Nota Voz",   callback_data="fmt_VOICE")],
-            [InlineKeyboardButton("🎞️ GIF",        callback_data="fmt_GIF"),
-             InlineKeyboardButton("📹 WEBM",        callback_data="fmt_WEBM")],
-            [InlineKeyboardButton("❌ ABORTAR",     callback_data="u_close")],
-        ])
-
-    @staticmethod
-    def quality_selector(plan_id: str) -> InlineKeyboardMarkup:
-        qs = EmpireConfig.PLANS.get(plan_id, EmpireConfig.PLANS["FREE"])["resolutions"]
-        rows = [[InlineKeyboardButton(f"🎥 {q}", callback_data=f"ql_{q}") for q in qs[i:i+2]]
-                for i in range(0, len(qs), 2)]
-        rows.append([InlineKeyboardButton("⬅️ Atrás", callback_data="fmt_back")])
-        return InlineKeyboardMarkup(rows)
-
-    # ── Tienda Stars ─────────────────────────────────────
-    @staticmethod
-    def stars_shop_main() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("💰 Comprar Puntos",           callback_data="shop_cat_points")],
-            [InlineKeyboardButton("📅 Suscripciones Semanales",  callback_data="shop_cat_week")],
-            [InlineKeyboardButton("🗓️ Suscripciones Mensuales",  callback_data="shop_cat_month")],
-            [InlineKeyboardButton("📆 Suscripciones Anuales",    callback_data="shop_cat_year")],
-            [InlineKeyboardButton("🎁 Gift Cards & Especiales",  callback_data="shop_cat_special")],
-            [InlineKeyboardButton("❌ CERRAR",                    callback_data="u_close")],
-        ])
-
-    @staticmethod
-    def stars_shop_category(cat: str) -> InlineKeyboardMarkup:
-        cat_map = {
-            "points":  ["PTS_MICRO","PTS_SMALL","PTS_MEDIUM","PTS_LARGE","PTS_WHALE"],
-            "week":    ["SUB_STARTER_W","SUB_BASIC_W","SUB_PRO_W","SUB_ULTRA_W"],
-            "month":   ["SUB_STARTER_M","SUB_BASIC_M","SUB_PRO_M","SUB_ULTRA_M","SUB_ENT_M"],
-            "year":    ["SUB_PRO_Y","SUB_ULTRA_Y"],
-            "special": ["VIP_MONTH","GIFT_500","GIFT_2500","GIFT_10000","BOOST_XP_W","CLAN_SLOT"],
-        }
-        keys = cat_map.get(cat, [])
-        rows = [[InlineKeyboardButton(
-            f"{EmpireConfig.STARS_PACKAGES[k]['name']} — {EmpireConfig.STARS_PACKAGES[k]['stars']} ⭐️",
-            callback_data=f"stars_{k}")] for k in keys if k in EmpireConfig.STARS_PACKAGES]
-        rows.append([InlineKeyboardButton("⬅️ Volver", callback_data="shop_main"),
-                     InlineKeyboardButton("❌ Cerrar", callback_data="u_close")])
-        return InlineKeyboardMarkup(rows)
-
-    # ── Casino ────────────────────────────────────────────
-    @staticmethod
-    def casino_main() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("🎰 Slots (100 pts)",          callback_data="cas_slots"),
-             InlineKeyboardButton("🎡 Ruleta (250 pts)",          callback_data="cas_roulette_menu")],
-            [InlineKeyboardButton("🃏 Blackjack (500 pts)",       callback_data="cas_bj"),
-             InlineKeyboardButton("📈 Crash (1000 pts)",          callback_data="cas_crash")],
-            [InlineKeyboardButton("💣 Mines (500 pts)",           callback_data="cas_mines_menu"),
-             InlineKeyboardButton("🎱 Plinko (300 pts)",          callback_data="cas_plinko")],
-            [InlineKeyboardButton("🎲 Dados (200 pts)",           callback_data="cas_dice_menu"),
-             InlineKeyboardButton("🃏 Poker (1000 pts)",          callback_data="cas_poker")],
-            [InlineKeyboardButton("❌ SALIR",                     callback_data="u_close")],
-        ])
-
-    @staticmethod
-    def roulette_menu() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔴 Rojo",    callback_data="cas_rul_rojo"),
-             InlineKeyboardButton("⚫ Negro",   callback_data="cas_rul_negro")],
-            [InlineKeyboardButton("🟢 Verde",   callback_data="cas_rul_verde"),
-             InlineKeyboardButton("2️⃣ Par",     callback_data="cas_rul_par")],
-            [InlineKeyboardButton("1️⃣ Impar",  callback_data="cas_rul_impar")],
-            [InlineKeyboardButton("⬅️ Volver",  callback_data="cas_back")],
-        ])
-
-    @staticmethod
-    def mines_menu() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("💣 3 minas (fácil)",    callback_data="cas_mines_3"),
-             InlineKeyboardButton("💣 5 minas (medio)",    callback_data="cas_mines_5")],
-            [InlineKeyboardButton("💣 10 minas (difícil)", callback_data="cas_mines_10"),
-             InlineKeyboardButton("💣 15 minas (hardcore)",callback_data="cas_mines_15")],
-            [InlineKeyboardButton("⬅️ Volver",              callback_data="cas_back")],
-        ])
-
-    @staticmethod
-    def mines_grid(state: dict, bet: int) -> InlineKeyboardMarkup:
-        rows, cols = 5, 5
-        revealed = set(state["revealed"])
-        mines    = set(state["mines"])
-        kb = []
-        for r in range(rows):
-            row = []
-            for c in range(cols):
-                pos = r*cols+c
-                if pos in revealed:
-                    row.append(InlineKeyboardButton("💎", callback_data="mines_noop"))
-                else:
-                    row.append(InlineKeyboardButton("⬛", callback_data=f"mines_click_{pos}_{bet}"))
-            kb.append(row)
-        safe = state["safe_clicked"]; m = state["mines_count"]; g = state["grid_size"]
-        current_mult = max(1.0, (g/(g-m))**safe*0.97) if safe > 0 else 1.0
-        kb.append([InlineKeyboardButton(f"💰 Cash Out (x{current_mult:.2f})", callback_data=f"mines_cashout_{bet}")])
-        kb.append([InlineKeyboardButton("❌ Rendirse (perder)", callback_data="mines_quit")])
-        return InlineKeyboardMarkup(kb)
-
-    @staticmethod
-    def dice_menu() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("⬆️ Alto (>7)",    callback_data="cas_dice_alto"),
-             InlineKeyboardButton("⬇️ Bajo (<7)",    callback_data="cas_dice_bajo")],
-            [InlineKeyboardButton("7️⃣ Exacto 7",    callback_data="cas_dice_exacto_7"),
-             InlineKeyboardButton("🎰 Doble",        callback_data="cas_dice_doble")],
-            [InlineKeyboardButton("⬅️ Volver",       callback_data="cas_back")],
-        ])
-
-    @staticmethod
-    def bj_panel(bet: int) -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([[
-            InlineKeyboardButton("🃏 Pedir", callback_data=f"bj_hit_{bet}"),
-            InlineKeyboardButton("🛑 Plantarse", callback_data=f"bj_stand_{bet}"),
-            InlineKeyboardButton("2x Doblar", callback_data=f"bj_double_{bet}"),
-        ]])
-
-    @staticmethod
-    def crash_panel(bet: int, mult: float = 1.0) -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([[
-            InlineKeyboardButton(f"🚀 Cash Out ({mult:.2f}x)", callback_data=f"crash_co_{bet}_{mult:.2f}")
-        ]])
-
-    @staticmethod
-    def poker_panel() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("🃏 Ver Mano", callback_data="poker_view"),
-             InlineKeyboardButton("🔄 Nueva Mano", callback_data="poker_new")],
-            [InlineKeyboardButton("❌ Salir",    callback_data="cas_back")],
-        ])
-
-    # ── Facciones ─────────────────────────────────────────
-    @staticmethod
-    def factions_panel(has_faction: bool) -> InlineKeyboardMarkup:
-        if has_faction:
-            return InlineKeyboardMarkup([
-                [InlineKeyboardButton("📊 Info Facción",   callback_data="fac_info"),
-                 InlineKeyboardButton("💰 Donar Bóveda",   callback_data="fac_donate")],
-                [InlineKeyboardButton("⭐ Subir Nivel",    callback_data="fac_upgrade"),
-                 InlineKeyboardButton("👥 Ver Miembros",   callback_data="fac_members")],
-                [InlineKeyboardButton("⚔️ Declarar Guerra",callback_data="fac_war"),
-                 InlineKeyboardButton("🚪 Abandonar",       callback_data="fac_leave")],
-                [InlineKeyboardButton("❌ CERRAR",          callback_data="u_close")],
-            ])
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("🛡️ Crear Facción",    callback_data="fac_create")],
-            [InlineKeyboardButton("🤝 Unirse a Facción", callback_data="fac_join")],
-            [InlineKeyboardButton("❌ CERRAR",            callback_data="u_close")],
-        ])
-
-    # ── Ajustes ───────────────────────────────────────────
-    @staticmethod
-    def settings_panel(s: dict) -> InlineKeyboardMarkup:
-        b = lambda x: "✅" if x else "❌"
-        theme   = s.get("theme","dark").capitalize()
-        lang    = s.get("language","es").upper()
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton(f"🖋️ Marca Agua: {s.get('watermark') or 'No'}", callback_data="set_watermark")],
-            [InlineKeyboardButton(f"📝 Auto-Transcribir: {b(s.get('auto_transcribe'))}", callback_data="set_transcribe")],
-            [InlineKeyboardButton(f"👻 Modo Fantasma: {b(s.get('ghost_mode'))}", callback_data="set_ghost")],
-            [InlineKeyboardButton(f"📄 Como Documento: {b(s.get('send_as_doc'))}", callback_data="set_doc")],
-            [InlineKeyboardButton(f"⚡ Mejor Calidad Auto: {b(s.get('auto_dl_best'))}", callback_data="set_autobest")],
-            [InlineKeyboardButton(f"🎨 Tema: {theme}", callback_data="set_theme"),
-             InlineKeyboardButton(f"🌐 Idioma: {lang}", callback_data="set_lang")],
-            [InlineKeyboardButton(f"🔔 Notificaciones: {b(s.get('notifications_enabled',True))}", callback_data="set_notif")],
-            [InlineKeyboardButton("🔐 Configurar 2FA",  callback_data="set_2fa"),
-             InlineKeyboardButton("🗝️ Historial Login",  callback_data="set_login_hist")],
-            [InlineKeyboardButton("🔑 Cambiar Apodo",   callback_data="set_rename"),
-             InlineKeyboardButton("❌ CERRAR",           callback_data="u_close")],
-        ])
-
-    # ── Herramientas ──────────────────────────────────────
-    @staticmethod
-    def tools_panel() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("🗣️ TTS",           callback_data="util_tts"),
-             InlineKeyboardButton("🔳 QR Code",        callback_data="util_qr")],
-            [InlineKeyboardButton("📡 Ping",           callback_data="util_ping"),
-             InlineKeyboardButton("🖼️ Miniatura",      callback_data="util_thumb")],
-            [InlineKeyboardButton("📜 B64 Enc",        callback_data="util_b64e"),
-             InlineKeyboardButton("🔓 B64 Dec",        callback_data="util_b64d")],
-            [InlineKeyboardButton("🔐 SHA-256",        callback_data="util_sha"),
-             InlineKeyboardButton("🔏 MD5",            callback_data="util_md5")],
-            [InlineKeyboardButton("🔄 ROT-13",         callback_data="util_rot"),
-             InlineKeyboardButton("📊 Metadatos URL",  callback_data="util_meta")],
-            [InlineKeyboardButton("⭐ Añadir Favorito",callback_data="util_fav"),
-             InlineKeyboardButton("❌ CERRAR",          callback_data="u_close")],
-        ])
-
-    # ── B2B ───────────────────────────────────────────────
-    @staticmethod
-    def b2b_panel(has_key: bool) -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("🔑 Generar/Regenerar API Key", callback_data="b2b_gen")],
-            [InlineKeyboardButton("📖 Documentación",             callback_data="b2b_docs")],
-            [InlineKeyboardButton("📊 Uso de API",                callback_data="b2b_usage")],
-            [InlineKeyboardButton("❌ CERRAR",                     callback_data="u_close")],
-        ])
-
-    # ── Leaderboard ───────────────────────────────────────
-    @staticmethod
-    def lb_panel() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("💰 Puntos",     callback_data="lb_points"),
-             InlineKeyboardButton("📥 Descargas",   callback_data="lb_downloads")],
-            [InlineKeyboardButton("👥 Referidos",  callback_data="lb_referrals"),
-             InlineKeyboardButton("💸 Afiliados",   callback_data="lb_affiliate")],
-            [InlineKeyboardButton("🎮 Nivel",      callback_data="lb_level"),
-             InlineKeyboardButton("❌ CERRAR",      callback_data="u_close")],
-        ])
-
-    # ── P2P Mercado ───────────────────────────────────────
-    @staticmethod
-    def p2p_panel() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("📜 Ver Anuncios",          callback_data="p2p_list")],
-            [InlineKeyboardButton("➕ Vender Puntos",          callback_data="p2p_sell")],
-            [InlineKeyboardButton("❌ CERRAR",                 callback_data="u_close")],
-        ])
-
-    # ── Plan selector admin ───────────────────────────────
-    @staticmethod
-    def plan_selector() -> InlineKeyboardMarkup:
-        rows = [[InlineKeyboardButton(
-            f"{EmpireConfig.PLANS[p]['color']} {p}",
-            callback_data=f"setplan_{p}") for p in list(EmpireConfig.PLANS.keys())[i:i+2]]
-            for i in range(0, len(EmpireConfig.PLANS), 2)]
-        rows.append([InlineKeyboardButton("❌ CANCELAR", callback_data="u_close")])
-        return InlineKeyboardMarkup(rows)
-
-    # ── Torneos admin ─────────────────────────────────────
-    @staticmethod
-    def tour_admin() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("🚀 24h",   callback_data="tour_start_24"),
-             InlineKeyboardButton("🚀 48h",   callback_data="tour_start_48"),
-             InlineKeyboardButton("🚀 72h",   callback_data="tour_start_72")],
-            [InlineKeyboardButton("🏁 Finalizar", callback_data="tour_end"),
-             InlineKeyboardButton("📊 Ver ranking", callback_data="tour_rank")],
-            [InlineKeyboardButton("❌ CERRAR",   callback_data="u_close")],
-        ])
-
-    @staticmethod
-    def clan_war_admin() -> InlineKeyboardMarkup:
-        return InlineKeyboardMarkup([
-            [InlineKeyboardButton("⚔️ Iniciar Guerra", callback_data="cw_start")],
-            [InlineKeyboardButton("🏁 Finalizar Guerra",callback_data="cw_end")],
-            [InlineKeyboardButton("📊 Ver Marcador",    callback_data="cw_scores")],
-            [InlineKeyboardButton("❌ CERRAR",           callback_data="u_close")],
-        ])
-
-ui = UI()
-
-# ============================================================
-# [12] TAREAS BACKGROUND
-# ============================================================
-async def crypto_task():
+# =================================================================
+# [4.8] MERCADO DE VALORES (FLUCTUACIÓN ASÍNCRONA ISHAKCOIN)
+# =================================================================
+async def crypto_fluctuation_task():
     while True:
         await asyncio.sleep(600)
         async with db._lock:
-            v = db.data["market_stats"]["crypto_value"]
-            f = random.uniform(-0.10, 0.15)
-            v = max(5.0, v * (1+f))
-            db.data["market_stats"]["crypto_value"] = round(v, 4)
-            db.data["market_stats"]["trend"] = "up" if f>0 else "down"
-            db.data["market_stats"]["history"].append(round(v,2))
-            if len(db.data["market_stats"]["history"])>60:
+            current_value = db.data["market_stats"].get("crypto_value", 150.0)
+            fluctuation = random.uniform(-0.08, 0.12)
+            new_value = current_value * (1 + fluctuation)
+            db.data["market_stats"]["crypto_value"] = max(10.0, new_value)
+            
+            db.data["market_stats"]["history"].append(new_value)
+            if len(db.data["market_stats"]["history"]) > 50:
                 db.data["market_stats"]["history"].pop(0)
+                
+            db.data["market_stats"]["trend"] = "up" if fluctuation > 0 else "down"
             await db._save_nolock()
+        logger.info(f"📈 [MERCADO] IshakCoin fluctuó a: {new_value:.2f} pts ({(fluctuation*100):.2f}%)")
 
-async def cleanup_task():
-    while True:
-        await asyncio.sleep(3600)
+# =================================================================
+# [4.9] MOTOR DE HERRAMIENTAS REALES (TTS, PING, QR, B64)
+# =================================================================
+class RealToolsEngine:
+    @staticmethod
+    async def generate_tts(text: str, uid: str, lang: str = "es") -> Optional[str]:
         try:
-            now = time.time()
-            disk = psutil.disk_usage('/').percent
-            count = 0
-            for d in [EmpireConfig.BUFFER_DIR, EmpireConfig.QR_DIR, EmpireConfig.TTS_DIR]:
-                for f in os.listdir(d):
-                    fp = os.path.join(d, f)
-                    if os.path.isfile(fp) and (now - os.path.getmtime(fp) > 3600 or disk > 88):
-                        try: os.remove(fp); count += 1
-                        except: pass
-            if count: logger.info(f"🧹 Limpieza: {count} archivos eliminados.")
+            def _gen():
+                tts = gTTS(text=text, lang=lang)
+                filepath = os.path.join(EmpireConfig.TTS_DIR, f"tts_{uid}_{uuid.uuid4().hex[:8]}.ogg")
+                tts.save(filepath)
+                return filepath
+            return await asyncio.to_thread(_gen)
         except Exception as e:
-            logger.error(f"Cleanup error: {e}")
+            logger.error(f"Error en TTS real: {e}")
+            alert_system.track_error()
+            return None
 
-async def daily_shop_task():
-    while True:
-        await asyncio.sleep(3600)
-        await db.refresh_daily_shop()
-
-async def tournament_auto_check():
-    while True:
-        await asyncio.sleep(300)
-        t = db.data["system"]["tournament"]
-        if t.get("active") and t.get("end_time"):
-            try:
-                if datetime.datetime.now() > datetime.datetime.fromisoformat(t["end_time"]):
-                    winners = await db.finalize_tournament()
-                    logger.info(f"🏆 Torneo auto-finalizado. Ganadores: {len(winners)}")
-            except: pass
-
-async def clan_war_auto_check():
-    while True:
-        await asyncio.sleep(300)
-        cw = db.data["system"].get("clan_war", {})
-        if cw.get("active") and cw.get("end_time"):
-            try:
-                if datetime.datetime.now() > datetime.datetime.fromisoformat(cw["end_time"]):
-                    result = await db.finalize_clan_war()
-                    if result: logger.info(f"⚔️ Guerra de clanes finalizada. Ganador: {result.get('winner')}")
-            except: pass
-
-# ============================================================
-# [13] HANDLERS TELEGRAM — COMANDOS Y MENSAJES
-# ============================================================
-
-async def send_long(reply_fn, text: str):
-    """Envía textos largos en chunks."""
-    for i in range(0, len(text), 4000):
-        await reply_fn(text[i:i+4000], parse_mode="Markdown")
-
-async def cmd_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    uid  = str(user.id)
-    if db.data["system"]["maint_mode"] and user.id != EmpireConfig.ADMIN_ID:
-        return await update.message.reply_text("🛠️ **MANTENIMIENTO.** Vuelve pronto.")
-    if sec.rate_limit(user.id, 3): return
-    ref = ctx.args[0] if ctx.args else None
-    u, ref_rewarded = await db.get_user(user, ref)
-    if ref_rewarded:
+    @staticmethod
+    async def execute_ping(host: str = "8.8.8.8") -> str:
         try:
-            await ctx.bot.send_message(ref, f"🎉 **REFERIDO REGISTRADO!**\n+{EmpireConfig.ECONOMY['REF_REWARD']} pts por invitar a {user.first_name}.")
-        except: pass
-    if not u.get("captcha_solved") and user.id != EmpireConfig.ADMIN_ID:
-        q = sec.generate_captcha(user.id)
-        await update.message.reply_text(f"🛡️ **VERIFICACIÓN ANTI-BOT**\n{q}\n\nResponde solo con el número:")
-        ctx.user_data["state"] = "WAIT_CAPTCHA"; return
-    lang = u.get("settings",{}).get("language","es")
-    welcome = EmpireConfig.LANGUAGES.get(lang, EmpireConfig.LANGUAGES["es"])["welcome"]
-    if user.id == EmpireConfig.ADMIN_ID:
-        welcome = f"👁️ **SALVE DIRECTOR ISHAK.**\nArquitectura V500 operativa.\nUsuarios: `{db.data['stats']['total_users']}` | Revenue: `{db.data['stats']['stars_revenue']} ⭐️`"
-    await update.message.reply_text(welcome, reply_markup=UI.main_kb(u), parse_mode="Markdown")
-    sec.log_session(uid, "LOGIN")
+            def _ping():
+                param = '-n' if platform.system().lower() == 'windows' else '-c'
+                command = ['ping', param, '4', host]
+                output = subprocess.check_output(command, stderr=subprocess.STDOUT, universal_newlines=True)
+                return output
+            
+            result = await asyncio.to_thread(_ping)
+            
+            if platform.system().lower() == 'windows':
+                match = re.search(r'Media = (\d+) ms', result)
+                if match: return f"{match.group(1)}ms"
+            else:
+                match = re.search(r'min/avg/max/mdev = [\d\.]+/([\d\.]+)/', result)
+                if match: return f"{match.group(1)}ms"
+                
+            return "Ping exitoso pero latencia no parseada."
+        except Exception as e:
+            logger.error(f"Fallo en Ping real: {e}")
+            return "Destino inalcanzable o bloqueado por firewall."
 
-async def cmd_help(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    msg = (
-        "📖 **AYUDA ISHAK EMPIRE V500**\n\n"
-        "**Comandos:**\n"
-        "`/start` — Arrancar el sistema\n"
-        "`/stats` — Tus estadísticas detalladas\n"
-        "`/gift <código> [usuario]` — Canjear/regalar tarjeta\n"
-        "`/coupon <código>` — Canjear cupón de plan\n"
-        "`/ref` — Tu enlace de referidos\n"
-        "`/history` — Historial de descargas\n"
-        "`/favorites` — Tus URLs favoritas\n"
-        "`/2fa` — Gestionar autenticación 2FA\n"
-        "`/security` — Ver sesiones y seguridad\n"
-        "`/leaderboard [cat]` — Ver ranking\n\n"
-        "**Funciones principales:**\n"
-        "• 📥 Extracción de vídeo/audio en múltiples formatos\n"
-        "• 📦 Descarga en lote (hasta 10 URLs a la vez)\n"
-        "• 🎰 Casino con 8 juegos únicos\n"
-        "• 💹 Mercado de IshakCoin en tiempo real\n"
-        "• 🛡️ Facciones con guerras de clanes\n"
-        "• 🤝 Mercado P2P entre usuarios\n"
-        "• ⭐ Sistema de referidos de 3 niveles\n"
-        "• 🔐 Autenticación 2FA con TOTP\n"
-    )
-    await update.message.reply_text(msg, parse_mode="Markdown")
+    @staticmethod
+    async def generate_qr(data: str, uid: str) -> Optional[str]:
+        try:
+            def _gen():
+                qr = qrcode.QRCode(version=1, box_size=10, border=5)
+                qr.add_data(data)
+                qr.make(fit=True)
+                img = qr.make_image(fill_color="black", back_color="white")
+                filepath = os.path.join(EmpireConfig.QR_DIR, f"qr_{uid}_{uuid.uuid4().hex[:8]}.png")
+                img.save(filepath)
+                return filepath
+            return await asyncio.to_thread(_gen)
+        except Exception as e:
+            logger.error(f"Error en generador QR: {e}")
+            return None
 
-async def cmd_ref(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    u, _ = await db.get_user(user)
-    bot_info = await ctx.bot.get_me()
-    link = f"https://t.me/{bot_info.username}?start={user.id}"
-    msg = (
-        f"🔗 **TU ENLACE DE REFERIDOS**\n\n`{link}`\n\n"
-        f"**Ganancias por referido:**\n"
-        f"• Tier 1: +{EmpireConfig.ECONOMY['REF_REWARD']} pts\n"
-        f"• Tier 2: +{EmpireConfig.ECONOMY['REF_TIER2']} pts\n"
-        f"• Tier 3: +{EmpireConfig.ECONOMY['REF_TIER3']} pts\n\n"
-        f"**Comisiones en compras Stars:**\n"
-        f"• Tier 1: {EmpireConfig.ECONOMY['AFFILIATE_T1_PCT']*100:.0f}%\n"
-        f"• Tier 2: {EmpireConfig.ECONOMY['AFFILIATE_T2_PCT']*100:.0f}%\n"
-        f"• Tier 3: {EmpireConfig.ECONOMY['AFFILIATE_T3_PCT']*100:.0f}%\n\n"
-        f"👥 Tus referidos: `{u.get('referrals',0)}`\n"
-        f"💸 Ganancias afiliado: `{u.get('affiliate_earnings',0):,} pts`"
-    )
-    await update.message.reply_text(msg, parse_mode="Markdown")
+    @staticmethod
+    def encode_base64(data: str) -> str:
+        return base64.b64encode(data.encode('utf-8')).decode('utf-8')
+        
+    @staticmethod
+    def decode_base64(data: str) -> str:
+        try:
+            return base64.b64decode(data.encode('utf-8')).decode('utf-8')
+        except:
+            return "Error: Cadena Base64 inválida."
 
-async def cmd_stats(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    uid  = str(user.id)
-    u, _ = await db.get_user(user)
-    all_u = sorted(db.data["users"].values(), key=lambda x: x.get("points",0), reverse=True)
-    rank  = next((i+1 for i,v in enumerate(all_u) if str(v.get("id"))==uid), "?")
-    plan_info = EmpireConfig.PLANS[u["plan"]]
-    achv_pct  = len(u.get("achievements",[])) / len(EmpireConfig.ACHIEVEMENTS) * 100
-    msg = (
-        f"📊 **ESTADÍSTICAS DETALLADAS V500**\n\n"
-        f"**Identidad:**\n"
-        f"• Rango Global: `#{rank}`\n"
-        f"• Plan: **{plan_info['name']}**\n"
-        f"• Nivel: `{u['level']}` | XP: `{u['xp']}/{u['level']*120}`\n"
-        f"• Prestigio: `{u.get('prestige_level',0)}` ⭐\n\n"
-        f"**Capital:**\n"
-        f"• Puntos: `{u['points']:,}`\n"
-        f"• IshakCoins: `{u.get('crypto_balance',0):.4f}`\n"
-        f"• Stars gastadas: `{u.get('total_spent_stars',0)}`\n\n"
-        f"**Actividad:**\n"
-        f"• Descargas hoy: `{u['daily_downloads'][0]}/{plan_info['limit_daily']}`\n"
-        f"• Total descargas: `{u.get('total_downloads',0):,}`\n"
-        f"• Racha: `{u.get('streak',0)} días 🔥`\n\n"
-        f"**Afiliados:**\n"
-        f"• Referidos T1/T2/T3: `{u.get('referrals',0)}/{len(u.get('referrals_tier2',[]))}/{len(u.get('referrals_tier3',[]))}`\n"
-        f"• Ganancias afiliado: `{u.get('affiliate_earnings',0):,} pts`\n\n"
-        f"**Casino:**\n"
-        f"• Partidas: `{u['stats'].get('casino_played',0)}`\n"
-        f"• BJ wins: `{u['stats'].get('blackjack_wins',0)}` | Mines: `{u['stats'].get('mines_wins',0)}`\n"
-        f"• Poker wins: `{u['stats'].get('poker_wins',0)}`\n\n"
-        f"**Logros:** `{len(u.get('achievements',[]))}/{len(EmpireConfig.ACHIEVEMENTS)}` ({achv_pct:.0f}%)\n"
-        f"**P2P:** Ventas `{u['stats'].get('p2p_sales',0)}` | Compras `{u['stats'].get('p2p_purchases',0)}`"
-    )
-    await update.message.reply_text(msg, parse_mode="Markdown")
+real_tools = RealToolsEngine()
 
-async def cmd_history(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    u, _ = await db.get_user(user)
-    hist = u.get("download_history", [])
-    if not hist:
-        return await update.message.reply_text("📜 No tienes descargas en el historial aún.")
-    lines = ["📜 **HISTORIAL DE DESCARGAS** (últimas 20):\n"]
-    for h in reversed(hist[-20:]):
-        lines.append(f"• `{h['date'][:16]}` | `{h['format']}` | {h['title'][:30]}... ({h.get('size_mb',0):.1f}MB)")
-    await send_long(update.message.reply_text, "\n".join(lines))
+# =================================================================
+# [5] MOTOR DE MEDIOS (V400 HOOKS & ASYNC ENGINE MEJORADO)
+# =================================================================
+class DownloadProgressTracker:
+    def __init__(self):
+        self.active_jobs = {}
+    
+    def add_job(self, job_id, message_obj):
+        self.active_jobs[job_id] = {
+            'msg': message_obj, 'status': 'Iniciando', 'percent': 0,
+            'speed': '0B/s', 'eta': 'Calculando...', 'last_update': time.time(),
+            'finished': False
+        }
 
-async def cmd_favorites(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    u, _ = await db.get_user(user)
-    favs = u.get("favorites", [])
-    if not favs:
-        return await update.message.reply_text("⭐ No tienes URLs favoritas guardadas.")
-    msg = "⭐ **TUS FAVORITOS:**\n\n"
-    for i, url in enumerate(favs[-15:], 1):
-        msg += f"`{i}.` {url[:60]}...\n"
-    kb = InlineKeyboardMarkup([[
-        InlineKeyboardButton(f"▶️ Descargar #{i+1}", callback_data=f"fav_dl_{i}")
-        for i in range(min(3, len(favs)))]])
-    await update.message.reply_text(msg, reply_markup=kb, parse_mode="Markdown")
+    async def update_messages_loop(self):
+        while True:
+            await asyncio.sleep(3.5)
+            now = time.time()
+            for job_id, data in list(self.active_jobs.items()):
+                if data['finished'] or (now - data['last_update'] > 900):
+                    if (now - data['last_update'] > 900) and not data['finished']:
+                        logger.warning(f"🧹 [MEMORY PURGE] Job atascado eliminado: {job_id}")
+                    del self.active_jobs[job_id]
+                    continue
+                
+                if now - data['last_update'] >= 3.5:
+                    try:
+                        bar_length = 15
+                        filled = int(bar_length * data['percent'] / 100)
+                        bar = '█' * filled + '░' * (bar_length - filled)
+                        text = (
+                            f"⚡ **SINTETIZANDO DATOS (V400 LEVIATHAN)...**\n"
+                            f"Progreso: `{bar}` {data['percent']:.1f}%\n"
+                            f"Velocidad: `{data['speed']}` | ETA: `{data['eta']}`"
+                        )
+                        if data.get('last_text') != text:
+                            await data['msg'].edit_text(text, parse_mode="Markdown")
+                            data['last_text'] = text
+                            data['last_update'] = now
+                    except: pass
 
-async def cmd_security(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    uid  = str(user.id)
-    u, _ = await db.get_user(user)
-    sec_data = u.get("security", {})
-    sessions = sec.get_session_log(uid)[-5:]
-    tfa = "✅ Activo" if sec_data.get("two_fa_enabled") else "❌ Inactivo"
-    msg = (
-        f"🔐 **CENTRO DE SEGURIDAD V500**\n\n"
-        f"• 2FA: {tfa}\n"
-        f"• Sesiones registradas: `{len(sec.get_session_log(uid))}`\n"
-        f"• IPs de confianza: `{len(sec_data.get('trusted_ips',[]))}`\n\n"
-        f"**Últimas 5 sesiones:**\n"
-    )
-    for s in reversed(sessions):
-        msg += f"  • `{s['time'][:19]}` — {s['action']}\n"
-    kb = InlineKeyboardMarkup([
-        [InlineKeyboardButton("🔐 Gestionar 2FA", callback_data="set_2fa")],
-        [InlineKeyboardButton("❌ CERRAR",        callback_data="u_close")],
-    ])
-    await update.message.reply_text(msg, reply_markup=kb, parse_mode="Markdown")
+progress_tracker = DownloadProgressTracker()
 
-async def cmd_2fa(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    uid  = str(user.id)
-    u, _ = await db.get_user(user)
-    sec_data = u.get("security",{})
-    if sec_data.get("two_fa_enabled"):
-        await update.message.reply_text(
-            "🔐 **2FA ya está activo.**\n\nUsa el botón de Ajustes para desactivarlo o verificar.",
-            reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("⚙️ Ajustes", callback_data="open_settings")]]))
-    else:
-        secret, uri = sec.generate_2fa_secret(uid)
-        # Guardar en DB
-        u["security"]["two_fa_secret"] = encrypt_data(secret)
-        await db.save()
-        qr_path = await tools.qr(uri, uid)
-        msg = (f"🔐 **CONFIGURAR 2FA**\n\nEscanea el QR con Google Authenticator / Authy.\n\n"
-               f"O ingresa este código manualmente:\n`{secret}`\n\n"
-               f"Luego envía el código de 6 dígitos para confirmar.")
-        if qr_path and os.path.exists(qr_path):
-            with open(qr_path,'rb') as f:
-                await ctx.bot.send_photo(user.id, f, caption=msg, parse_mode="Markdown")
-            os.remove(qr_path)
+class MediaEngine:
+    @staticmethod
+    async def get_thumbnail(url: str, uid: str) -> Optional[str]:
+        try:
+            def _get():
+                with yt_dlp.YoutubeDL({'quiet': True, 'nocheckcertificate': True, 'no_warnings': True}) as ydl:
+                    return ydl.extract_info(url, download=False).get('thumbnail')
+            return await asyncio.to_thread(_get)
+        except: return None
+
+    @staticmethod
+    async def get_metadata(url: str) -> dict:
+        if url in GLOBAL_METADATA_CACHE:
+            return GLOBAL_METADATA_CACHE[url]["info"]
+            
+        try:
+            def _get():
+                opts = {
+                    'quiet': True, 'no_warnings': True, 'nocheckcertificate': True,
+                    'socket_timeout': 5, 'extract_flat': 'in_playlist'
+                }
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    i = ydl.extract_info(url, download=False)
+                    if not i: return {}
+                    res = {"title": i.get("title"), "duration": i.get("duration"), "uploader": i.get("uploader"), "view_count": i.get("view_count")}
+                    GLOBAL_METADATA_CACHE[url] = {"info": res, "timestamp": time.time()}
+                    return res
+            return await asyncio.to_thread(_get)
+        except: return {}
+
+    @staticmethod
+    async def run(url: str, mode: str, quality: str, uid: str, max_size_mb: int, job_id: str, settings: dict):
+        output_template = os.path.join(EmpireConfig.BUFFER_DIR, f"{job_id}.%(ext)s")
+        
+        def yt_dlp_hook(d):
+            if d['status'] == 'downloading':
+                job = progress_tracker.active_jobs.get(job_id)
+                if job:
+                    try:
+                        p_str = d.get('_percent_str', '0.0%').replace('%', '').strip()
+                        job['percent'] = float(p_str)
+                        job['speed'] = d.get('_speed_str', '0B/s')
+                        job['eta'] = d.get('_eta_str', 'Desconocido')
+                    except: pass
+
+        ydl_opts = {
+            'outtmpl': output_template, 
+            'quiet': True, 
+            'no_warnings': True,
+            'noplaylist': True, 
+            'max_filesize': max_size_mb * 1024 * 1024,
+            'nocheckcertificate': True, 
+            'progress_hooks': [yt_dlp_hook],
+            'socket_timeout': 10,
+            'extract_flat': 'in_playlist',
+            'extractor_args': {'youtube': ['player_client=ios,android,web']}
+        }
+
+        if "veo3" in url.lower():
+            match = re.search(r'veo3.*?/([a-zA-Z0-9_-]+)', url)
+            vid_id = match.group(1) if match else "Desconocido"
+            logger.info(f"🚨 [VEO3 DEFENSE] Veo3 detectado - Video ID: {vid_id} (UID: {uid}). Validando integridad corporativa.")
+            
+            if mode == "VNOA":
+                logger.warning(f"🛡️ [VEO3 DEFENSE] Bypass bloqueado para VNOA (sin audio). Restaurando a MP4 con audio en Español.")
+                mode = "MP4"
+
+            ydl_opts['writesubtitles'] = True
+            ydl_opts['subtitleslangs'] = ['es', 'spa']
+            ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+            ydl_opts['format_sort'] = ['lang:es', 'lang:spa', 'res:1080', 'ext:mp4:m4a']
         else:
-            await update.message.reply_text(msg, parse_mode="Markdown")
-        ctx.user_data["state"] = "WAIT_2FA_VERIFY"
+            if mode == "MP3":
+                ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}]})
+            elif mode == "MP3U":
+                ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '320'}]})
+            elif mode == "VOICE":
+                ydl_opts.update({'format': 'bestaudio/best', 'postprocessors': [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'vorbis', 'preferredquality': '192'}]})
+            elif mode == "VNOA":
+                h = quality.replace("p", "") if quality != "Original" else "1080"
+                ydl_opts['format'] = f'bestvideo[height<={h}][ext=mp4]/bestvideo/best' 
+            elif mode == "GIF":
+                h = quality.replace("p", "") if quality != "Original" else "720"
+                ydl_opts['format'] = f'bestvideo[height<={h}][ext=mp4]/best'
+            else: 
+                h = quality.replace("p", "") if quality != "Original" else "2160"
+                ydl_opts['format'] = f'bestvideo[height<={h}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
 
-async def cmd_gift(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    uid  = str(user.id)
-    u, _ = await db.get_user(user)
-    if not ctx.args:
-        await update.message.reply_text("🎁 Uso: `/gift <código>` o `/gift <código> <ID_usuario>`", parse_mode="Markdown"); return
-    code = ctx.args[0].strip().upper()
-    if len(ctx.args) >= 2:
-        target = ctx.args[1].strip()
-        target_uid = next((k for k,v in db.data["users"].items()
-                           if str(v.get("id"))==target or (v.get("username") or "").lower()==target.lower()), None)
-        if not target_uid: return await update.message.reply_text("❌ Usuario no encontrado.")
-        ok, msg = await db.redeem_gift_card(target_uid, code)
-        if ok:
-            await update.message.reply_text(f"🎁 ¡Enviado a **{db.data['users'][target_uid].get('name','?')}**!\n{msg}", parse_mode="Markdown")
-            try: await ctx.bot.send_message(target_uid, f"🎁 **Regalo de {user.first_name}!**\n{msg}", parse_mode="Markdown")
-            except: pass
-        else: await update.message.reply_text(f"❌ {msg}")
+        def _execute():
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=True)
+                    if not info:
+                        return False, None, None, 0, 0, "No se pudo extraer información del archivo."
+                        
+                    file_path = ydl.prepare_filename(info)
+                    
+                    if mode in ["MP3", "MP3U"]: file_path = os.path.splitext(file_path)[0] + ".mp3"
+                    elif mode == "VOICE": file_path = os.path.splitext(file_path)[0] + ".ogg"
+                    
+                    file_size = os.path.getsize(file_path) if os.path.exists(file_path) else 0
+                    return True, file_path, info.get('title', 'Media_Enterprise_V400'), info.get('duration', 0), file_size, ""
+            except yt_dlp.utils.DownloadError as e:
+                gc.collect() 
+                err_msg = str(e).lower()
+                user_msg = f"Excepción en el satélite de extracción B2B.\nDetalles técnicos: `{str(e)}`"
+                if "copyright" in err_msg:
+                    user_msg = "Contenido bloqueado por derechos de autor (Copyright) en el país de origen."
+                elif "too large" in err_msg or "filesize" in err_msg:
+                    user_msg = f"El archivo original supera tu límite de {max_size_mb}MB permitido en tu plan."
+                elif "sign in" in err_msg or "members only" in err_msg or "private" in err_msg:
+                    user_msg = "El enlace es privado, requiere autenticación o suscripción nativa."
+                elif "geo-restricted" in err_msg:
+                    user_msg = "Contenido restringido geográficamente."
+                return False, None, None, 0, 0, user_msg
+            except Exception as e:
+                gc.collect() 
+                return False, None, None, 0, 0, f"Error general de sistema: {e}"
+
+        return await asyncio.to_thread(_execute)
+
+# =================================================================
+# [5.5] MOTOR DE JUEGOS DEL CASINO (CASINO ENGINE)
+# =================================================================
+class CasinoEngine:
+    @staticmethod
+    def draw_card() -> str:
+        cards = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
+        return random.choice(cards)
+
+    @staticmethod
+    def calculate_hand(hand: List[str]) -> int:
+        val = 0
+        aces = 0
+        for card in hand:
+            if card in ['J', 'Q', 'K']: val += 10
+            elif card == 'A': aces += 1; val += 11
+            else: val += int(card)
+        
+        while val > 21 and aces:
+            val -= 10
+            aces -= 1
+        return val
+
+    @staticmethod
+    def play_slots(bet: int) -> Tuple[int, str]:
+        syms = ["🍒", "🍋", "🔔", "💎", "👑"]
+        res = [random.choice(syms) for _ in range(3)]
+        msg = f"🎰 **SLOTS**\n[ {res[0]} | {res[1]} | {res[2]} ]\n"
+        
+        if res[0] == res[1] == res[2]:
+            if res[0] == "👑":
+                w = bet * 50
+                msg += f"🎉 **¡MEGA JACKPOT!** Ganaste {w} pts."
+            elif res[0] == "💎":
+                w = bet * 20
+                msg += f"💎 **¡JACKPOT DE DIAMANTE!** Ganaste {w} pts."
+            else:
+                w = bet * 10
+                msg += f"🎉 **¡JACKPOT!** Ganaste {w} pts."
+            return w, msg
+        elif res[0] == res[1] or res[1] == res[2] or res[0] == res[2]:
+            w = int(bet * 1.5)
+            msg += f"👍 Recuperas {w} pts."
+            return w, msg
+        else:
+            msg += "💀 Perdiste la apuesta."
+            return 0, msg
+
+    @staticmethod
+    def calculate_crash_multiplier() -> float:
+        r = random.uniform(0, 1)
+        if r < 0.03: return 1.00
+        multiplier = 1.0 / (1.0 - r)
+        return min(100.00, multiplier)
+
+casino_engine = CasinoEngine()
+
+# =================================================================
+# [6] INTERFAZ DE USUARIO (GUI ENTERPRISE V400)
+# =================================================================
+class EmpireUI:
+    @staticmethod
+    def main_keyboard(u_data):
+        if u_data.get("is_banned"): return ReplyKeyboardMarkup([[KeyboardButton("🎧 SOPORTE")]], resize_keyboard=True)
+        
+        is_admin = u_data['id'] == EmpireConfig.ADMIN_ID
+        is_god = u_data['plan'] == 'GOD'
+        is_vip = u_data.get('vip_expiry') and datetime.datetime.now() < datetime.datetime.fromisoformat(u_data['vip_expiry'])
+        
+        btns = [
+            [KeyboardButton("📥 EXTRACCIÓN"), KeyboardButton("👤 PERFIL")],
+            [KeyboardButton("⭐️ TIENDA OFICIAL (STARS)"), KeyboardButton("💎 MERCADO NEGRO")],
+            [KeyboardButton("⚙️ AJUSTES PRO"), KeyboardButton("🎰 CASINO IMPERIAL")],
+            [KeyboardButton("🛠️ CAJA DE HERRAMIENTAS"), KeyboardButton("🛡️ FACCIONES")],
+            [KeyboardButton("🎁 TRIBUTO"), KeyboardButton("🎧 SOPORTE")],
+            [KeyboardButton("🎮 MISIONES Y LOGROS"), KeyboardButton("🏆 RANKING GLOBAL")],
+            [KeyboardButton("🎫 CANJEAR CÓDIGO")],
+        ]
+        
+        if is_vip:
+            btns.insert(2, [KeyboardButton("🥂 SALA VIP")])
+        
+        if is_god:
+            btns.append([KeyboardButton("🏢 ÁREA B2B")])
+            
+        if is_admin:
+            btns.append([KeyboardButton("👑 PANEL OVERLORD 👑"), KeyboardButton("🌐 DATOS MATRIZ")])
+            btns.append([KeyboardButton("🏟️ TORNEO ADMIN")])
+            
+        return ReplyKeyboardMarkup(btns, resize_keyboard=True)
+
+    @staticmethod
+    def overlord_panel(page=0):
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("📋 LISTA ESCLAVOS", callback_data=f"adm_list_{page}"), 
+             InlineKeyboardButton("📢 TRANSMISIÓN", callback_data="adm_bc")],
+            [InlineKeyboardButton("🚫 BANEAR", callback_data="adm_ban"), 
+             InlineKeyboardButton("🔓 DESBANEAR", callback_data="adm_unban")],
+            [InlineKeyboardButton("💰 DAR FONDOS", callback_data="adm_pts"), 
+             InlineKeyboardButton("🎫 CREAR CUPÓN", callback_data="adm_cp")],
+            [InlineKeyboardButton("🎭 EDITAR RANGO", callback_data="adm_edit_plan"), 
+             InlineKeyboardButton("📂 TICKETS", callback_data="adm_tickets")],
+            [InlineKeyboardButton("⚠️ MANTENIMIENTO", callback_data="adm_maint"), 
+             InlineKeyboardButton("💾 BACKUP DB", callback_data="adm_backup")],
+            # V401
+            [InlineKeyboardButton("🎁 GENERAR GIFT CARD", callback_data="adm_giftcard"),
+             InlineKeyboardButton("📊 ANALÍTICAS AVANZADAS", callback_data="adm_analytics")],
+            [InlineKeyboardButton("📣 PUSH MASIVO VIP", callback_data="adm_vip_push"),
+             InlineKeyboardButton("🔑 VER API KEYS", callback_data="adm_apikeys")],
+            [InlineKeyboardButton("❌ CERRAR TERMINAL", callback_data="u_close")]
+        ])
+
+    @staticmethod
+    def factions_panel(has_faction):
+        if has_faction:
+            return InlineKeyboardMarkup([
+                [InlineKeyboardButton("📊 Info de Facción", callback_data="fac_info"),
+                 InlineKeyboardButton("💰 Donar a la Bóveda", callback_data="fac_donate")],
+                [InlineKeyboardButton("⭐ Subir Nivel Clan (10k pts)", callback_data="fac_upgrade")],
+                [InlineKeyboardButton("🚪 Abandonar", callback_data="fac_leave")],
+                [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
+            ])
+        else:
+            return InlineKeyboardMarkup([
+                [InlineKeyboardButton("🛡️ Crear Facción (Req. Ticket)", callback_data="fac_create")],
+                [InlineKeyboardButton("🤝 Unirse a Facción", callback_data="fac_join")],
+                [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
+            ])
+
+    @staticmethod
+    def format_selector():
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎬 VIDEO (MP4)", callback_data="fmt_MP4"),
+             InlineKeyboardButton("🎵 AUDIO (MP3)", callback_data="fmt_MP3")],
+            [InlineKeyboardButton("🔥 MP3 ULTRA (320kbps)", callback_data="fmt_MP3U"),
+             InlineKeyboardButton("🎞️ VIDEO SIN AUDIO", callback_data="fmt_VNOA")],
+            [InlineKeyboardButton("🎙️ NOTA DE VOZ (OGG)", callback_data="fmt_VOICE"),
+             InlineKeyboardButton("🎞️ ANIMACIÓN (GIF)", callback_data="fmt_GIF")],
+            [InlineKeyboardButton("❌ ABORTAR", callback_data="u_close")]
+        ])
+
+    @staticmethod
+    def quality_selector(plan_id):
+        qualities = EmpireConfig.PLANS.get(plan_id, EmpireConfig.PLANS["FREE"])["resolutions"]
+        rows = []
+        for i in range(0, len(qualities), 2):
+            rows.append([InlineKeyboardButton(f"🎥 {q}", callback_data=f"ql_{q}") for q in qualities[i:i+2]])
+        rows.append([InlineKeyboardButton("⬅️ ATRÁS", callback_data="fmt_back")])
+        return InlineKeyboardMarkup(rows)
+
+    @staticmethod
+    def stars_shop():
+        rows = []
+        for k, v in EmpireConfig.STARS_PACKAGES.items():
+            rows.append([InlineKeyboardButton(f"{v['name']} - {v['stars']} ⭐️", callback_data=f"stars_{k}")])
+        rows.append([InlineKeyboardButton("❌ CERRAR", callback_data="u_close")])
+        return InlineKeyboardMarkup(rows)
+
+    @staticmethod
+    def shop_panel():
+        rows = []
+        for k, v in EmpireConfig.SHOP_ITEMS.items():
+            rows.append([InlineKeyboardButton(f"🛒 {v['name']} ({v['price']} pts)", callback_data=f"buy_item_{k}")])
+        rows.append([
+            InlineKeyboardButton("📈 COMPRAR IshakCoin (500 pts)", callback_data="crypto_buy"),
+            InlineKeyboardButton("📉 VENDER TODO", callback_data="crypto_sell")
+        ])
+        rows.append([InlineKeyboardButton("❌ CERRAR", callback_data="u_close")])
+        return InlineKeyboardMarkup(rows)
+
+    @staticmethod
+    def settings_panel(settings):
+        wm_status = settings.get('watermark', None) or "Ninguna"
+        transcribe = "✅" if settings.get('auto_transcribe') else "❌"
+        ghost = "✅" if settings.get('ghost_mode') else "❌"
+        doc_mode = "✅" if settings.get('send_as_doc') else "❌"
+        theme = settings.get('theme', 'dark').capitalize()
+        lang = settings.get('language', 'es').upper()
+        notifications = "✅" if settings.get('notifications_enabled', True) else "❌"
+        
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(f"🖋️ Marca de Agua: {wm_status}", callback_data="set_watermark")],
+            [InlineKeyboardButton(f"📝 Auto-Transcribir IA: {transcribe}", callback_data="set_transcribe")],
+            [InlineKeyboardButton(f"👻 Modo Fantasma: {ghost}", callback_data="set_ghost")],
+            [InlineKeyboardButton(f"📄 Enviar como Documento: {doc_mode}", callback_data="set_doc")],
+            [InlineKeyboardButton(f"🎨 Tema: {theme}", callback_data="set_theme")],
+            [InlineKeyboardButton(f"🌐 Idioma: {lang}", callback_data="set_lang")],
+            [InlineKeyboardButton(f"🔔 Notificaciones Push: {notifications}", callback_data="set_notif")],
+            [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
+        ])
+
+    @staticmethod
+    def utils_panel():
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("🗣️ Text to Speech Real", callback_data="util_tts_req"),
+             InlineKeyboardButton("📡 Ping Test (Sist. Operativo)", callback_data="util_ping")],
+            [InlineKeyboardButton("🔳 Generador QR Real", callback_data="util_qr_req"),
+             InlineKeyboardButton("🖼️ Extraer Miniatura", callback_data="util_thumb")],
+            [InlineKeyboardButton("📜 Codificar a Base64", callback_data="util_b64enc_req"),
+             InlineKeyboardButton("🔓 Decodificar Base64", callback_data="util_b64dec_req")],
+            [InlineKeyboardButton("📊 Info Metadatos", callback_data="util_meta")],
+            [InlineKeyboardButton("🔍 Búsqueda Avanzada", callback_data="util_search")],
+            [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
+        ])
+
+    @staticmethod
+    def b2b_panel(api_key):
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔑 Generar/Regenerar API Key", callback_data="b2b_gen_key")],
+            [InlineKeyboardButton(f"Clave Hasheada en DB", callback_data="dummy_btn") if api_key else InlineKeyboardButton("Sin clave activa", callback_data="dummy_btn")],
+            [InlineKeyboardButton("📖 Ver Documentación API", callback_data="b2b_docs")],
+            [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
+        ])
+
+    @staticmethod
+    def casino_panel():
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎰 Slots (100 pts)", callback_data="casino_slots")],
+            [InlineKeyboardButton("🎡 Ruleta (250 pts)", callback_data="casino_roulette")],
+            [InlineKeyboardButton("🃏 Blackjack (500 pts)", callback_data="casino_bj_init")],
+            [InlineKeyboardButton("📈 Cripto Crash (1000 pts)", callback_data="casino_crash_init")],
+            [InlineKeyboardButton("❌ SALIR", callback_data="u_close")]
+        ])
+        
+    @staticmethod
+    def blackjack_panel(bet):
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("🃏 Pedir Carta", callback_data=f"bj_hit_{bet}"),
+             InlineKeyboardButton("🛑 Plantarse", callback_data=f"bj_stand_{bet}")],
+        ])
+
+    @staticmethod
+    def crash_panel(bet, mult=1.00):
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton(f"🚀 SALTAR AHORA ({mult:.2f}x)", callback_data=f"crash_cashout_{bet}_{mult:.2f}")]
+        ])
+
+    @staticmethod
+    def plan_selector_admin():
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("🆓 FREE", callback_data="setplan_FREE"),
+             InlineKeyboardButton("💎 PRO", callback_data="setplan_PRO")],
+            [InlineKeyboardButton("🔥 ULTRA", callback_data="setplan_ULTRA"),
+             InlineKeyboardButton("👁️ GOD", callback_data="setplan_GOD")],
+            [InlineKeyboardButton("❌ CANCELAR", callback_data="u_close")]
+        ])
+
+    @staticmethod
+    def ticket_panel(ticket_id):
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔒 CERRAR TICKET", callback_data=f"tc_close_{ticket_id}")]
+        ])
+
+    @staticmethod
+    def leaderboard_panel():
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("💰 Top Puntos", callback_data="lb_points"),
+             InlineKeyboardButton("📥 Top Descargas", callback_data="lb_downloads")],
+            [InlineKeyboardButton("👥 Top Referidos", callback_data="lb_referrals"),
+             InlineKeyboardButton("💸 Top Afiliados", callback_data="lb_affiliate")],
+            [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
+        ])
+
+    @staticmethod
+    def tournament_panel():
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("🏟️ Ver Clasificación", callback_data="tour_rank")],
+            [InlineKeyboardButton("🏆 Ver Premios", callback_data="tour_prizes")],
+            [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
+        ])
+
+    @staticmethod
+    def admin_tournament_panel():
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("🚀 Iniciar Torneo 24h", callback_data="tour_start_24"),
+             InlineKeyboardButton("🚀 Iniciar Torneo 48h", callback_data="tour_start_48")],
+            [InlineKeyboardButton("🏁 Finalizar Torneo", callback_data="tour_end")],
+            [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
+        ])
+
+    @staticmethod
+    def vip_lounge_panel():
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("📊 Estadísticas VIP", callback_data="vip_stats"),
+             InlineKeyboardButton("🎁 Generar Tarjeta Regalo", callback_data="vip_gift_gen")],
+            [InlineKeyboardButton("👑 Descargas Ilimitadas Hoy", callback_data="vip_unlimited")],
+            [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
+        ])
+
+    @staticmethod
+    def search_panel():
+        return InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔍 Por plataforma", callback_data="search_platform"),
+             InlineKeyboardButton("⏱️ Por duración", callback_data="search_duration")],
+            [InlineKeyboardButton("📅 Recientes", callback_data="search_recent"),
+             InlineKeyboardButton("📈 Más vistos", callback_data="search_popular")],
+            [InlineKeyboardButton("❌ CERRAR", callback_data="u_close")]
+        ])
+
+# =================================================================
+# [7] MANEJADORES DE TELEGRAM STARS
+# =================================================================
+async def precheckout_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.pre_checkout_query
+    if query.invoice_payload.startswith("stars_pack_"):
+        await query.answer(ok=True)
     else:
-        ok, msg = await db.redeem_gift_card(uid, code)
-        await update.message.reply_text(msg, parse_mode="Markdown")
+        await query.answer(ok=False, error_message="Carga útil del paquete inválida.")
 
-async def cmd_coupon(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user; uid = str(user.id)
-    u, _ = await db.get_user(user)
-    if not ctx.args: return await update.message.reply_text("Uso: `/coupon CÓDIGO`", parse_mode="Markdown")
-    code = ctx.args[0].strip().upper()
-    if code not in db.data["coupons"]: return await update.message.reply_text("❌ Código inválido o ya usado.")
-    coupon = db.data["coupons"][code]
-    if isinstance(coupon, dict) and coupon.get("type") == "gift_card":
-        ok, msg = await db.redeem_gift_card(uid, code)
-        await update.message.reply_text(msg, parse_mode="Markdown")
-    elif isinstance(coupon, str) and coupon in EmpireConfig.PLANS:
-        u["plan"] = coupon
-        days = 30
-        u["plan_expiry"] = str(datetime.datetime.now() + datetime.timedelta(days=days)) if coupon not in ["FREE","GOD"] else None
-        del db.data["coupons"][code]; await db.save()
-        await update.message.reply_text(f"✅ ¡Plan **{coupon}** activado por {days} días!", parse_mode="Markdown")
-    else:
-        await update.message.reply_text("❌ Tipo de cupón desconocido.")
-
-async def cmd_leaderboard(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    cat = ctx.args[0] if ctx.args else "points"
-    top = await db.get_leaderboard(cat, 10)
-    medals = ["🥇","🥈","🥉"]+["4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟"]
-    cat_names = {"points":"Puntos","downloads":"Descargas","referrals":"Referidos","affiliate":"Afiliados","level":"Nivel"}
-    msg = f"🏆 **TOP 10 — {cat_names.get(cat,cat).upper()}**\n\n"
-    for i,(name,username,val,plan) in enumerate(top):
-        ustr = f"@{username}" if username else name
-        color = EmpireConfig.PLANS.get(plan,{}).get("color","⬜")
-        msg += f"{medals[i]} {color} `{val:,}` — {ustr[:20]}\n"
-    await update.message.reply_text(msg, reply_markup=UI.lb_panel(), parse_mode="Markdown")
-
-# ── Pagos Telegram Stars ───────────────────────────────────
-async def precheckout_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    q = update.pre_checkout_query
-    if q.invoice_payload.startswith("stars_"):
-        await q.answer(ok=True)
-    else:
-        await q.answer(ok=False, error_message="Pago inválido.")
-
-async def payment_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    user    = update.message.from_user
-    uid     = str(user.id)
+async def successful_payment_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    uid_str = str(update.message.from_user.id)
     payment = update.message.successful_payment
     payload = payment.invoice_payload
-    u, _    = await db.get_user(user)
+    
+    if payload.startswith("stars_pack_"):
+        pack_key = payload.replace("stars_pack_", "")
+        pack = EmpireConfig.STARS_PACKAGES.get(pack_key)
+        
+        if pack:
+            u_data, _ = await db.get_user(update.message.from_user)
+            u_data["stats"]["stars_spent"] += payment.total_amount
+            u_data["total_spent_stars"] = u_data.get("total_spent_stars", 0) + payment.total_amount
+            db.data["stats"]["stars_revenue"] += payment.total_amount
+            
+            # V401: comisiones afiliados en cascada
+            asyncio.create_task(db.pay_affiliate_commission(uid_str, payment.total_amount))
+            
+            if pack["type"] == "points":
+                u_data["points"] += pack["value"]
+                await db.log_tx(uid_str, pack["value"], f"Compra Stars: {pack['name']}")
+                msg = f"✅ Has adquirido `{pack['value']} Puntos Imperiales`."
+            
+            elif pack["type"] == "sub":
+                u_data["plan"] = pack["value"]
+                current_expiry = u_data.get("plan_expiry")
+                base_date = datetime.datetime.fromisoformat(current_expiry) if current_expiry else datetime.datetime.now()
+                new_expiry = base_date + datetime.timedelta(days=30)
+                u_data["plan_expiry"] = str(new_expiry)
+                await db.log_tx(uid_str, 0, f"Suscripción {pack['value']} x30 días (Stars)")
+                msg = f"✅ **SUSCRIPCIÓN ACTIVADA**. Eres **{pack['value']}** hasta `{new_expiry.date()}`."
 
-    if not payload.startswith("stars_"): return
-    pack_key = payload.replace("stars_","")
-    pack = EmpireConfig.STARS_PACKAGES.get(pack_key)
-    if not pack: return
+            elif pack["type"] == "vip":
+                current_vip = u_data.get("vip_expiry")
+                base_vip = datetime.datetime.fromisoformat(current_vip) if current_vip else datetime.datetime.now()
+                new_vip = base_vip + datetime.timedelta(days=30)
+                u_data["vip_expiry"] = str(new_vip)
+                await db.log_tx(uid_str, 0, "VIP Sala x30 días (Stars)")
+                msg = f"🥂 **ACCESO VIP ACTIVADO** hasta `{new_vip.date()}`."
+                if "VIP_MEMBER" not in u_data.get("achievements", []):
+                    u_data.setdefault("achievements", []).append("VIP_MEMBER")
+                    u_data["points"] += EmpireConfig.ACHIEVEMENTS["VIP_MEMBER"]["reward"]
+                    msg += "\n🏆 ¡LOGRO: VIP Exclusivo! +2000 pts"
 
-    stars = payment.total_amount
-    u["stats"]["stars_spent"] += stars
-    u["total_spent_stars"]     = u.get("total_spent_stars",0) + stars
-    db.data["stats"]["stars_revenue"] += stars
-    asyncio.create_task(db.pay_affiliate_commission(uid, stars))
+            elif pack["type"] == "gift_card":
+                code = await db.generate_gift_card(pack["value"])
+                msg = f"🎁 **TARJETA REGALO GENERADA**\nCódigo: `{code}`\nValor: **{pack['value']} pts**\n\nRegálasela con el comando /gift `{code}`"
 
-    msg = ""
-    ptype = pack["type"]
+            # V401: logro ballena
+            if u_data.get("total_spent_stars", 0) >= 1000 and "WHALE" not in u_data.get("achievements", []):
+                u_data.setdefault("achievements", []).append("WHALE")
+                u_data["points"] += EmpireConfig.ACHIEVEMENTS["WHALE"]["reward"]
+                msg += "\n🐋 ¡LOGRO BALLENA! +15000 pts"
+            
+            if "INVESTOR" not in u_data.get("achievements", []):
+                u_data.setdefault("achievements", []).append("INVESTOR")
+                u_data["points"] += 5000
+                msg += "\n🏆 ¡LOGRO: Inversor Privado! +5000 pts"
+            
+            await db.save()
+            audit_logger.log("STARS_PURCHASE", user_id=uid_str, details={"pack": pack_key, "amount": payment.total_amount})
+            await update.message.reply_text(f"💎 **TRANSACCIÓN CONFIRMADA**\n{msg}", parse_mode="Markdown")
 
-    if ptype == "points":
-        u["points"] += pack["value"]
-        await db.log_tx(uid, pack["value"], f"Stars: {pack['name']}")
-        msg = f"✅ Recibidos **{pack['value']:,} pts**."
+# =================================================================
+# [8] CONTROLADORES DE COMANDOS Y MENSAJES (NÚCLEO V400)
+# =================================================================
 
-    elif ptype in ("sub_week","sub_month","sub_year"):
-        plan_id = pack["value"]
-        days    = {"sub_week":7,"sub_month":30,"sub_year":365}[ptype]
-        u["plan"] = plan_id
-        base = datetime.datetime.fromisoformat(u["plan_expiry"]) if u.get("plan_expiry") else datetime.datetime.now()
-        new_exp = base + datetime.timedelta(days=days)
-        u["plan_expiry"] = str(new_exp)
-        await db.log_tx(uid, 0, f"Sub {plan_id} ({days}d)")
-        msg = f"✅ **{EmpireConfig.PLANS[plan_id]['name']}** activo hasta `{new_exp.date()}`."
+async def send_chunked_message(reply_func, text):
+    lines = text.split('\n')
+    chunk = ""
+    for line in lines:
+        if len(chunk) + len(line) > 4000:
+            await reply_func(chunk, parse_mode="Markdown")
+            chunk = line + "\n"
+        else:
+            chunk += line + "\n"
+    if chunk:
+        await reply_func(chunk, parse_mode="Markdown")
 
-    elif ptype == "vip":
-        base = datetime.datetime.fromisoformat(u["vip_expiry"]) if u.get("vip_expiry") else datetime.datetime.now()
-        new_exp = base + datetime.timedelta(days=30)
-        u["vip_expiry"] = str(new_exp)
-        if "VIP_MEMBER" not in u.get("achievements",[]): u.setdefault("achievements",[]).append("VIP_MEMBER"); u["points"]+=2000
-        msg = f"🥂 **VIP activo** hasta `{new_exp.date()}`."
+async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    uid_str = str(user.id)
+    
+    if db.data["system"]["maint_mode"] and user.id != EmpireConfig.ADMIN_ID:
+        return await update.message.reply_text("🛠️ **SISTEMA EN MANTENIMIENTO CORPORATIVO.** Vuelve más tarde.")
 
-    elif ptype == "gift_card":
-        code = await db.generate_gift_card(pack["value"])
-        msg  = f"🎁 Código: `{code}` | Valor: **{pack['value']} pts**."
+    if sec_core.rate_limit(user.id, limit=3): 
+        return
 
-    elif ptype == "boost":
-        val = pack["value"]
-        if "xp3" in val:
-            u["active_buffs"]["xp_multiplier"] = 3.0
-            u["active_buffs"]["buff_expiry"]    = str(datetime.datetime.now()+datetime.timedelta(days=7))
-            msg = "🔬 **XP x3 activo por 7 días**."
+    referrer_id = context.args[0] if context.args else None
+    u_data, referrer_rewarded = await db.get_user(user, referrer_id)
 
-    elif ptype == "clan_slot":
-        fac = u.get("faction")
-        if fac and fac in db.data["factions"]:
-            db.data["factions"][fac]["max_members"] = db.data["factions"][fac].get("max_members",20) + pack["value"]
-            msg = f"🛡️ Clan expandido en **+{pack['value']} slots**."
+    if referrer_rewarded:
+        try:
+            await context.bot.send_message(referrer_id, f"🎉 **¡ALERTA VIRAL V400!**\nUn nuevo ciudadano ({user.first_name}) se ha unido con tu enlace. Has recibido **+1500 pts**.")
+        except: pass
 
-    # Logros
-    if "INVESTOR" not in u.get("achievements",[]):
-        u.setdefault("achievements",[]).append("INVESTOR"); u["points"]+=5000; msg+="\n🏆 LOGRO: Inversor! +5000pts"
-    if u.get("total_spent_stars",0) >= 1000 and "WHALE" not in u.get("achievements",[]):
-        u.setdefault("achievements",[]).append("WHALE"); u["points"]+=15000; msg+="\n🐋 LOGRO: Ballena! +15000pts"
+    if not u_data.get("captcha_solved") and user.id != EmpireConfig.ADMIN_ID:
+        question = sec_core.generate_captcha(user.id)
+        await update.message.reply_text(f"🛡️ **VERIFICACIÓN ANTI-DDOS (V400).**\nResuelve:\n`{question}`\nResponde solo con el número.")
+        context.user_data["state"] = "WAIT_CAPTCHA"
+        return
 
-    await db.save()
-    audit_logger.log("STARS_PURCHASE", user_id=uid, details={"pack":pack_key,"stars":stars})
-    await update.message.reply_text(f"💎 **TRANSACCIÓN CONFIRMADA**\n{msg}", parse_mode="Markdown")
+    # [21] MULTI-IDIOMA
+    lang = u_data.get("settings", {}).get("language", "es")
+    welcome_msg = EmpireConfig.LANGUAGES.get(lang, EmpireConfig.LANGUAGES["es"])["welcome"]
+    if user.id == EmpireConfig.ADMIN_ID:
+        welcome_msg = "👁️ **SALVE, DIRECTOR ISHAK.**\nArquitectura V400 operativa. Redundancia asíncrona y Módulos de Comando en línea."
 
-# ============================================================
-# [14] DISPATCHER DE MENSAJES PRINCIPAL
-# ============================================================
-MAIN_COMMANDS = {
-    "📥 EXTRACCIÓN", "📦 LOTE DE URLs", "👤 PERFIL", "📊 MIS ESTADÍSTICAS",
-    "⭐️ TIENDA STARS", "🏪 MERCADO NEGRO", "🎰 CASINO IMPERIAL",
-    "⚙️ AJUSTES PRO", "🛠️ HERRAMIENTAS", "🛡️ FACCIONES",
-    "🎁 TRIBUTO DIARIO", "🎮 MISIONES Y LOGROS", "🏆 RANKING GLOBAL",
-    "🔔 NOTIFICACIONES", "📜 MI HISTORIAL", "⭐ MIS FAVORITOS",
-    "🛒 TIENDA DIARIA", "🎫 CANJEAR CÓDIGO", "🤝 MERCADO P2P", "🎧 SOPORTE",
-    "🏢 ÁREA B2B", "👑 PANEL OVERLORD", "🌐 TELEMETRÍA",
-    "🏟️ TORNEOS ADMIN", "⚔️ GUERRA DE CLANES", "🥂 SALA VIP",
-}
+    await update.message.reply_text(welcome_msg, reply_markup=EmpireUI.main_keyboard(u_data), parse_mode="Markdown")
 
-async def msg_dispatcher(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+async def message_dispatcher(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not update.message or not update.message.text: return
     user = update.effective_user
-    text = update.message.text.strip()
-    uid  = str(user.id)
+    text = update.message.text
+    uid_str = str(user.id)
 
-    if sec.rate_limit(user.id): return
-    if sec.check_anomaly(user.id, text):
-        return await update.message.reply_text("⚠️ Anomalía detectada. Cálmate.")
+    if sec_core.rate_limit(user.id): return
+    if sec_core.check_anomaly(user.id, text):
+        return await update.message.reply_text("⚠️ **ANOMALÍA DETECTADA:** Has enviado el mismo comando múltiples veces en un segundo. Calma.")
 
-    u, _ = await db.get_user(user)
-    if u.get("is_banned"):
-        return await update.message.reply_text("🚫 Cuenta suspendida.")
+    u_data, _ = await db.get_user(user)
+    if u_data.get("is_banned"):
+        return await update.message.reply_text("🚫 Cuenta suspendida por infracción corporativa.")
 
     db.data["stats"]["commands_executed"] += 1
-    sec.log_session(uid, f"MSG:{text[:30]}")
+    audit_logger.log("COMMAND_EXEC", user_id=uid_str, details={"command": text[:50]})
 
-    # Resetear estado si es comando principal
-    if text in MAIN_COMMANDS: ctx.user_data["state"] = None
-
-    state = ctx.user_data.get("state")
-
-    # ── CAPTCHA ───────────────────────────────────────────
+    MAIN_COMMANDS = [
+        "📥 EXTRACCIÓN", "⭐️ TIENDA OFICIAL (STARS)", "💎 MERCADO NEGRO", 
+        "⚙️ AJUSTES PRO", "🏢 ÁREA B2B", "🎰 CASINO IMPERIAL", "🛠️ CAJA DE HERRAMIENTAS", 
+        "👤 PERFIL", "🎁 TRIBUTO", "🎮 MISIONES Y LOGROS", "🎧 SOPORTE", 
+        "👑 PANEL OVERLORD 👑", "🌐 DATOS MATRIZ", "🛡️ FACCIONES", "🔔 NOTIFICACIONES",
+        # V401
+        "🏆 RANKING GLOBAL", "🎫 CANJEAR CÓDIGO", "🥂 SALA VIP", "🏟️ TORNEO ADMIN",
+    ]
+    
+    if text in MAIN_COMMANDS:
+        context.user_data["state"] = None 
+        
+    state = context.user_data.get("state")
+    
     if state == "WAIT_CAPTCHA":
-        if sec.verify_captcha(user.id, text):
-            u["captcha_solved"] = True; await db.save()
-            ctx.user_data["state"] = None
-            await update.message.reply_text("✅ Verificado. ¡Bienvenido!", reply_markup=UI.main_kb(u))
+        if sec_core.verify_captcha(user.id, text):
+            db.data["users"][uid_str]["captcha_solved"] = True
+            await db.save()
+            context.user_data["state"] = None
+            await update.message.reply_text("✅ Acceso autorizado a la matriz.", reply_markup=EmpireUI.main_keyboard(u_data))
         else:
-            await update.message.reply_text("❌ Respuesta incorrecta. Inténtalo de nuevo.")
+            await update.message.reply_text("❌ Error en verificación de seguridad. Inténtalo de nuevo.")
         return
 
-    # ── 2FA VERIFY ────────────────────────────────────────
-    if state == "WAIT_2FA_VERIFY":
-        sec_data = u.get("security",{})
-        stored   = sec_data.get("two_fa_secret")
-        if stored:
-            try: secret = decrypt_data(stored)
-            except: secret = stored
-            if sec.verify_2fa(uid, text.strip(), secret):
-                u["security"]["two_fa_enabled"]  = True
-                u["security"]["two_fa_verified"] = True
-                if "TWO_FA_GUARDIAN" not in u.get("achievements",[]): u.setdefault("achievements",[]).append("TWO_FA_GUARDIAN"); u["points"]+=1500
-                await db.save(); ctx.user_data["state"] = None
-                await update.message.reply_text("✅ **2FA Activado correctamente!** +1500 pts de seguridad.", parse_mode="Markdown")
-            else:
-                await update.message.reply_text("❌ Código 2FA inválido. Inténtalo de nuevo.")
-        return
-
-    # ── URL DIRECTA ───────────────────────────────────────
+    # [9] SANITIZACIÓN DE URL
     if not state and re.match(r'^https?://', text):
-        url = sec.sanitize_url(text)
-        if not url: return await update.message.reply_text("❌ URL bloqueada por seguridad.")
-        ctx.user_data["active_url"] = url
-        if u.get("settings",{}).get("auto_dl_best"):
-            ctx.user_data["active_fmt"]  = "MP4"
-            ctx.user_data["active_qlty"] = EmpireConfig.PLANS[u["plan"]]["resolutions"][-1]
-            await process_download(update, ctx)
-        else:
-            asyncio.create_task(media.get_metadata(url))
-            await update.message.reply_text("🛠️ Enlace detectado. **Selecciona formato:**",
-                                            reply_markup=UI.format_selector(), parse_mode="Markdown")
+        clean_url = sanitizer.sanitize_url(text)
+        if not clean_url:
+            return await update.message.reply_text("❌ URL inválida o bloqueada por seguridad.")
+        context.user_data["active_url"] = clean_url
+        await update.message.reply_text("🛠 **Enlace detectado automáticamente.** Selecciona formato:", reply_markup=EmpireUI.format_selector())
         return
 
-    # ── COMANDOS PRINCIPALES ──────────────────────────────
     if text == "📥 EXTRACCIÓN":
-        await update.message.reply_text("🔗 **ENVÍA EL ENLACE** o palabras clave para buscar:")
-        ctx.user_data["state"] = "WAIT_URL"
+        await update.message.reply_text("🔗 **PROTOCOLOS LISTOS. ENVÍA EL ENLACE O BUSCA:**\n*(Veo3, YT, IG, TikTok o escribe palabras clave...)*")
+        context.user_data["state"] = "WAIT_URL"
 
-    elif text == "📦 LOTE DE URLs":
-        plan_info = EmpireConfig.PLANS[u["plan"]]
-        max_batch = plan_info["batch_urls"]
-        if max_batch == 0:
-            await update.message.reply_text("❌ Tu plan FREE no soporta descargas en lote.\n💡 Actualiza a STARTER o superior.")
-        else:
-            await update.message.reply_text(
-                f"📦 **MODO LOTE**\nTu plan permite hasta **{max_batch} URLs** por lote.\n\n"
-                f"Envía las URLs separadas por saltos de línea:")
-            ctx.user_data["state"] = "WAIT_BATCH_URLS"
+    elif text == "⭐️ TIENDA OFICIAL (STARS)":
+        await update.message.reply_text("⭐️ **MERCADO DIGITAL OFICIAL**\nSuscripciones y puntos mediante pagos seguros nativos (Telegram Stars):", reply_markup=EmpireUI.stars_shop())
 
-    elif text == "👤 PERFIL":
-        plan_info = EmpireConfig.PLANS[u["plan"]]
-        bot_info  = await ctx.bot.get_me()
-        ref_link  = f"https://t.me/{bot_info.username}?start={uid}"
-        vip_exp   = u.get("vip_expiry")
-        is_vip    = vip_exp and datetime.datetime.now() < datetime.datetime.fromisoformat(vip_exp)
-        exp_str   = ""
-        if u.get("plan_expiry"):
-            try: exp_str = f"\n📅 Expira: `{datetime.datetime.fromisoformat(u['plan_expiry']).strftime('%d/%m/%Y')}`"
-            except: pass
+    elif text == "💎 MERCADO NEGRO":
+        cv = round(db.data["market_stats"]["crypto_value"], 2)
+        trend_icon = "📈" if db.data["market_stats"].get("trend", "up") == "up" else "📉"
+        c_bal = u_data.get("crypto_balance", 0.0)
+        
         msg = (
-            f"👤 **PERFIL IMPERIAL V500**\n"
-            f"🆔 `{user.id}` | **{u['name']}**\n"
-            f"{plan_info['color']} Plan: **{plan_info['name']}**{exp_str}\n"
-            f"{'🥂 VIP ' if is_vip else ''}"
-            f"🎮 Nivel `{u['level']}` | XP `{u['xp']}/{u['level']*120}`\n"
-            f"🛡️ Facción: `{u.get('faction') or 'Sin facción'}`\n"
-            f"💰 Puntos: `{u['points']:,}` | 📈 Coins: `{u.get('crypto_balance',0):.4f}`\n"
-            f"🔥 Racha: `{u.get('streak',0)} días`\n"
-            f"📥 Hoy: `{u['daily_downloads'][0]}/{plan_info['limit_daily']}`\n"
-            f"🏆 Logros: `{len(u.get('achievements',[]))}/{len(EmpireConfig.ACHIEVEMENTS)}`\n"
-            f"👥 Referidos: `{u.get('referrals',0)}` | 💸 Afiliado: `{u.get('affiliate_earnings',0):,} pts`\n\n"
-            f"🔗 **Enlace referido:**\n`{ref_link}`"
+            f"💎 **MERCADO CLANDESTINO V400**\n"
+            f"Tu capital: `{u_data['points']} pts`.\n"
+            f"Tus IshakCoins: `{c_bal:.4f}`\n\n"
+            f"Valor IshakCoin actual: `{cv}` pts {trend_icon}\n"
+            f"*(Fluctuaciones en tiempo real cada 10 mins)*\n\n"
+            f"Usa tus puntos para operar o comprar ítems exclusivos:"
         )
-        await update.message.reply_text(msg, parse_mode="Markdown")
-
-    elif text == "📊 MIS ESTADÍSTICAS":
-        await cmd_stats(update, ctx)
-
-    elif text == "⭐️ TIENDA STARS":
-        await update.message.reply_text("⭐️ **TIENDA OFICIAL**\nElige categoría:", reply_markup=UI.stars_shop_main())
-
-    elif text == "🏪 MERCADO NEGRO":
-        cv    = round(db.data["market_stats"]["crypto_value"], 2)
-        trend = "📈" if db.data["market_stats"]["trend"] == "up" else "📉"
-        vol   = db.data["market_stats"].get("volume_24h", 0)
-        hist  = db.data["market_stats"].get("history", [])
-        if len(hist) >= 2:
-            change = (hist[-1]-hist[-2])/max(hist[-2],1)*100
-            ch_str = f"({change:+.1f}%)"
-        else: ch_str = ""
-        msg = (
-            f"🏪 **MERCADO CLANDESTINO V500**\n"
-            f"💰 Capital: `{u['points']:,} pts`\n"
-            f"📈 IshakCoins: `{u.get('crypto_balance',0):.4f}`\n\n"
-            f"💹 Precio: `{cv} pts` {trend} {ch_str}\n"
-            f"📊 Volumen 24h: `{vol:,} pts`\n\n"
-            f"Elige una operación:"
-        )
-        kb = InlineKeyboardMarkup([
-            [InlineKeyboardButton("📈 Comprar 500pts",   callback_data="crypto_buy_500"),
-             InlineKeyboardButton("📈 Comprar 2000pts",  callback_data="crypto_buy_2000")],
-            [InlineKeyboardButton("📉 Vender Todo",      callback_data="crypto_sell"),
-             InlineKeyboardButton("📊 Ver Gráfico",      callback_data="crypto_chart")],
-            [InlineKeyboardButton("🛒 Tienda Ítems",     callback_data="open_shop"),
-             InlineKeyboardButton("❌ Cerrar",            callback_data="u_close")],
-        ])
-        await update.message.reply_text(msg, reply_markup=kb, parse_mode="Markdown")
-
-    elif text == "🎰 CASINO IMPERIAL":
-        luck = u.get("active_buffs",{}).get("luck_bonus",0)
-        plan_mult = EmpireConfig.PLANS[u["plan"]]["casino_multiplier"]
-        msg = (f"🎰 **CASINO IMPERIAL V500**\n"
-               f"Multiplicador plan: `x{plan_mult}` | Suerte: `+{luck*100:.0f}%`\n\n"
-               f"Elige tu juego:")
-        await update.message.reply_text(msg, reply_markup=UI.casino_main(), parse_mode="Markdown")
+        await update.message.reply_text(msg, reply_markup=EmpireUI.shop_panel(), parse_mode="Markdown")
 
     elif text == "⚙️ AJUSTES PRO":
-        await update.message.reply_text("⚙️ **CONFIGURACIÓN AVANZADA:**", reply_markup=UI.settings_panel(u["settings"]))
+        await update.message.reply_text("⚙️ **PANEL DE CONFIGURACIÓN AVANZADA:**", reply_markup=EmpireUI.settings_panel(u_data['settings']))
 
-    elif text == "🛠️ HERRAMIENTAS":
-        await update.message.reply_text("🛠️ **HERRAMIENTAS REALES V500:**", reply_markup=UI.tools_panel())
+    elif text == "🏢 ÁREA B2B":
+        if u_data['plan'] == 'GOD':
+            await update.message.reply_text("🏢 **ENTORNO EMPRESARIAL B2B**\nGenera claves API reales encriptadas en SHA-256 para interactuar con nuestro endpoint remoto.", reply_markup=EmpireUI.b2b_panel(u_data.get('api_key')))
+        else:
+            await update.message.reply_text("🚫 Acceso restringido. Esta área es exclusiva para el rango GOD.")
 
-    elif text == "🛡️ FACCIONES":
-        await update.message.reply_text("🛡️ **SISTEMA DE FACCIONES:**", reply_markup=UI.factions_panel(bool(u.get("faction"))))
+    elif text == "🎰 CASINO IMPERIAL":
+        await update.message.reply_text("🎰 **BIENVENIDO AL CASINO V400**\nJuegos actualizados. Selecciona tu mesa:", reply_markup=EmpireUI.casino_panel())
 
-    elif text == "🎁 TRIBUTO DIARIO":
-        total, streak, week_ach, month_ach = await db.process_daily_streak(uid)
-        if total == 0:
-            return await update.message.reply_text(f"❌ Tributo ya reclamado hoy.\n🔥 Racha: `{streak} días`", parse_mode="Markdown")
-        msg = f"{'🔥' if streak>=3 else '✅'} **+{total:,} pts** recibidos.\n🗓️ Racha: **{streak} días**"
-        if streak >= 3: msg += f"\n⚡ Bonus racha incluido!"
-        if week_ach:  msg += f"\n🏆 ¡RACHA SEMANAL! +{EmpireConfig.ACHIEVEMENTS['STREAK_WEEK']['reward']:,} pts"
-        if month_ach: msg += f"\n👑 ¡RACHA MENSUAL! +{EmpireConfig.ACHIEVEMENTS['STREAK_MONTH']['reward']:,} pts"
-        await update.message.reply_text(msg, parse_mode="Markdown")
+    elif text == "🛠️ CAJA DE HERRAMIENTAS":
+        await update.message.reply_text("🛠️ **UTILERÍA CYBERPUNK V400 (HERRAMIENTAS REALES):**", reply_markup=EmpireUI.utils_panel())
 
-    elif text == "🎮 MISIONES Y LOGROS":
-        bounties = u.get("bounties", [])
-        lines = ["📋 **MISIONES DIARIAS:**\n"]
-        for b in bounties:
-            status = "✅" if b["done"] else f"⏳ {b['progress']}/{b['target']}"
-            lines.append(f"• {b['desc']} — {status} → +{b['reward']} pts")
-        lines.append("\n🏆 **LOGROS:**\n")
-        for k, v in EmpireConfig.ACHIEVEMENTS.items():
-            done = k in u.get("achievements",[])
-            lines.append(f"{'✅' if done else '🔒'} **{v['name']}**: {v['desc']} → +{v['reward']:,} pts")
-        await send_long(update.message.reply_text, "\n".join(lines))
+    elif text == "👤 PERFIL":
+        plan = EmpireConfig.PLANS[u_data["plan"]]
+        fac = u_data.get("faction") or "Ninguna"
+        crypto_bal = u_data.get("crypto_balance", 0.0)
+        bot_info = await context.bot.get_me()
+        ref_link = f"https://t.me/{bot_info.username}?start={uid_str}"
+        
+        user_txs = [tx for tx in db.data["transactions"] if tx["uid"] == uid_str]
+        last_3_txs = user_txs[-3:]
+        tx_str = ""
+        if last_3_txs:
+            for tx in reversed(last_3_txs):
+                sign = "+" if tx['amount'] > 0 else ""
+                tx_str += f"  • {tx['date'][:16]} | {sign}{tx['amount']} pts | {tx['desc']}\n"
+        else:
+            tx_str = "  • Sin transacciones recientes.\n"
 
-    elif text == "🏆 RANKING GLOBAL":
-        await cmd_leaderboard(update, ctx)
-
-    elif text == "🔔 NOTIFICACIONES":
-        notifs = [n for n in u.get("notification_queue",[]) if not n.get("read")]
-        if not notifs: return await update.message.reply_text("📭 Sin notificaciones pendientes.")
-        msg = "📬 **NOTIFICACIONES:**\n\n"
-        for n in notifs[-10:]: msg += f"🔹 `{n['timestamp'][:16]}` {n['message']}\n"
-        async with db._lock:
-            for n in u["notification_queue"]: n["read"] = True
-            await db._save_nolock()
-        await update.message.reply_text(msg, parse_mode="Markdown")
-
-    elif text == "📜 MI HISTORIAL":
-        await cmd_history(update, ctx)
-
-    elif text == "⭐ MIS FAVORITOS":
-        await cmd_favorites(update, ctx)
-
-    elif text == "🛒 TIENDA DIARIA":
-        await db.refresh_daily_shop()
-        shop = db.data["system"]["daily_shop"]
-        msg  = f"🛒 **TIENDA DIARIA** (30% descuento)\nRenueva en 24h.\n\n"
-        rows = []
-        for it in shop.get("items",[]):
-            msg += f"• **{it['name']}** ~~{it['original_price']}~~ **{it['price']} pts**\n  {it['desc']}\n"
-            rows.append([InlineKeyboardButton(f"🛒 {it['name']} ({it['price']} pts)", callback_data=f"daily_buy_{it['key']}")])
-        rows.append([InlineKeyboardButton("❌ CERRAR", callback_data="u_close")])
-        await update.message.reply_text(msg, reply_markup=InlineKeyboardMarkup(rows), parse_mode="Markdown")
-
-    elif text == "🎫 CANJEAR CÓDIGO":
-        await update.message.reply_text("🎫 Escribe tu código de cupón o tarjeta regalo:")
-        ctx.user_data["state"] = "WAIT_REDEEM"
-
-    elif text == "🤝 MERCADO P2P":
-        listings = [l for l in db.data.get("p2p_market",[]) if l.get("active")]
-        fee_pct  = int(EmpireConfig.ECONOMY["P2P_MARKET_FEE"]*100)
-        msg = (f"🤝 **MERCADO P2P**\n"
-               f"Comisión del mercado: `{fee_pct}%`\n"
-               f"Anuncios activos: `{len(listings)}`\n\n")
-        await update.message.reply_text(msg, reply_markup=UI.p2p_panel(), parse_mode="Markdown")
-
-    elif text == "🎧 SOPORTE":
-        await update.message.reply_text("📝 Describe tu problema (1 mensaje) para el Alto Mando:")
-        ctx.user_data["state"] = "WAIT_TICKET"
-
-    elif text == "🏢 ÁREA B2B" and u["plan"] == "GOD":
-        await update.message.reply_text("🏢 **ENTORNO B2B**\nAPI Key encriptada SHA-256:", reply_markup=UI.b2b_panel(bool(u.get("api_key"))))
-
-    elif text == "👑 PANEL OVERLORD" and user.id == EmpireConfig.ADMIN_ID:
-        await update.message.reply_text("🛠️ **CENTRO DE COMANDO V500**", reply_markup=UI.overlord_panel())
-
-    elif text == "🌐 TELEMETRÍA" and user.id == EmpireConfig.ADMIN_ID:
-        s   = db.data["stats"]
-        mem = psutil.virtual_memory()
-        disk= psutil.disk_usage('/')
+        streak = u_data.get("streak", 0)
+        affiliate_earnings = u_data.get("affiliate_earnings", 0)
+        vip_exp = u_data.get("vip_expiry")
+        is_vip = vip_exp and datetime.datetime.now() < datetime.datetime.fromisoformat(vip_exp)
+        vip_str = f"\n🥂 VIP hasta: `{datetime.datetime.fromisoformat(vip_exp).strftime('%d/%m/%Y')}`" if is_vip else ""
+        
         msg = (
-            f"🌐 **TELEMETRÍA V500**\n"
-            f"👥 Usuarios: `{s['total_users']}`\n"
-            f"📥 Extracciones: `{s['total_downloads']:,}`\n"
-            f"📦 Batch DLs: `{s['batch_downloads']:,}`\n"
-            f"🎰 Casino spins: `{s['casino_spins']:,}`\n"
-            f"⭐ Stars revenue: `{s['stars_revenue']:,}`\n"
-            f"🛡️ Fraude bloqueado: `{s['fraud_attempts_blocked']}`\n"
-            f"🛠️ Self-healing fixes: `{s['self_healing_fixes']}`\n"
-            f"🤝 Volumen P2P: `{s['p2p_volume']:,} pts`\n"
-            f"⚔️ Guerras de clanes: `{s['clan_wars_total']}`\n"
-            f"💸 Afiliados pagados: `{s['affiliate_payouts']:,} pts`\n\n"
-            f"🖥️ CPU: `{psutil.cpu_percent()}%` | RAM: `{mem.percent}%`\n"
-            f"💾 Disco: `{disk.percent}%` usado\n"
-            f"🚀 {platform.system()} {platform.release()}"
+            f"👤 **PERFIL CORPORATIVO V401**\n"
+            f"🆔 `{user.id}` | Alias: `{u_data['name']}`\n"
+            f"🎖️ Nivel: `{u_data['level']}` | Rango: **{plan['name']}**\n"
+            f"🛡️ Facción: `{fac}`{vip_str}\n"
+            f"💰 Capital: `{u_data['points']} pts` | ⭐️ Stars: `{u_data['stats'].get('stars_spent', 0)}`\n"
+            f"📈 IshakCoins: `{crypto_bal:.4f}`\n"
+            f"🔥 Racha diaria: `{streak} días`\n"
+            f"💸 Ganancias afiliado: `{affiliate_earnings} pts`\n"
+            f"📥 Extracciones Hoy: `{u_data['daily_downloads'][0]} / {plan['limit_daily']}`\n"
+            f"📊 Total descargas: `{u_data.get('total_downloads', 0)}`\n\n"
+            f"🔗 **Enlace de Reclutamiento Viral:**\n`{ref_link}`\n"
+            f"*(Ganas 1500 pts T1 + 375 pts T2 por referido)*\n\n"
+            f"📊 **Historial de Auditoría (SaaS):**\n{tx_str}"
         )
         await update.message.reply_text(msg, parse_mode="Markdown")
 
-    elif text == "🏟️ TORNEOS ADMIN" and user.id == EmpireConfig.ADMIN_ID:
-        t = db.data["system"]["tournament"]
-        if t.get("active"):
-            end_str = datetime.datetime.fromisoformat(t["end_time"]).strftime("%d/%m %H:%M") if t.get("end_time") else "?"
-            msg = f"🏟️ **TORNEO ACTIVO**\nFin: `{end_str}` | Participantes: `{len(t.get('participants',{}))}` | Bote: `{t.get('prize_pool',0):,}`"
+    elif text == "🎁 TRIBUTO":
+        today = str(datetime.date.today())
+        if u_data.get("last_daily") == today:
+            streak = u_data.get("streak", 0)
+            await update.message.reply_text(f"❌ Tributo ya reclamado hoy. Racha actual: 🔥 {streak} días.")
         else:
-            msg = "🏟️ **TORNEOS ADMIN**\nNo hay torneo activo."
-        await update.message.reply_text(msg, reply_markup=UI.tour_admin(), parse_mode="Markdown")
+            total, streak, week_achieved = await db.process_daily_streak(uid_str)
+            streak_icon = "🔥" if streak >= 3 else "✅"
+            msg = f"{streak_icon} El Imperio te otorga **{total} pts**.\n🗓️ Racha: **{streak} días consecutivos**"
+            if streak >= 3:
+                msg += f"\n⚡ ¡Bonus de racha: +{min(streak * 100, 2000)} pts incluidos!"
+            if week_achieved:
+                msg += f"\n🏆 ¡LOGRO: Racha Semanal! +{EmpireConfig.ACHIEVEMENTS['STREAK_WEEK']['reward']} pts"
+            await update.message.reply_text(msg, parse_mode="Markdown")
 
-    elif text == "⚔️ GUERRA DE CLANES" and user.id == EmpireConfig.ADMIN_ID:
-        cw = db.data["system"].get("clan_war",{})
-        if cw.get("active"):
-            scores = cw.get("scores",{}); facs = cw.get("factions",[])
-            msg = f"⚔️ **GUERRA ACTIVA**\n{facs[0] if facs else '?'}: `{scores.get(facs[0],0)}` pts\n{facs[1] if len(facs)>1 else '?'}: `{scores.get(facs[1] if len(facs)>1 else '',0)}` pts"
-        else:
-            msg = "⚔️ **GUERRA DE CLANES ADMIN**\nNo hay guerra activa."
-        await update.message.reply_text(msg, reply_markup=UI.clan_war_admin(), parse_mode="Markdown")
+    elif text == "🏆 RANKING GLOBAL":
+        await update.message.reply_text("🏆 **RANKING IMPERIAL V401**\nElige categoría:", reply_markup=EmpireUI.leaderboard_panel())
+
+    elif text == "🎫 CANJEAR CÓDIGO":
+        await update.message.reply_text("🎫 **CANJEAR CÓDIGO**\nEscribe tu código de cupón o tarjeta regalo:")
+        context.user_data["state"] = "WAIT_REDEEM_CODE"
 
     elif text == "🥂 SALA VIP":
-        vip_exp = u.get("vip_expiry")
-        is_vip  = vip_exp and datetime.datetime.now() < datetime.datetime.fromisoformat(vip_exp)
-        if is_vip:
+        vip_exp = u_data.get("vip_expiry")
+        if vip_exp and datetime.datetime.now() < datetime.datetime.fromisoformat(vip_exp):
             exp_str = datetime.datetime.fromisoformat(vip_exp).strftime("%d/%m/%Y")
-            msg = (f"🥂 **SALA VIP EXCLUSIVA**\nExpira: `{exp_str}`\n\nBeneficios activos:\n"
-                   f"• ✅ Soporte prioritario\n• ✅ Tarjetas regalo especiales\n"
-                   f"• ✅ Acceso a eventos VIP\n• ✅ Reset de límite diario")
-            kb = InlineKeyboardMarkup([
-                [InlineKeyboardButton("🔄 Reset Límite Diario", callback_data="vip_reset_limit")],
-                [InlineKeyboardButton("📊 Mis Stats VIP",       callback_data="vip_stats")],
-                [InlineKeyboardButton("❌ CERRAR",               callback_data="u_close")],
-            ])
-            await update.message.reply_text(msg, reply_markup=kb, parse_mode="Markdown")
+            msg = (
+                f"🥂 **BIENVENIDO A LA SALA VIP**\n"
+                f"Tu acceso expira: `{exp_str}`\n\n"
+                f"Beneficios activos:\n"
+                f"• ✅ Descargas sin límite diario\n"
+                f"• ✅ Acceso a tarjetas regalo\n"
+                f"• ✅ Soporte prioritario\n"
+                f"• ✅ Sin colas de espera\n"
+            )
+            await update.message.reply_text(msg, reply_markup=EmpireUI.vip_lounge_panel(), parse_mode="Markdown")
         else:
-            await update.message.reply_text("🚫 No tienes VIP activo.\n💡 Compra en ⭐️ Tienda Stars → Gift Cards & Especiales.")
+            await update.message.reply_text("🚫 No tienes acceso VIP activo.\n\n💡 Adquiérelo en ⭐️ Tienda Oficial por solo **150 Stars/mes**.")
 
-    # ── ESTADOS DE ESPERA ─────────────────────────────────
+    elif text == "🏟️ TORNEO ADMIN" and user.id == EmpireConfig.ADMIN_ID:
+        t = db.data["system"].get("tournament", {})
+        if t.get("active"):
+            end = datetime.datetime.fromisoformat(t["end_time"]).strftime("%d/%m %H:%M")
+            participants = len(t.get("participants", {}))
+            pool = t.get("prize_pool", 0)
+            msg = f"🏟️ **TORNEO EN CURSO**\n⏰ Finaliza: `{end}`\n👥 Participantes: `{participants}`\n💰 Bote: `{pool} pts`"
+        else:
+            msg = "🏟️ **PANEL DE TORNEOS ADMIN**\nNo hay torneo activo."
+        await update.message.reply_text(msg, reply_markup=EmpireUI.admin_tournament_panel(), parse_mode="Markdown")
+
+    elif text == "🛡️ FACCIONES":
+        await update.message.reply_text("🛡️ **SISTEMA DE FACCIONES (GREMIOS)**\nÚnete a un clan o forja tu propio destino.", reply_markup=EmpireUI.factions_panel(bool(u_data.get("faction"))))
+
+    elif text == "🎮 MISIONES Y LOGROS":
+        bounties = u_data.get("bounties", [])
+        msg = "📜 **MISIONES DIARIAS:**\n"
+        for b in bounties:
+            status = "✅ Completado" if b["done"] else f"⏳ {b['progress']}/{b['target']}"
+            msg += f"• {b['desc']} ({status}) -> +{b['reward']} pts\n"
+            
+        msg += "\n🎮 **SALÓN DE LA FAMA IMPERIAL:**\n"
+        for k, v in EmpireConfig.ACHIEVEMENTS.items():
+            status = "✅" if k in u_data["achievements"] else "🔒"
+            msg += f"{status} **{v['name']}**: {v['desc']}\n"
+        
+        await send_chunked_message(update.message.reply_text, msg)
+
+    elif text == "🎧 SOPORTE":
+        await update.message.reply_text("📝 **Describe tu problema en 1 solo mensaje para el Alto Mando:**")
+        context.user_data["state"] = "WAIT_TICKET"
+
+    elif text == "🔔 NOTIFICACIONES":
+        notifications = u_data.get("notification_queue", [])
+        unread = [n for n in notifications if not n.get("read")]
+        if unread:
+            msg = "📬 **TUS NOTIFICACIONES:**\n"
+            for n in unread:
+                msg += f"🔹 [{n['timestamp'][:19]}] {n['message']}\n"
+            await update.message.reply_text(msg)
+        else:
+            await update.message.reply_text("📭 No tienes notificaciones pendientes.")
+
+    elif text == "👑 PANEL OVERLORD 👑" and user.id == EmpireConfig.ADMIN_ID:
+        await update.message.reply_text("🛠 **CENTRO DE COMANDO V400**", reply_markup=EmpireUI.overlord_panel())
+
+    elif text == "🌐 DATOS MATRIZ" and user.id == EmpireConfig.ADMIN_ID:
+        s = db.data["stats"]
+        mem = psutil.virtual_memory()
+        disk = psutil.disk_usage('/')
+        msg = (
+            f"🌐 **TELEMETRÍA EN TIEMPO REAL V400**\n"
+            f"👥 Usuarios: `{s['total_users']}`\n"
+            f"📥 Extracciones: `{s['total_downloads']}`\n"
+            f"🎰 Giros Casino: `{s['casino_spins']}`\n"
+            f"⭐️ Revenue Stars: `{s.get('stars_revenue', 0)}`\n"
+            f"🛡️ Intentos Fraude Bloqueados: `{s.get('fraud_attempts_blocked', 0)}`\n"
+            f"🛠️ Fixes Automáticos de DB: `{s.get('self_healing_fixes', 0)}`\n"
+            f"🖥️ CPU: `{psutil.cpu_percent()}%` | RAM: `{mem.percent}%`\n"
+            f"💾 Disco: `{disk.percent}%` libre\n"
+            f"🚀 OS: `{platform.system()} {platform.release()}`\n"
+        )
+        await update.message.reply_text(msg, parse_mode="Markdown")
+
     elif state == "WAIT_URL":
         if re.match(r'^https?://', text):
-            url = sec.sanitize_url(text)
-            if not url: return await update.message.reply_text("❌ URL bloqueada.")
-            ctx.user_data["active_url"] = url
-            asyncio.create_task(media.get_metadata(url))
-            await update.message.reply_text("📡 Enlace capturado. **Selecciona formato:**",
-                                            reply_markup=UI.format_selector(), parse_mode="Markdown")
-            ctx.user_data["state"] = None
+            clean_url = sanitizer.sanitize_url(text)
+            if not clean_url:
+                return await update.message.reply_text("❌ URL inválida o bloqueada.")
+            context.user_data["active_url"] = clean_url
+            await update.message.reply_text("⚡ **PROCESANDO RELÁMPAGO...**", reply_markup=EmpireUI.format_selector())
+            asyncio.create_task(MediaEngine.get_metadata(clean_url))
+            context.user_data["state"] = None
         else:
-            m = await update.message.reply_text(f"🔍 Buscando: `{text}`...", parse_mode="Markdown")
+            m = await update.message.reply_text(f"🔍 **BUSCADOR INTELIGENTE V400:**\nRastreando '{text}' en la red global...")
             try:
                 def _search():
-                    with yt_dlp.YoutubeDL({"quiet":True,"extract_flat":True,"default_search":"ytsearch5"}) as ydl:
-                        return ydl.extract_info(text, download=False).get("entries",[])[:5]
+                    with yt_dlp.YoutubeDL({'quiet': True, 'extract_flat': True, 'default_search': 'ytsearch3'}) as ydl:
+                        return ydl.extract_info(text, download=False).get('entries', [])[:3]
+                
                 results = await asyncio.to_thread(_search)
+                
                 if results:
-                    ctx.user_data["search_results"] = {str(i): r["url"] for i,r in enumerate(results)}
-                    kb = [[InlineKeyboardButton(f"{i+1}. {r.get('title','?')[:35]} [{r.get('duration_string','?')}]",
-                           callback_data=f"src_{i}")] for i,r in enumerate(results)]
+                    context.user_data["search_results"] = {str(i): r['url'] for i, r in enumerate(results)}
+                    kb = []
+                    for i, r in enumerate(results):
+                        title = r.get('title', 'Contenido Desconocido')[:35]
+                        dur = r.get('duration_string', 'N/A')
+                        kb.append([InlineKeyboardButton(f"{i+1}. {title} [{dur}]", callback_data=f"src_{i}")])
                     kb.append([InlineKeyboardButton("❌ ABORTAR", callback_data="u_close")])
-                    await m.edit_text("🎯 **RESULTADOS:**", reply_markup=InlineKeyboardMarkup(kb))
+                    
+                    await m.edit_text("🎯 **OBJETIVOS LOCALIZADOS:**\nSelecciona el archivo para extraer:", reply_markup=InlineKeyboardMarkup(kb))
                 else:
-                    await m.edit_text("❌ Sin resultados.")
-            except: await m.edit_text("❌ Error en búsqueda.")
-            ctx.user_data["state"] = None
-
-    elif state == "WAIT_BATCH_URLS":
-        urls_raw = [l.strip() for l in text.split('\n') if l.strip()]
-        valid    = [sec.sanitize_url(u_) for u_ in urls_raw if re.match(r'^https?://', u_)]
-        valid    = [u_ for u_ in valid if u_]
-        plan_info = EmpireConfig.PLANS[u["plan"]]
-        max_b = plan_info["batch_urls"]
-        if not valid: return await update.message.reply_text("❌ No se encontraron URLs válidas.")
-        valid = valid[:max_b]
-        ctx.user_data["batch_urls"] = valid
-        await update.message.reply_text(
-            f"📦 **{len(valid)} URL(s) detectadas.** Selecciona formato para todas:",
-            reply_markup=UI.format_selector())
-        ctx.user_data["state"] = "WAIT_BATCH_FMT"
-
-    elif state == "WAIT_TICKET":
-        tid  = f"TK-{random.randint(10000,99999)}"
-        safe = sec.sanitize_text(text, 1000)
-        db.data["tickets"][tid] = {"uid": uid, "text": safe, "status": "OPEN",
-                                   "created_at": datetime.datetime.now().isoformat()}
-        await db.save()
-        await update.message.reply_text(f"✅ Ticket `{tid}` enviado.")
-        try:
-            tkb = InlineKeyboardMarkup([[InlineKeyboardButton("🔒 Cerrar Ticket", callback_data=f"tc_close_{tid}")]])
-            await ctx.bot.send_message(EmpireConfig.ADMIN_ID,
-                f"🚨 **TICKET {tid}** de {user.first_name} (`{uid}`):\n{safe}", reply_markup=tkb)
-        except: pass
-        ctx.user_data["state"] = None
-
-    elif state == "WAIT_REDEEM":
-        code = sec.sanitize_text(text.strip().upper(), 30)
-        ok, msg = await db.redeem_gift_card(uid, code)
-        if ok: await update.message.reply_text(msg, parse_mode="Markdown")
-        else:
-            if code in db.data["coupons"]:
-                coupon = db.data["coupons"][code]
-                if isinstance(coupon, str) and coupon in EmpireConfig.PLANS:
-                    u["plan"] = coupon
-                    u["plan_expiry"] = str(datetime.datetime.now()+datetime.timedelta(days=30)) if coupon not in ["FREE","GOD"] else None
-                    del db.data["coupons"][code]; await db.save()
-                    await update.message.reply_text(f"✅ Plan **{coupon}** activado 30 días!", parse_mode="Markdown")
-                else: await update.message.reply_text(f"❌ {msg}")
-            else: await update.message.reply_text(f"❌ {msg}")
-        ctx.user_data["state"] = None
+                    await m.edit_text("❌ No se encontraron resultados tangibles en la matriz. Intenta otra palabra clave.")
+            except Exception as e:
+                logger.error(f"Search Engine Error: {e}")
+                await m.edit_text("❌ Fallo crítico en el rastreo B2B.")
+            context.user_data["state"] = None
 
     elif state == "WAIT_WATERMARK":
-        u["settings"]["watermark"] = sec.sanitize_text(text, 30); await db.save()
-        await update.message.reply_text(f"✅ Marca: `{u['settings']['watermark']}`", parse_mode="Markdown")
-        ctx.user_data["state"] = None
+        u_data['settings']['watermark'] = sanitizer.sanitize_text(text, 30)
+        await db.save()
+        await update.message.reply_text(f"✅ Marca de agua configurada a: `{u_data['settings']['watermark']}`", parse_mode="Markdown")
+        context.user_data["state"] = None
+        
+    elif state == "WAIT_UTIL_TTS":
+        text_to_say = sanitizer.sanitize_text(text, 300)
+        m = await update.message.reply_text("🗣️ Sintetizando audio real con IA (gTTS)...")
+        try:
+            lang = u_data.get("settings", {}).get("language", "es")
+            audio_path = await real_tools.generate_tts(text_to_say, uid_str, lang)
+            if audio_path and os.path.exists(audio_path):
+                with open(audio_path, 'rb') as f:
+                    await context.bot.send_voice(user.id, f, caption="🗣️ **Audio Real V400**", parse_mode="Markdown")
+                os.remove(audio_path)
+            else:
+                await update.message.reply_text("❌ Fallo en el motor de voz.")
+        except Exception as e: 
+            await update.message.reply_text("❌ Excepción en generación de voz.")
+        finally:
+            await m.delete()
+        context.user_data["state"] = None
 
-    elif state == "WAIT_RENAME":
-        new_name = sec.sanitize_text(text.strip(), 30)
-        if len(new_name) < 2: return await update.message.reply_text("❌ Nombre demasiado corto.")
-        if u["inventory"].get("RENAME_CARD",0) > 0:
-            u["inventory"]["RENAME_CARD"] -= 1; u["name"] = new_name; await db.save()
-            await update.message.reply_text(f"✅ Apodo cambiado a `{new_name}`.", parse_mode="Markdown")
-        else: await update.message.reply_text("❌ Necesitas una Tarjeta de Renombre.")
-        ctx.user_data["state"] = None
+    elif state == "WAIT_UTIL_QR":
+        qr_data = sanitizer.sanitize_text(text, 500)
+        m = await update.message.reply_text("🔳 Diseñando código QR Real...")
+        try:
+            img_path = await real_tools.generate_qr(qr_data, uid_str)
+            if img_path and os.path.exists(img_path):
+                with open(img_path, 'rb') as f:
+                    await context.bot.send_photo(user.id, f, caption="🔳 **Código QR Generado Exitosamente.**", parse_mode="Markdown")
+                os.remove(img_path)
+            else:
+                await update.message.reply_text("❌ Error al renderizar la imagen QR.")
+        except Exception as e:
+            await update.message.reply_text("❌ Excepción en generación QR.")
+        finally:
+            await m.delete()
+        context.user_data["state"] = None
 
-    elif state == "WAIT_TTS":
-        m = await update.message.reply_text("🗣️ Generando audio...")
-        lang = u.get("settings",{}).get("language","es")
-        path = await tools.tts(text, uid, lang)
-        if path and os.path.exists(path):
-            with open(path,'rb') as f: await ctx.bot.send_voice(user.id, f, caption="🗣️ TTS V500")
-            os.remove(path)
-        else: await update.message.reply_text("❌ Error en TTS.")
-        await m.delete(); ctx.user_data["state"] = None
+    elif state == "WAIT_UTIL_B64ENC":
+        encoded = real_tools.encode_base64(text)
+        await update.message.reply_text(f"📜 **Cifrado Base64 Completado:**\n`{encoded}`", parse_mode="Markdown")
+        context.user_data["state"] = None
+        
+    elif state == "WAIT_UTIL_B64DEC":
+        decoded = real_tools.decode_base64(text)
+        await update.message.reply_text(f"🔓 **Descifrado Base64:**\n`{decoded}`", parse_mode="Markdown")
+        context.user_data["state"] = None
 
-    elif state == "WAIT_QR":
-        m = await update.message.reply_text("🔳 Generando QR...")
-        path = await tools.qr(sec.sanitize_text(text, 500), uid)
-        if path and os.path.exists(path):
-            with open(path,'rb') as f: await ctx.bot.send_photo(user.id, f, caption="🔳 QR generado.")
-            os.remove(path)
-        else: await update.message.reply_text("❌ Error en QR.")
-        await m.delete(); ctx.user_data["state"] = None
-
-    elif state == "WAIT_B64E":
-        await update.message.reply_text(f"📜 `{tools.b64enc(text)}`", parse_mode="Markdown")
-        ctx.user_data["state"] = None
-
-    elif state == "WAIT_B64D":
-        await update.message.reply_text(f"🔓 `{tools.b64dec(text)}`", parse_mode="Markdown")
-        ctx.user_data["state"] = None
-
-    elif state == "WAIT_SHA":
-        await update.message.reply_text(f"🔐 SHA-256:\n`{tools.sha256(text)}`", parse_mode="Markdown")
-        ctx.user_data["state"] = None
-
-    elif state == "WAIT_MD5":
-        await update.message.reply_text(f"🔏 MD5:\n`{tools.md5(text)}`", parse_mode="Markdown")
-        ctx.user_data["state"] = None
-
-    elif state == "WAIT_ROT":
-        await update.message.reply_text(f"🔄 ROT-13:\n`{tools.rot13(text)}`", parse_mode="Markdown")
-        ctx.user_data["state"] = None
-
-    elif state == "WAIT_THUMB":
-        m = await update.message.reply_text("⏳ Extrayendo miniatura...")
-        meta = await media.get_metadata(text.strip())
-        thumb = meta.get("thumbnail")
-        if thumb: await ctx.bot.send_photo(uid, thumb, caption="🖼️ Miniatura extraída.")
-        else: await update.message.reply_text("❌ No se pudo extraer miniatura.")
-        await m.delete(); ctx.user_data["state"] = None
-
-    elif state == "WAIT_META":
-        m = await update.message.reply_text("⏳ Analizando metadatos...")
-        meta = await media.get_metadata(text.strip())
+    elif state == "WAIT_UTIL_URL_THUMB":
+        url = text.strip()
+        m = await update.message.reply_text("⏳ Extrayendo miniatura máxima resolución...")
+        thumb = await MediaEngine.get_thumbnail(url, uid_str)
+        if thumb: await context.bot.send_photo(uid_str, thumb, caption="🖼️ Aquí tienes la miniatura.")
+        else: await update.message.reply_text("❌ No se pudo extraer miniatura de ese enlace.")
+        await m.delete(); context.user_data["state"] = None
+        
+    elif state == "WAIT_UTIL_URL_META":
+        url = text.strip()
+        m = await update.message.reply_text("⏳ Analizando metadatos en profundidad...")
+        meta = await MediaEngine.get_metadata(url)
         if meta:
-            msg = (f"📊 **METADATOS:**\n• Título: `{meta.get('title','?')}`\n"
-                   f"• Autor: `{meta.get('uploader','?')}`\n"
-                   f"• Duración: `{meta.get('duration','?')}s`\n"
-                   f"• Vistas: `{meta.get('view_count','?')}`\n"
-                   f"• Descripción: {meta.get('description','N/A')}")
-            await update.message.reply_text(msg, parse_mode="Markdown")
-        else: await update.message.reply_text("❌ Sin metadatos.")
-        await m.delete(); ctx.user_data["state"] = None
+            res = f"📊 **METADATOS EXTRAÍDOS**\n• Título: `{meta.get('title')}`\n• Autor: `{meta.get('uploader')}`\n• Duración: `{meta.get('duration')}s`\n• Vistas: `{meta.get('view_count')}`"
+            await update.message.reply_text(res, parse_mode="Markdown")
+        else: await update.message.reply_text("❌ Fallo en la extracción.")
+        await m.delete(); context.user_data["state"] = None
+    
+    elif state == "WAIT_UTIL_SEARCH":
+        m = await update.message.reply_text("🔍 Buscando en la base de datos con filtros avanzados...")
+        try:
+            text_lower = text.lower()
+            filters = {}
+            if "plataforma" in text_lower or "youtube" in text_lower: filters["platform"] = "youtube"
+            if "corto" in text_lower or "<5" in text_lower: filters["max_duration"] = 300
+            if "largo" in text_lower or ">30" in text_lower: filters["min_duration"] = 1800
+            if "reciente" in text_lower: filters["sort"] = "date"
+            if "visto" in text_lower: filters["sort"] = "views"
+            
+            await m.edit_text(f"🔎 **RESULTADOS DE BÚSQUEDA AVANZADA:**\nFiltros aplicados: {filters}\nFuncionalidad completa en desarrollo para V400.2 Enterprise.")
+        except Exception as e:
+            await m.edit_text("❌ Fallo en búsqueda avanzada.")
+        context.user_data["state"] = None
 
-    elif state == "WAIT_FAV_URL":
-        url = sec.sanitize_url(text.strip())
-        if url:
-            added = await db.toggle_favorite(uid, url)
-            await update.message.reply_text(f"{'⭐ Añadido a favoritos.' if added else '❌ Eliminado de favoritos.'}")
-        else: await update.message.reply_text("❌ URL inválida.")
-        ctx.user_data["state"] = None
+    elif state == "WAIT_TICKET":
+        tid = f"TK-{random.randint(1000, 9999)}"
+        sanitized_text = sanitizer.sanitize_text(text, 1000)
+        db.data["tickets"][tid] = {"uid": uid_str, "text": sanitized_text, "status": "OPEN", "created_at": datetime.datetime.now().isoformat()}
+        await db.save()
+        await update.message.reply_text(f"✅ Ticket `{tid}` enviado al Alto Mando.")
+        try: await context.bot.send_message(EmpireConfig.ADMIN_ID, f"🚨 TICKET {tid} de {user.first_name}:\n{sanitized_text}", reply_markup=EmpireUI.ticket_panel(tid))
+        except: pass
+        context.user_data["state"] = None
+
+    elif state == "WAIT_REDEEM_CODE":
+        code = sanitizer.sanitize_text(text.strip().upper(), 30)
+        # Primero chequear si es tarjeta regalo
+        success, msg = await db.redeem_gift_card(uid_str, code)
+        if success:
+            await update.message.reply_text(msg, parse_mode="Markdown")
+        else:
+            # Chequear si es cupón de plan
+            if code in db.data["coupons"]:
+                coupon_data = db.data["coupons"][code]
+                if isinstance(coupon_data, dict) and coupon_data.get("type") == "gift_card":
+                    await update.message.reply_text(msg, parse_mode="Markdown")
+                elif isinstance(coupon_data, str):
+                    plan = coupon_data
+                    if plan in EmpireConfig.PLANS:
+                        u_data["plan"] = plan
+                        expiry = datetime.datetime.now() + datetime.timedelta(days=30)
+                        u_data["plan_expiry"] = str(expiry) if plan not in ["FREE", "GOD"] else None
+                        del db.data["coupons"][code]
+                        await db.save()
+                        await update.message.reply_text(f"✅ Cupón canjeado. Plan **{plan}** activado durante 30 días.")
+                    else:
+                        await update.message.reply_text("❌ Cupón inválido o expirado.")
+                else:
+                    await update.message.reply_text("❌ Código no reconocido.")
+            else:
+                await update.message.reply_text("❌ Código no encontrado. Verifica que esté bien escrito.")
+        context.user_data["state"] = None
 
     elif state == "WAIT_FAC_CREATE":
-        name = sec.sanitize_text(text.strip(), 20)
-        if len(name) < 3 or name in db.data["factions"]:
-            return await update.message.reply_text("❌ Nombre inválido o ya en uso.")
-        if u["inventory"].get("CLAN_TICKET",0) > 0:
-            u["inventory"]["CLAN_TICKET"] -= 1
-            db.data["factions"][name] = {"owner":uid,"members":[uid],"vault":0,"level":1,"max_members":20,"war_wins":0}
-            u["faction"] = name
-            if "GUILD_MASTER" not in u.get("achievements",[]): u.setdefault("achievements",[]).append("GUILD_MASTER"); u["points"]+=3000
+        fac_name = sanitizer.sanitize_text(text.strip(), 20)
+        if len(fac_name) < 3 or len(fac_name) > 20: return await update.message.reply_text("❌ Nombre debe tener entre 3 y 20 caracteres.")
+        if fac_name in db.data["factions"]: return await update.message.reply_text("❌ Nombre en uso.")
+        if u_data["inventory"]["CLAN_TICKET"] > 0:
+            u_data["inventory"]["CLAN_TICKET"] -= 1
+            db.data["factions"][fac_name] = {"owner": uid_str, "members": [uid_str], "vault": 0, "level": 1}
+            u_data["faction"] = fac_name
+            if "GUILD_MASTER" not in u_data["achievements"]:
+                u_data["achievements"].append("GUILD_MASTER"); u_data["points"] += 3000
+                await update.message.reply_text("🏆 ¡LOGRO: Maestro de Gremio! +3000 pts")
             await db.save()
-            await update.message.reply_text(f"✅ Facción **{name}** fundada.", parse_mode="Markdown")
-        else: await update.message.reply_text("❌ Necesitas un Ticket de Fundación.")
-        ctx.user_data["state"] = None
+            await update.message.reply_text(f"✅ Has fundado la facción **{fac_name}**.")
+        else: await update.message.reply_text("❌ No tienes un Ticket de Fundación (Cómpralo en la tienda).")
+        context.user_data["state"] = None
 
     elif state == "WAIT_FAC_JOIN":
-        name = sec.sanitize_text(text.strip(), 20)
-        if name in db.data["factions"]:
-            fac = db.data["factions"][name]
-            if len(fac["members"]) >= fac.get("max_members",20):
-                await update.message.reply_text("❌ Facción llena.")
-            else:
-                fac["members"].append(uid); u["faction"] = name; await db.save()
-                await update.message.reply_text(f"✅ Unido a **{name}**.", parse_mode="Markdown")
+        fac_name = sanitizer.sanitize_text(text.strip(), 20)
+        if fac_name in db.data["factions"]:
+            db.data["factions"][fac_name]["members"].append(uid_str)
+            u_data["faction"] = fac_name
+            await db.save()
+            await update.message.reply_text(f"✅ Te has unido a **{fac_name}**.")
         else: await update.message.reply_text("❌ Facción no encontrada.")
-        ctx.user_data["state"] = None
+        context.user_data["state"] = None
 
     elif state == "WAIT_FAC_DONATE":
         try:
             amt = int(text)
-            if amt > 0 and await db.deduct_points(uid, amt):
-                fac = u["faction"]
-                db.data["factions"][fac]["vault"] += amt; await db.save()
-                await update.message.reply_text(f"✅ Donados `{amt} pts` a {fac}.", parse_mode="Markdown")
-            else: await update.message.reply_text("❌ Saldo insuficiente.")
-        except: await update.message.reply_text("❌ Número inválido.")
-        ctx.user_data["state"] = None
+            if amt > 0 and await db.deduct_points(uid_str, amt):
+                fac_name = u_data["faction"]
+                db.data["factions"][fac_name]["vault"] += amt
+                await db.save()
+                await update.message.reply_text(f"✅ Donaste {amt} pts a {fac_name}.")
+            else: await update.message.reply_text("❌ Saldo insuficiente o inválido.")
+        except: await update.message.reply_text("❌ Ingresa un número válido.")
+        context.user_data["state"] = None
 
-    elif state == "WAIT_FAC_WAR":
-        target = sec.sanitize_text(text.strip(), 20)
-        my_fac = u.get("faction")
-        if not my_fac: return await update.message.reply_text("❌ No tienes facción."); ctx.user_data["state"]=None; return
-        ok, result = await db.start_clan_war(my_fac, target, hours=48)
-        if ok: await update.message.reply_text(f"⚔️ ¡Guerra declarada contra **{target}**!\nID: `{result}`\nDuración: 48h.", parse_mode="Markdown")
-        else:  await update.message.reply_text(f"❌ {result}")
-        ctx.user_data["state"] = None
-
-    elif state == "WAIT_P2P_SELL":
-        try:
-            parts = text.strip().split()
-            if len(parts) < 2: raise ValueError
-            amount = int(parts[0]); price = int(parts[1])
-            if amount <= 0 or price <= 0: raise ValueError
-            ok, result = await db.create_p2p_listing(uid, "points", amount, price)
-            if ok: await update.message.reply_text(f"✅ Anuncio creado. ID: `{result}`\n`{amount} pts` por `{price} pts`.", parse_mode="Markdown")
-            else:  await update.message.reply_text(f"❌ {result}")
-        except: await update.message.reply_text("❌ Formato: `<cantidad> <precio>`", parse_mode="Markdown")
-        ctx.user_data["state"] = None
-
-    # ── ESTADOS ADMIN ─────────────────────────────────────
     elif state == "WAIT_BC" and user.id == EmpireConfig.ADMIN_ID:
-        count = 0; m = await update.message.reply_text("📡 Transmitiendo...")
+        count = 0
+        m = await update.message.reply_text("📡 Propagando...")
         for sid in list(db.data["users"].keys()):
-            try: await ctx.bot.send_message(sid, f"📢 **ISHAK EMPIRE:**\n\n{text}"); count+=1; await asyncio.sleep(0.05)
+            try:
+                await context.bot.send_message(sid, f"📢 **MENSAJE DEL DIRECTOR ISHAK:**\n\n{text}")
+                count += 1; await asyncio.sleep(0.05)
             except: pass
-        await m.edit_text(f"✅ Entregado a {count} súbditos."); ctx.user_data["state"] = None
-
+        await m.edit_text(f"✅ Entregados a {count} súbditos.")
+        context.user_data["state"] = None
+        
     elif state == "WAIT_BAN" and user.id == EmpireConfig.ADMIN_ID:
-        reason = ctx.user_data.get("ban_reason","Infracción.")
         if text in db.data["users"]:
             db.data["users"][text]["is_banned"] = True
-            db.data["users"][text]["ban_reason"] = reason
-            await db.save(); audit_logger.log("USER_BANNED",user_id=int(text),details={"reason":reason},severity="CRITICAL")
-            await update.message.reply_text("🚫 Usuario baneado.")
-        ctx.user_data["state"] = None
-
+            await update.message.reply_text("🚫 Usuario exiliado de la matriz.")
+            await db.save()
+            audit_logger.log("USER_BANNED", user_id=int(text), severity="CRITICAL")
+        context.user_data["state"] = None
+        
     elif state == "WAIT_UNBAN" and user.id == EmpireConfig.ADMIN_ID:
         if text in db.data["users"]:
             db.data["users"][text]["is_banned"] = False
-            db.data["users"][text]["ban_reason"] = None
-            await db.save(); audit_logger.log("USER_UNBANNED",user_id=int(text))
-            await update.message.reply_text("🔓 Usuario desbaneado.")
-        ctx.user_data["state"] = None
+            await update.message.reply_text("🔓 Usuario rehabilitado.")
+            await db.save()
+            audit_logger.log("USER_UNBANNED", user_id=int(text))
+        context.user_data["state"] = None
 
     elif state == "WAIT_PTS_ID" and user.id == EmpireConfig.ADMIN_ID:
-        ctx.user_data["target_id"] = text.strip()
-        await update.message.reply_text("💰 Cantidad a inyectar:")
-        ctx.user_data["state"] = "WAIT_PTS_VAL"
-
+        context.user_data["target_id"] = text.strip()
+        await update.message.reply_text("💰 Monto a inyectar:")
+        context.user_data["state"] = "WAIT_PTS_VAL"
+        
     elif state == "WAIT_PTS_VAL" and user.id == EmpireConfig.ADMIN_ID:
         try:
-            val = int(text); tid = ctx.user_data["target_id"]
+            val = int(text)
+            tid = context.user_data["target_id"]
             if tid in db.data["users"]:
-                await db.add_points(tid, val); await update.message.reply_text(f"✅ +{val:,} pts a {tid}.")
+                await db.add_points(tid, val)
+                await update.message.reply_text(f"✅ Puntos inyectados con éxito a {tid}.")
         except: pass
-        ctx.user_data["state"] = None
+        context.user_data["state"] = None
 
     elif state == "WAIT_CP_CODE" and user.id == EmpireConfig.ADMIN_ID:
-        ctx.user_data["cp_code"] = text.upper().strip()
-        await update.message.reply_text("🎫 Plan del cupón (FREE/STARTER/BASIC/PRO/ULTRA/ENTERPRISE/GOD):")
-        ctx.user_data["state"] = "WAIT_CP_PLAN"
+        context.user_data["cp_code"] = text.upper().strip()
+        await update.message.reply_text("🎫 Rango (FREE, PRO, ULTRA, GOD):")
+        context.user_data["state"] = "WAIT_CP_PLAN"
 
     elif state == "WAIT_CP_PLAN" and user.id == EmpireConfig.ADMIN_ID:
         plan = text.upper().strip()
         if plan in EmpireConfig.PLANS:
-            db.data["coupons"][ctx.user_data["cp_code"]] = plan; await db.save()
-            await update.message.reply_text(f"✅ Cupón `{ctx.user_data['cp_code']}` → {plan} creado.")
-        else: await update.message.reply_text("❌ Plan inválido.")
-        ctx.user_data["state"] = None
+            db.data["coupons"][context.user_data["cp_code"]] = plan
+            await db.save()
+            await update.message.reply_text(f"✅ Cupón empresarial creado.")
+        context.user_data["state"] = None
 
     elif state == "WAIT_PLAN_EDIT_ID" and user.id == EmpireConfig.ADMIN_ID:
         if text in db.data["users"]:
-            ctx.user_data["target_user_id"] = text
-            await update.message.reply_text(f"🎭 Nuevo plan para `{text}`:", reply_markup=UI.plan_selector())
+            context.user_data["target_user_id"] = text
+            await update.message.reply_text(f"🎭 Redefiniendo a `{text}`:", reply_markup=EmpireUI.plan_selector_admin())
         else: await update.message.reply_text("❌ Usuario no encontrado.")
-        ctx.user_data["state"] = None
+        context.user_data["state"] = None
 
-    elif state == "WAIT_SEARCH_USER" and user.id == EmpireConfig.ADMIN_ID:
-        query = text.strip().lower()
-        matches = [(k,v) for k,v in db.data["users"].items()
-                   if query in v.get("name","").lower() or query == str(v.get("id",""))
-                   or query == (v.get("username","") or "").lower()][:5]
-        if not matches: await update.message.reply_text("❌ Sin resultados.")
-        else:
-            msg = "🔍 **RESULTADOS:**\n"
-            for kid,kv in matches:
-                msg += f"• `{kv['id']}` | {kv['name']} | {kv['plan']} | {'🚫' if kv.get('is_banned') else '✅'}\n"
-            await update.message.reply_text(msg, parse_mode="Markdown")
-        ctx.user_data["state"] = None
-
-    elif state == "WAIT_VIP_PUSH" and user.id == EmpireConfig.ADMIN_ID:
-        count = 0
-        for sid, sv in db.data["users"].items():
-            vip_exp = sv.get("vip_expiry")
-            if vip_exp and datetime.datetime.now() < datetime.datetime.fromisoformat(vip_exp):
-                try: await ctx.bot.send_message(sid, f"🥂 **VIP EXCLUSIVO:**\n{text}"); count+=1; await asyncio.sleep(0.04)
-                except: pass
-        await update.message.reply_text(f"✅ Push enviado a {count} VIPs.")
-        ctx.user_data["state"] = None
-
-    elif state == "WAIT_CW_FAC1" and user.id == EmpireConfig.ADMIN_ID:
-        ctx.user_data["cw_fac1"] = text.strip()
-        await update.message.reply_text("⚔️ Nombre de la segunda facción:")
-        ctx.user_data["state"] = "WAIT_CW_FAC2"
-
-    elif state == "WAIT_CW_FAC2" and user.id == EmpireConfig.ADMIN_ID:
-        fac1 = ctx.user_data.get("cw_fac1","")
-        fac2 = text.strip()
-        ok, result = await db.start_clan_war(fac1, fac2, hours=48)
-        if ok: await update.message.reply_text(f"⚔️ ¡Guerra iniciada! `{fac1}` vs `{fac2}`. ID: `{result}`.", parse_mode="Markdown")
-        else:  await update.message.reply_text(f"❌ {result}")
-        ctx.user_data["state"] = None
-
-    elif state == "WAIT_BATCH_FMT":
-        # No llega texto aquí normalmente (es inline), pero por si acaso
-        ctx.user_data["state"] = None
-
-# ============================================================
-# [15] HANDLER DE CALLBACKS (INLINE BUTTONS)
-# ============================================================
-async def callback_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    q    = update.callback_query
-    uid  = q.from_user.id
-    uid_s= str(uid)
+# =================================================================
+# [9] MOTOR DE CALLBACKS (INLINE BUTTONS)
+# =================================================================
+async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    uid = q.from_user.id
+    uid_str = str(uid)
     data = q.data
     await q.answer()
 
-    u, _ = await db.get_user(q.from_user)
-    luck = u.get("active_buffs",{}).get("luck_bonus",0.0)
+    u_data, _ = await db.get_user(q.from_user)
 
-    # ── CIERRE ────────────────────────────────────────────
-    if data == "u_close":
-        try: await q.message.delete()
-        except: pass; return
-
-    # ── BÚSQUEDA ──────────────────────────────────────────
-    if data.startswith("src_"):
+    if data.startswith("src_"): 
         idx = data.split("_")[1]
-        results = ctx.user_data.get("search_results",{})
+        results = context.user_data.get("search_results", {})
         if idx in results:
-            url = sec.sanitize_url(results[idx])
-            if url:
-                ctx.user_data["active_url"] = url
-                await q.edit_message_text("🛠️ **Selecciona formato:**", reply_markup=UI.format_selector())
-            else: await q.edit_message_text("❌ URL inválida.")
-        return
-
-    # ── FORMATO / CALIDAD / DESCARGA ─────────────────────
-    if data.startswith("fmt_"):
-        mode = data.split("_")[1]
-        if mode == "back": await q.edit_message_text("🎬 Selecciona formato:", reply_markup=UI.format_selector()); return
-        ctx.user_data["active_fmt"] = mode
-        if mode in ["MP3","MP3U","GIF","VOICE","VNOA","FLAC","WEBM"]:
-            await process_download(update, ctx)
+            target_url = results[idx]
+            clean_url = sanitizer.sanitize_url(target_url)
+            if not clean_url:
+                return await q.edit_message_text("❌ URL inválida o bloqueada por seguridad.")
+            context.user_data["active_url"] = clean_url
+            context.user_data.pop("search_results", None) 
+            await q.edit_message_text(f"🔗 **Objetivo Enlazado:**\n`{target_url}`\n\n🛠 Selecciona formato de salida:", reply_markup=EmpireUI.format_selector())
         else:
-            await q.edit_message_text("🎥 Selecciona resolución:", reply_markup=UI.quality_selector(u["plan"]))
-        return
+            await q.edit_message_text("❌ Búsqueda caducada en la sesión actual.")
 
-    if data.startswith("ql_"):
-        ctx.user_data["active_qlty"] = data.split("_")[1]
-        await process_download(update, ctx)
-        return
-
-    # ── BATCH FORMAT ──────────────────────────────────────
-    if data.startswith("fmt_") and ctx.user_data.get("state") == "WAIT_BATCH_FMT":
-        mode = data.split("_")[1]
-        ctx.user_data["active_fmt"]  = mode
-        ctx.user_data["active_qlty"] = "720p"
-        ctx.user_data["state"] = None
-        await process_batch_download(update, ctx)
-        return
-
-    # ── FAVORITOS ─────────────────────────────────────────
-    if data.startswith("fav_dl_"):
-        idx = int(data.split("_")[2])
-        favs = u.get("favorites",[])
-        if idx < len(favs):
-            ctx.user_data["active_url"]  = favs[idx]
-            ctx.user_data["active_fmt"]  = "MP4"
-            ctx.user_data["active_qlty"] = "720p"
-            await process_download(update, ctx)
-        return
-
-    # ── TIENDA STARS ──────────────────────────────────────
-    if data == "shop_main":
-        await q.edit_message_text("⭐️ **TIENDA OFICIAL:**", reply_markup=UI.stars_shop_main()); return
-
-    if data.startswith("shop_cat_"):
-        cat = data.replace("shop_cat_","")
-        await q.edit_message_text(f"⭐️ **Categoría: {cat.upper()}**", reply_markup=UI.stars_shop_category(cat)); return
-
-    if data.startswith("stars_"):
-        pack_key = data.replace("stars_","")
+    elif data.startswith("stars_"):
+        pack_key = data.replace("stars_", "")
         pack = EmpireConfig.STARS_PACKAGES.get(pack_key)
         if pack:
-            await ctx.bot.send_invoice(
-                chat_id=uid, title=pack["name"],
-                description=f"Pago oficial en Ishak Empire V500: {pack['name']}",
-                payload=f"stars_{pack_key}", provider_token="",
-                currency="XTR",
-                prices=[LabeledPrice(pack["name"], pack["stars"])])
-        return
+            title = pack["name"]
+            description = f"Pago oficial para: {pack['name']} en Ishak SaaS."
+            payload = f"stars_pack_{pack_key}"
+            currency = "XTR"
+            price = pack["stars"]
+            prices = [LabeledPrice(title, price)]
+            await context.bot.send_invoice(chat_id=uid, title=title, description=description, payload=payload, provider_token="", currency=currency, prices=prices)
 
-    # ── MERCADO NEGRO / CRYPTO ────────────────────────────
-    if data.startswith("crypto_buy_"):
-        amt = int(data.split("_")[2])
-        ok, msg = await db.trade_crypto(uid_s, amt, buy=True)
-        await q.answer(msg, show_alert=True); return
-
-    if data == "crypto_sell":
-        ok, msg = await db.trade_crypto(uid_s, 0, buy=False)
-        await q.answer(msg, show_alert=True); return
-
-    if data == "crypto_chart":
-        hist = db.data["market_stats"].get("history",[])
-        if len(hist) >= 2:
-            mn = min(hist); mx = max(hist)
-            bars = ""
-            for v in hist[-15:]:
-                normalized = int((v-mn)/(mx-mn+1)*8)
-                bars += "▁▂▃▄▅▆▇█"[normalized]
-            trend = "📈" if hist[-1] > hist[-2] else "📉"
-            msg = (f"📊 **GRÁFICO ISHAKCOIN (últimos puntos)**\n\n"
-                   f"`{bars}`\n\n"
-                   f"Min: `{mn:.0f}` | Max: `{mx:.0f}` | Actual: `{hist[-1]:.2f}` {trend}")
-            await q.edit_message_text(msg, parse_mode="Markdown",
-                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("❌", callback_data="u_close")]]))
-        return
-
-    if data == "open_shop":
-        cv = round(db.data["market_stats"]["crypto_value"],2)
-        rows = [[InlineKeyboardButton(f"🛒 {v['name']} ({v['price']} pts)", callback_data=f"buy_item_{k}")]
-                for k,v in EmpireConfig.SHOP_ITEMS.items()]
-        rows.append([InlineKeyboardButton("❌ CERRAR", callback_data="u_close")])
-        await q.edit_message_text(f"🛒 **TIENDA DE ÍTEMS**\n💹 IshakCoin: `{cv} pts`",
-                                  reply_markup=InlineKeyboardMarkup(rows), parse_mode="Markdown")
-        return
-
-    if data.startswith("buy_item_"):
-        key  = data.replace("buy_item_","")
-        item = EmpireConfig.SHOP_ITEMS.get(key)
-        if not item: return
-        # Plan restriction
-        if key == "XP_BOOST_X3" and u["plan"] not in ["ULTRA","ENTERPRISE","GOD"]:
-            await q.answer("❌ Requiere plan ULTRA o superior.", show_alert=True); return
-        if await db.deduct_points(uid_s, item["price"]):
-            if key == "XP_BOOST_X2":
-                u["active_buffs"]["xp_multiplier"] = 2.0
-                u["active_buffs"]["buff_expiry"]    = str(datetime.datetime.now()+datetime.timedelta(days=1))
-            elif key == "XP_BOOST_X3":
-                u["active_buffs"]["xp_multiplier"] = 3.0
-                u["active_buffs"]["buff_expiry"]    = str(datetime.datetime.now()+datetime.timedelta(days=1))
-            elif key == "LUCK_CHARM":
-                u["active_buffs"]["luck_bonus"] = 0.15
-                u["active_buffs"]["buff_expiry"] = str(datetime.datetime.now()+datetime.timedelta(days=1))
-            elif key == "LOOT_BOX":
-                prize = random.choice([500,1000,2000,5000,10000,25000,50000])
-                u["points"] += prize
-                await q.message.reply_text(f"🎁 ¡Caja Loot! Ganaste **{prize:,} pts**!", parse_mode="Markdown")
-            elif key == "PRESTIGE_TOKEN":
-                u["prestige_level"] = u.get("prestige_level",0)+1
-                if "PRESTIGE" not in u.get("achievements",[]): u.setdefault("achievements",[]).append("PRESTIGE"); u["points"]+=100000
+    elif data.startswith("buy_item_"):
+        item_key = data.replace("buy_item_", "")
+        item = EmpireConfig.SHOP_ITEMS[item_key]
+        if await db.deduct_points(uid_str, item["price"]):
+            if item_key == "XP_BOOST_X2":
+                u_data["active_buffs"]["xp_multiplier"] = 2.0
+                u_data["active_buffs"]["buff_expiry"] = str(datetime.datetime.now() + datetime.timedelta(days=1))
+                await q.message.reply_text("🧪 Multiplicador de XP x2 activado por 24 horas.")
             else:
-                u["inventory"][key] = u["inventory"].get(key,0)+1
+                u_data["inventory"][item_key] += 1
+                await q.message.reply_text(f"📦 Añadido a tu inventario: {item['name']}")
             await db.save()
-            await q.answer(f"✅ {item['name']} adquirido.", show_alert=True)
-        else:
-            await q.answer("❌ Puntos insuficientes.", show_alert=True)
-        return
+        else: await q.message.reply_text("❌ Puntos insuficientes en el balance.")
 
-    if data.startswith("daily_buy_"):
-        key  = data.replace("daily_buy_","")
-        shop = db.data["system"]["daily_shop"]
-        it   = next((i for i in shop.get("items",[]) if i["key"]==key), None)
-        if not it: return
-        if await db.deduct_points(uid_s, it["price"]):
-            u["inventory"][key] = u["inventory"].get(key,0)+1; await db.save()
-            await q.answer(f"✅ {it['name']} comprado con 30% off!", show_alert=True)
-        else:
-            await q.answer("❌ Puntos insuficientes.", show_alert=True)
-        return
-
-    # ── CASINO ────────────────────────────────────────────
-    if data == "cas_back":
-        await q.edit_message_text("🎰 **CASINO V500:**", reply_markup=UI.casino_main()); return
-
-    if data == "cas_slots":
-        bet = 100
-        if not await db.deduct_points(uid_s, bet):
-            await q.answer("❌ Puntos insuficientes.", show_alert=True); return
-        db.data["stats"]["casino_spins"] += 1
-        u["stats"]["casino_played"] = u["stats"].get("casino_played",0)+1
-        w, msg = casino.play_slots(bet, luck)
-        await db.add_points(uid_s, w); await db.save()
-        await db.update_bounty(uid_s, "casino_5", 1)
-        await db.update_bounty(uid_s, "casino_20", 1)
-        await q.edit_message_text(msg, reply_markup=UI.casino_main(), parse_mode="Markdown")
-        return
-
-    if data == "cas_roulette_menu":
-        await q.edit_message_text("🎡 **RULETA** (250 pts)\nElige tu apuesta:", reply_markup=UI.roulette_menu())
-        return
-
-    if data.startswith("cas_rul_"):
-        choice = data.replace("cas_rul_","")
-        bet = 250
-        if not await db.deduct_points(uid_s, bet):
-            await q.answer("❌ Puntos insuficientes.", show_alert=True); return
-        db.data["stats"]["casino_spins"] += 1
-        u["stats"]["casino_played"] = u["stats"].get("casino_played",0)+1
-        w, msg = casino.play_roulette(bet, choice, luck)
-        await db.add_points(uid_s, w); await db.save()
-        await db.update_bounty(uid_s, "casino_5", 1)
-        await q.edit_message_text(msg, reply_markup=UI.casino_main(), parse_mode="Markdown")
-        return
-
-    if data == "cas_bj":
-        bet = 500
-        if not await db.deduct_points(uid_s, bet):
-            await q.answer("❌ Puntos insuficientes.", show_alert=True); return
-        db.data["stats"]["casino_spins"] += 1
-        u["stats"]["casino_played"] = u["stats"].get("casino_played",0)+1
-        p = [casino.draw_card(), casino.draw_card()]
-        d = [casino.draw_card()]
-        ctx.user_data["bj_p"] = p; ctx.user_data["bj_d"] = d
-        pv = casino.hand_value(p)
-        msg = (f"🃏 **BLACKJACK** (Apuesta: {bet})\n\n"
-               f"Tu mano: {p} = `{pv}`\nCrupier: {d} + [?]")
-        await q.edit_message_text(msg, reply_markup=UI.bj_panel(bet), parse_mode="Markdown")
-        return
-
-    if data.startswith("bj_"):
-        parts  = data.split("_"); action = parts[1]; bet = int(parts[2])
-        p_hand = ctx.user_data.get("bj_p", []); d_hand = ctx.user_data.get("bj_d", [])
-        if action == "hit":
-            p_hand.append(casino.draw_card()); pv = casino.hand_value(p_hand)
-            if pv > 21:
-                await q.edit_message_text(f"💥 **BUST!** {p_hand} = `{pv}`\nPierdes {bet} pts.", reply_markup=UI.casino_main())
-                await db.save()
-            else:
-                await q.edit_message_text(f"🃏 Tu mano: {p_hand} = `{pv}`\nCrupier: {d_hand} + [?]",
-                                          reply_markup=UI.bj_panel(bet), parse_mode="Markdown")
-        elif action in ("stand","double"):
-            if action == "double":
-                extra_bet = bet
-                if not await db.deduct_points(uid_s, extra_bet):
-                    await q.answer("❌ Sin fondos para doblar.", show_alert=True); return
-                bet *= 2
-                p_hand.append(casino.draw_card())
-            while casino.hand_value(d_hand) < 17: d_hand.append(casino.draw_card())
-            pv = casino.hand_value(p_hand); dv = casino.hand_value(d_hand)
-            if pv > 21: result_msg = "💥 BUST! Perdiste."
-            elif dv > 21 or pv > dv:
-                win = bet*2; await db.add_points(uid_s, win)
-                u["stats"]["blackjack_wins"] = u["stats"].get("blackjack_wins",0)+1
-                result_msg = f"🎉 ¡GANASTE! +{win} pts."
-                if u["stats"]["blackjack_wins"] >= 10 and "CARD_SHARK" not in u.get("achievements",[]):
-                    u.setdefault("achievements",[]).append("CARD_SHARK"); u["points"]+=3000
-                    result_msg += "\n🏆 LOGRO: Tiburón! +3000pts"
-            elif pv == dv:
-                await db.add_points(uid_s, bet); result_msg = "🤝 Empate. Recuperas tu apuesta."
-            else: result_msg = "💀 Crupier gana."
-            await db.save()
-            await q.edit_message_text(
-                f"🃏 **RESULTADO BJ**\nTú: {p_hand}=`{pv}` | Crupier: {d_hand}=`{dv}`\n{result_msg}",
-                reply_markup=UI.casino_main(), parse_mode="Markdown")
-        return
-
-    if data == "cas_crash":
-        bet = 1000
-        if not await db.deduct_points(uid_s, bet):
-            await q.answer("❌ Puntos insuficientes.", show_alert=True); return
-        db.data["stats"]["casino_spins"] += 1
-        u["stats"]["casino_played"] = u["stats"].get("casino_played",0)+1
-        cp = casino.calc_crash()
-        ctx.user_data["crash_point"] = cp
-        await q.edit_message_text(f"📈 **CRASH** (Apuesta: {bet})\n🚀 Multiplicador: `1.00x`",
-                                  reply_markup=UI.crash_panel(bet, 1.0))
-        asyncio.create_task(_crash_ticker(ctx.bot, uid, q.message.message_id, bet, cp, ctx))
-        return
-
-    if data.startswith("crash_co_"):
-        parts = data.split("_"); bet = int(parts[2]); mult = float(parts[3])
-        cp    = ctx.user_data.pop("crash_point", -1)
-        if cp == -1: await q.answer("Ya explotó o ya saltaste.", show_alert=True); return
-        if mult <= cp:
-            win = int(bet * mult); await db.add_points(uid_s, win); await db.save()
-            await q.edit_message_text(f"✅ **CASH OUT** a `{mult}x`!\n+{win} pts.",
-                                      reply_markup=UI.casino_main(), parse_mode="Markdown")
-        else:
-            await q.answer("El cohete ya explotó.", show_alert=True)
-        return
-
-    if data == "cas_mines_menu":
-        await q.edit_message_text("💣 **MINES** — Elige dificultad (apuesta: 500 pts):", reply_markup=UI.mines_menu())
-        return
-
-    if data.startswith("cas_mines_"):
-        mines_n = int(data.replace("cas_mines_",""))
-        bet = 500
-        if not await db.deduct_points(uid_s, bet):
-            await q.answer("❌ Puntos insuficientes.", show_alert=True); return
-        db.data["stats"]["casino_spins"] += 1
-        u["stats"]["casino_played"] = u["stats"].get("casino_played",0)+1
-        state_mines = casino.init_mines(mines_n)
-        ctx.user_data["mines_state"] = state_mines
-        ctx.user_data["mines_bet"]   = bet
+    elif data == "crypto_buy" or data == "crypto_sell":
+        is_buy = data == "crypto_buy"
+        amt = 500 if is_buy else 0
+        success, msg = await db.trade_crypto(uid_str, amt, is_buy=is_buy)
         await db.save()
-        msg = f"💣 **MINES** ({mines_n} minas) — Apuesta: {bet} pts\n💎 Clica casillas para ganar. Evita las minas!"
-        await q.edit_message_text(msg, reply_markup=UI.mines_grid(state_mines, bet), parse_mode="Markdown")
-        return
-
-    if data.startswith("mines_click_"):
-        parts = data.split("_"); pos = int(parts[2]); bet = int(parts[3])
-        state_mines = ctx.user_data.get("mines_state")
-        if not state_mines or state_mines.get("game_over"):
-            await q.answer("Juego ya terminado.", show_alert=True); return
-        is_mine, game_over, mult = casino.mines_click(state_mines, pos)
-        if is_mine:
-            await q.edit_message_text(f"💥 **¡MINA!** Perdiste {bet} pts.\nMultiplicador alcanzado antes: `x{mult:.2f}`",
-                                      reply_markup=UI.casino_main(), parse_mode="Markdown")
-            ctx.user_data.pop("mines_state", None)
-        elif game_over:
-            win = int(bet * mult); await db.add_points(uid_s, win); await db.save()
-            u["stats"]["mines_wins"] = u["stats"].get("mines_wins",0)+1
-            await q.edit_message_text(f"🎉 ¡CAMPO LIMPIO! x`{mult:.2f}` → +{win} pts.",
-                                      reply_markup=UI.casino_main(), parse_mode="Markdown")
-            ctx.user_data.pop("mines_state", None)
-        else:
-            await q.edit_message_text(f"💎 Casilla segura! Mult actual: `x{mult:.2f}`\nContinúa o haz Cash Out:",
-                                      reply_markup=UI.mines_grid(state_mines, bet), parse_mode="Markdown")
-        return
-
-    if data.startswith("mines_cashout_"):
-        bet = int(data.split("_")[2])
-        state_mines = ctx.user_data.pop("mines_state", None)
-        if not state_mines: await q.answer("Sin juego activo.", show_alert=True); return
-        safe = state_mines["safe_clicked"]; m_ = state_mines["mines_count"]; g = state_mines["grid_size"]
-        mult = max(1.0, (g/(g-m_))**safe*0.97) if safe > 0 else 1.0
-        win  = int(bet * mult); await db.add_points(uid_s, win); await db.save()
-        await q.edit_message_text(f"💰 **CASH OUT** x`{mult:.2f}`\n+{win} pts.", reply_markup=UI.casino_main(), parse_mode="Markdown")
-        return
-
-    if data == "mines_quit":
-        ctx.user_data.pop("mines_state", None)
-        await q.edit_message_text("🏳️ Te rendiste. Perdiste la apuesta.", reply_markup=UI.casino_main())
-        return
-    if data == "mines_noop": return
-
-    if data == "cas_plinko":
-        bet = 300
-        if not await db.deduct_points(uid_s, bet):
-            await q.answer("❌ Puntos insuficientes.", show_alert=True); return
-        db.data["stats"]["casino_spins"] += 1
-        u["stats"]["casino_played"] = u["stats"].get("casino_played",0)+1
-        win, msg, mult = casino.play_plinko(bet, luck_bonus=luck)
-        await db.add_points(uid_s, win); await db.save()
-        if mult >= 25 and "PLINKO_KING" not in u.get("achievements",[]):
-            u.setdefault("achievements",[]).append("PLINKO_KING"); u["points"]+=5000; msg+="\n🏆 LOGRO: Rey Plinko! +5000pts"; await db.save()
-        await q.edit_message_text(msg, reply_markup=UI.casino_main(), parse_mode="Markdown")
-        return
-
-    if data == "cas_dice_menu":
-        await q.edit_message_text("🎲 **DADOS** (200 pts)\nElige tu predicción:", reply_markup=UI.dice_menu())
-        return
-
-    if data.startswith("cas_dice_"):
-        pred = data.replace("cas_dice_","")
-        bet  = 200
-        if not await db.deduct_points(uid_s, bet):
-            await q.answer("❌ Puntos insuficientes.", show_alert=True); return
-        db.data["stats"]["casino_spins"] += 1
-        u["stats"]["casino_played"] = u["stats"].get("casino_played",0)+1
-        win, msg = casino.play_dice(bet, pred, luck)
-        await db.add_points(uid_s, win); await db.save()
-        await q.edit_message_text(msg, reply_markup=UI.casino_main(), parse_mode="Markdown")
-        return
-
-    if data == "cas_poker":
-        bet = 1000
-        if not await db.deduct_points(uid_s, bet):
-            await q.answer("❌ Puntos insuficientes.", show_alert=True); return
-        db.data["stats"]["casino_spins"] += 1
-        u["stats"]["casino_played"] = u["stats"].get("casino_played",0)+1
-        hand = casino.deal_poker_hand()
-        hand_name, mult = casino.eval_poker_hand(hand)
-        win = int(bet * mult) if mult > 0 else 0
-        await db.add_points(uid_s, win)
-        if mult > 0: u["stats"]["poker_wins"] = u["stats"].get("poker_wins",0)+1
-        if u["stats"].get("poker_wins",0) >= 50 and "POKER_PRO" not in u.get("achievements",[]):
-            u.setdefault("achievements",[]).append("POKER_PRO"); u["points"]+=8000
-            await q.message.reply_text("🏆 LOGRO: Profesional Poker! +8000pts")
-        await db.save()
-        hand_str = " | ".join(hand)
-        msg = (f"🃏 **POKER 5 CARTAS** (Apuesta: {bet})\n\n"
-               f"Tu mano: `{hand_str}`\n\n"
-               f"Resultado: **{hand_name}**\n"
-               f"Multiplicador: `x{mult}`\n"
-               f"{'💰 Ganaste **'+str(win)+' pts**!' if win>0 else '💀 Sin combinación. Pierdes.'}")
-        await q.edit_message_text(msg, reply_markup=UI.casino_main(), parse_mode="Markdown")
-        return
-
-    # ── AJUSTES ───────────────────────────────────────────
-    if data.startswith("set_"):
-        action = data.replace("set_","")
-        if action == "watermark":
-            await q.message.reply_text("✍️ Escribe tu marca de agua (max 30 chars):")
-            ctx.user_data["state"] = "WAIT_WATERMARK"
-        elif action == "transcribe":
-            u["settings"]["auto_transcribe"] = not u["settings"].get("auto_transcribe"); await db.save()
-            await q.edit_message_reply_markup(reply_markup=UI.settings_panel(u["settings"]))
-        elif action == "ghost":
-            if u["plan"] in ["ULTRA","ENTERPRISE","GOD"]:
-                u["settings"]["ghost_mode"] = not u["settings"].get("ghost_mode"); await db.save()
-                await q.edit_message_reply_markup(reply_markup=UI.settings_panel(u["settings"]))
-            else: await q.answer("❌ Requiere ULTRA+.", show_alert=True)
-        elif action == "doc":
-            u["settings"]["send_as_doc"] = not u["settings"].get("send_as_doc"); await db.save()
-            await q.edit_message_reply_markup(reply_markup=UI.settings_panel(u["settings"]))
-        elif action == "autobest":
-            u["settings"]["auto_dl_best"] = not u["settings"].get("auto_dl_best"); await db.save()
-            await q.edit_message_reply_markup(reply_markup=UI.settings_panel(u["settings"]))
-        elif action == "theme":
-            themes = ["dark","light","midnight","neon","minimal"]
-            cur = u["settings"].get("theme","dark")
-            u["settings"]["theme"] = themes[(themes.index(cur)+1)%len(themes)]; await db.save()
-            await q.edit_message_reply_markup(reply_markup=UI.settings_panel(u["settings"]))
-            await q.answer(f"Tema: {u['settings']['theme'].capitalize()}")
-        elif action == "lang":
-            langs = list(EmpireConfig.LANGUAGES.keys())
-            cur = u["settings"].get("language","es")
-            u["settings"]["language"] = langs[(langs.index(cur)+1)%len(langs)]; await db.save()
-            await q.edit_message_reply_markup(reply_markup=UI.settings_panel(u["settings"]))
-            await q.answer(f"Idioma: {u['settings']['language'].upper()}")
-        elif action == "notif":
-            u["settings"]["notifications_enabled"] = not u["settings"].get("notifications_enabled",True); await db.save()
-            await q.edit_message_reply_markup(reply_markup=UI.settings_panel(u["settings"]))
-        elif action == "2fa":
-            await q.message.reply_text("🔐 Usa el comando `/2fa` para configurar la autenticación de dos factores.", parse_mode="Markdown")
-        elif action == "login_hist":
-            sessions = sec.get_session_log(uid_s)[-10:]
-            msg = "🗝️ **HISTORIAL DE SESIONES:**\n"
-            for s in reversed(sessions): msg += f"• `{s['time'][:19]}` — {s['action']}\n"
-            await q.message.reply_text(msg or "Sin historial.", parse_mode="Markdown")
-        elif action == "rename":
-            if u["inventory"].get("RENAME_CARD",0)>0:
-                await q.message.reply_text("📝 Escribe tu nuevo apodo:"); ctx.user_data["state"]="WAIT_RENAME"
-            else: await q.answer("❌ Necesitas una Tarjeta de Renombre (Tienda).", show_alert=True)
-        elif action == "open_settings":
-            await q.edit_message_text("⚙️ **CONFIGURACIÓN:**", reply_markup=UI.settings_panel(u["settings"]))
-        return
-
-    # ── HERRAMIENTAS ──────────────────────────────────────
-    if data.startswith("util_"):
-        act = data.replace("util_","")
-        if act == "tts":   await q.message.reply_text("🗣️ Escribe el texto para TTS (max 500 chars):"); ctx.user_data["state"]="WAIT_TTS"
-        elif act == "qr":  await q.message.reply_text("🔳 Envía texto o URL para el QR:"); ctx.user_data["state"]="WAIT_QR"
-        elif act == "b64e":await q.message.reply_text("📜 Texto a codificar en Base64:"); ctx.user_data["state"]="WAIT_B64E"
-        elif act == "b64d":await q.message.reply_text("🔓 Base64 a decodificar:"); ctx.user_data["state"]="WAIT_B64D"
-        elif act == "sha": await q.message.reply_text("🔐 Texto para SHA-256:"); ctx.user_data["state"]="WAIT_SHA"
-        elif act == "md5": await q.message.reply_text("🔏 Texto para MD5:"); ctx.user_data["state"]="WAIT_MD5"
-        elif act == "rot": await q.message.reply_text("🔄 Texto para ROT-13:"); ctx.user_data["state"]="WAIT_ROT"
-        elif act == "thumb":await q.message.reply_text("🖼️ URL para extraer miniatura:"); ctx.user_data["state"]="WAIT_THUMB"
-        elif act == "meta":await q.message.reply_text("📊 URL para metadatos:"); ctx.user_data["state"]="WAIT_META"
-        elif act == "fav": await q.message.reply_text("⭐ URL para añadir/quitar favoritos:"); ctx.user_data["state"]="WAIT_FAV_URL"
-        elif act == "ping":
-            m = await q.message.reply_text("📡 Ejecutando ping...")
-            lat = await tools.ping()
-            await m.edit_text(f"📡 Latencia: `{lat}`", parse_mode="Markdown")
-        return
-
-    # ── FACCIONES ─────────────────────────────────────────
-    if data.startswith("fac_"):
-        action = data.replace("fac_","")
-        if action == "create":
-            await q.message.reply_text("🛡️ Nombre de tu nueva facción (3-20 chars):"); ctx.user_data["state"]="WAIT_FAC_CREATE"
-        elif action == "join":
-            await q.message.reply_text("🤝 Nombre exacto de la facción:"); ctx.user_data["state"]="WAIT_FAC_JOIN"
-        elif action == "info":
-            fname = u.get("faction")
-            if fname and fname in db.data["factions"]:
-                fac = db.data["factions"][fname]
-                msg = (f"🛡️ **{fname}**\n👑 Dueño: `{fac['owner']}`\n"
-                       f"👥 Miembros: `{len(fac['members'])}/{fac.get('max_members',20)}`\n"
-                       f"💰 Bóveda: `{fac['vault']:,} pts`\n"
-                       f"📈 Nivel: `{fac['level']}` | ⚔️ Guerras ganadas: `{fac.get('war_wins',0)}`")
-                await q.message.reply_text(msg, parse_mode="Markdown")
-        elif action == "members":
-            fname = u.get("faction")
-            if fname and fname in db.data["factions"]:
-                members = db.data["factions"][fname]["members"]
-                msg = f"👥 **Miembros de {fname}:**\n"
-                for m_uid in members[:20]:
-                    m_user = db.data["users"].get(m_uid,{})
-                    msg += f"• {m_user.get('name','?')} | Lvl {m_user.get('level',1)}\n"
-                await q.message.reply_text(msg, parse_mode="Markdown")
-        elif action == "donate":
-            await q.message.reply_text("💰 Cantidad de puntos a donar:"); ctx.user_data["state"]="WAIT_FAC_DONATE"
-        elif action == "upgrade":
-            fname = u.get("faction")
-            if fname in db.data["factions"]:
-                fac = db.data["factions"][fname]
-                cost = 10000 * fac.get("level",1)
-                if fac["vault"] >= cost:
-                    fac["vault"] -= cost; fac["level"] += 1; await db.save()
-                    await q.message.reply_text(f"⭐ ¡Facción {fname} subió al nivel {fac['level']}! (coste: {cost:,} pts)")
-                else: await q.answer(f"❌ Bóveda necesita {cost:,} pts.", show_alert=True)
-        elif action == "war":
-            await q.message.reply_text("⚔️ Nombre de la facción enemiga:"); ctx.user_data["state"]="WAIT_FAC_WAR"
-        elif action == "leave":
-            fname = u.get("faction")
-            if fname and fname in db.data["factions"]:
-                fac = db.data["factions"][fname]
-                if uid_s in fac["members"]: fac["members"].remove(uid_s)
-                if uid_s == fac["owner"] and fac["members"]:
-                    fac["owner"] = fac["members"][0]
-                u["faction"] = None; await db.save()
-                await q.edit_message_text("🚪 Has abandonado la facción.")
-        return
-
-    # ── B2B ───────────────────────────────────────────────
-    if data == "b2b_gen":
-        if u["plan"] != "GOD": await q.answer("❌ Solo para GOD.", show_alert=True); return
-        for k,v in list(db.data["b2b_api_keys"].items()):
-            if v == uid_s: del db.data["b2b_api_keys"][k]
-        new_key = f"sk_live_{uuid.uuid4().hex}"
-        hashed  = hashlib.sha256(new_key.encode()).hexdigest()
-        u["api_key"] = hashed; db.data["b2b_api_keys"][hashed] = uid_s
-        if "HACKER" not in u.get("achievements",[]): u.setdefault("achievements",[]).append("HACKER"); u["points"]+=1000
-        await db.save(); audit_logger.log("API_KEY_GEN",user_id=uid)
-        await q.edit_message_text(
-            f"🔑 **API KEY GENERADA (¡Guárdala!)**\n`{new_key}`\n\n*Header: `X-API-KEY: tu_clave`*",
-            reply_markup=UI.b2b_panel(True), parse_mode="Markdown")
-        return
-
-    if data == "b2b_docs":
-        await q.edit_message_text(
-            "📖 **API B2B V500**\n\n"
-            "**POST** `/api/v1/extract`\nHeader: `X-API-KEY`\nBody: `{\"url\":\"...\"}`\n\n"
-            "**GET** `/api/v4/metrics` — Métricas JSON\n"
-            "**GET** `/health` — Health check\n"
-            "**GET** `/metrics` — Prometheus\n"
-            "**GET** `/api/docs` — Swagger UI\n"
-            "**GET** `/api/v1/users/export` — Exportar CSV (admin)\n"
-            "**GET** `/api/v1/leaderboard` — Top usuarios",
-            reply_markup=UI.b2b_panel(True))
-        return
-
-    if data == "b2b_usage":
-        keys = len(db.data.get("b2b_api_keys",{}))
-        await q.edit_message_text(f"📊 **Uso API B2B**\n• Claves activas: `{keys}`\n• Endpoint: `/api/v1/extract`",
-                                  reply_markup=UI.b2b_panel(True), parse_mode="Markdown")
-        return
-
-    # ── LEADERBOARD ───────────────────────────────────────
-    if data.startswith("lb_"):
-        cat = data.replace("lb_","")
-        top = await db.get_leaderboard(cat, 10)
-        medals = ["🥇","🥈","🥉"]+["4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟"]
-        cat_names = {"points":"Puntos","downloads":"Descargas","referrals":"Referidos","affiliate":"Afiliados","level":"Nivel"}
-        msg = f"🏆 **TOP 10 — {cat_names.get(cat,cat).upper()}**\n\n"
-        for i,(name,username,val,plan) in enumerate(top):
-            ustr  = f"@{username}" if username else name
-            color = EmpireConfig.PLANS.get(plan,{}).get("color","⬜")
-            msg  += f"{medals[i]} {color} `{val:,}` — {ustr[:20]}\n"
-        await q.edit_message_text(msg, reply_markup=UI.lb_panel(), parse_mode="Markdown")
-        return
-
-    # ── P2P ───────────────────────────────────────────────
-    if data == "p2p_list":
-        listings = [l for l in db.data.get("p2p_market",[]) if l.get("active")][:10]
-        if not listings: await q.edit_message_text("📭 No hay anuncios activos.", reply_markup=UI.p2p_panel()); return
-        rows = []
-        for l in listings:
-            seller = db.data["users"].get(l["seller"],{}).get("name","?")[:10]
-            rows.append([InlineKeyboardButton(
-                f"{l['amount']:,} {l['type']} por {l['price']:,} pts — {seller}",
-                callback_data=f"p2p_buy_{l['id']}")])
-        rows.append([InlineKeyboardButton("⬅️ Volver", callback_data="p2p_back"),
-                     InlineKeyboardButton("❌ Cerrar",  callback_data="u_close")])
-        await q.edit_message_text("📜 **ANUNCIOS ACTIVOS:**", reply_markup=InlineKeyboardMarkup(rows), parse_mode="Markdown")
-        return
-
-    if data.startswith("p2p_buy_"):
-        lid = data.replace("p2p_buy_","")
-        ok, msg = await db.buy_p2p_listing(uid_s, lid)
-        if ok:
-            if "MARKET_BARON" not in u.get("achievements",[]) and u["stats"].get("p2p_purchases",0) >= 10:
-                u.setdefault("achievements",[]).append("MARKET_BARON"); u["points"]+=5000; await db.save()
         await q.answer(msg, show_alert=True)
-        return
+        
+        cv = round(db.data["market_stats"]["crypto_value"], 2)
+        trend_icon = "📈" if db.data["market_stats"].get("trend", "up") == "up" else "📉"
+        u_data_updated = db.data["users"][uid_str]
+        c_bal = u_data_updated.get("crypto_balance", 0.0)
+        new_text = f"💎 **MERCADO CLANDESTINO V400**\nTu capital: `{u_data_updated['points']} pts`.\nTus IshakCoins: `{c_bal:.4f}`\n\nValor IshakCoin actual: `{cv}` pts {trend_icon}\n*(Fluctuaciones en tiempo real cada 10 mins)*\n\nUsa tus puntos para operar o comprar ítems exclusivos:"
+        await q.edit_message_text(new_text, reply_markup=EmpireUI.shop_panel(), parse_mode="Markdown")
 
-    if data == "p2p_sell":
-        await q.message.reply_text("💰 Escribe `<cantidad_pts> <precio_pts>` para poner en venta:\nEjemplo: `5000 4500`")
-        ctx.user_data["state"] = "WAIT_P2P_SELL"
-        return
+    elif data.startswith("set_"):
+        action = data.split("_")[1]
+        if action == "watermark":
+            await q.message.reply_text("✍️ Escribe tu nueva Marca de Agua (Max 30 char):")
+            context.user_data["state"] = "WAIT_WATERMARK"
+        elif action == "transcribe":
+            u_data['settings']['auto_transcribe'] = not u_data['settings'].get('auto_transcribe')
+            await db.save(); await q.edit_message_reply_markup(reply_markup=EmpireUI.settings_panel(u_data['settings']))
+        elif action == "ghost":
+            if u_data['plan'] in ['ULTRA', 'GOD']:
+                u_data['settings']['ghost_mode'] = not u_data['settings'].get('ghost_mode')
+                await db.save(); await q.edit_message_reply_markup(reply_markup=EmpireUI.settings_panel(u_data['settings']))
+            else: await q.message.reply_text("❌ El Modo Fantasma es exclusivo para rangos ULTRA o GOD.")
+        elif action == "doc":
+            u_data['settings']['send_as_doc'] = not u_data['settings'].get('send_as_doc')
+            await db.save(); await q.edit_message_reply_markup(reply_markup=EmpireUI.settings_panel(u_data['settings']))
+        elif action == "theme":
+            themes = ["dark", "light", "midnight"]
+            current = u_data['settings'].get('theme', 'dark')
+            idx = (themes.index(current) + 1) % len(themes)
+            u_data['settings']['theme'] = themes[idx]
+            await db.save()
+            await q.edit_message_reply_markup(reply_markup=EmpireUI.settings_panel(u_data['settings']))
+            await q.answer(f"Tema cambiado a: {themes[idx].capitalize()}")
+        elif action == "lang":
+            langs = ["es", "en", "fr", "ar"]
+            current = u_data['settings'].get('language', 'es')
+            idx = (langs.index(current) + 1) % len(langs)
+            u_data['settings']['language'] = langs[idx]
+            await db.save()
+            await q.edit_message_reply_markup(reply_markup=EmpireUI.settings_panel(u_data['settings']))
+            await q.answer(f"Idioma cambiado a: {langs[idx].upper()}")
+        elif action == "notif":
+            u_data['settings']['notifications_enabled'] = not u_data['settings'].get('notifications_enabled', True)
+            await db.save()
+            await q.edit_message_reply_markup(reply_markup=EmpireUI.settings_panel(u_data['settings']))
 
-    if data == "p2p_back":
-        await q.edit_message_text("🤝 **MERCADO P2P:**", reply_markup=UI.p2p_panel())
-        return
+    elif data == "b2b_gen_key":
+        if u_data['plan'] != 'GOD':
+            return await q.message.reply_text("❌ Acceso Denegado. Función de seguridad exclusiva para GOD.")
+        
+        for k, v in list(db.data['b2b_api_keys'].items()):
+            if v == uid_str: del db.data['b2b_api_keys'][k]
+            
+        new_key = f"sk_live_{uuid.uuid4().hex}"
+        hashed_key = hashlib.sha256(new_key.encode()).hexdigest()
+        
+        u_data['api_key'] = hashed_key 
+        db.data['b2b_api_keys'][hashed_key] = uid_str
+        
+        if "HACKER" not in u_data["achievements"]:
+            u_data["achievements"].append("HACKER")
+            await db.add_points(uid_str, 1000)
+        await db.save()
+        audit_logger.log("API_KEY_GENERATED", user_id=uid)
+        await q.edit_message_text(f"🔑 **NUEVA CLAVE API (GUARDA ESTO, NO SE VOLVERÁ A MOSTRAR):**\n`{new_key}`\n\n*Usa esta clave en la cabecera X-API-KEY para requests al servidor Web.*", reply_markup=EmpireUI.b2b_panel(hashed_key))
+    
+    elif data == "b2b_docs":
+        await q.edit_message_text("📖 **Documentación API B2B:**\n\n🔗 Endpoint: `/api/v1/extract` (POST)\n📦 Body: `{\"url\": \"https://...\"}`\n🔐 Header: `X-API-KEY: tu_clave`\n\n📊 Métricas: `/api/v4/metrics` (GET)\n🩺 Health: `/health` (GET)\n📈 Prometheus: `/metrics` (GET)\n\nPara más detalles visita el panel web.")
 
-    # ── ADMIN CALLBACKS ───────────────────────────────────
-    if data.startswith("adm_") and uid == EmpireConfig.ADMIN_ID:
+    elif data.startswith("util_"):
+        act = data.split("_")[1]
+        if act == "tts_req":
+            await q.message.reply_text("🗣️ Escribe el texto para generar voz (Max 300 letras):")
+            context.user_data["state"] = "WAIT_UTIL_TTS"
+        elif act == "qr_req":
+            await q.message.reply_text("🔳 Envía el enlace o texto para generar un QR real:")
+            context.user_data["state"] = "WAIT_UTIL_QR"
+        elif act == "b64enc_req":
+            await q.message.reply_text("📜 Envía el texto a codificar en Base64:")
+            context.user_data["state"] = "WAIT_UTIL_B64ENC"
+        elif act == "b64dec_req":
+            await q.message.reply_text("🔓 Envía la cadena Base64 a decodificar:")
+            context.user_data["state"] = "WAIT_UTIL_B64DEC"
+        elif act == "ping":
+            m = await q.message.reply_text("📡 Ejecutando test de latencia ICMP real...")
+            latency = await real_tools.execute_ping()
+            await m.edit_text(f"📡 **Ping Test Real V400:**\nLatencia Red Central: `{latency}`")
+        elif act == "thumb":
+            await q.message.reply_text("🖼️ Envía el enlace para extraer su miniatura:"); context.user_data["state"] = "WAIT_UTIL_URL_THUMB"
+        elif act == "meta":
+            await q.message.reply_text("📊 Envía el enlace para inspeccionar metadatos:"); context.user_data["state"] = "WAIT_UTIL_URL_META"
+        elif act == "search":
+            await q.message.reply_text("🔍 **BÚSQUEDA AVANZADA**\nEscribe tu búsqueda con filtros:\n• 'youtube' o 'tiktok' (plataforma)\n• 'corto' (<5min) o 'largo' (>30min)\n• 'reciente' o 'visto' (orden)"); context.user_data["state"] = "WAIT_UTIL_SEARCH"
+
+    elif data.startswith("fac_"):
+        action = data.split("_")[1]
+        if action == "create":
+            await q.message.reply_text("🛡️ Escribe el nombre de tu nueva Facción (3-20 letras):")
+            context.user_data["state"] = "WAIT_FAC_CREATE"
+        elif action == "join":
+            await q.message.reply_text("🤝 Escribe el nombre exacto de la Facción:")
+            context.user_data["state"] = "WAIT_FAC_JOIN"
+        elif action == "info":
+            f_name = u_data["faction"]
+            fac = db.data["factions"][f_name]
+            msg = f"🛡️ **FACCIÓN: {f_name}**\n👑 Dueño: `{fac['owner']}`\n👥 Miembros: `{len(fac['members'])}`\n💰 Bóveda: `{fac['vault']} pts`\n📈 Nivel: `{fac['level']}`"
+            await q.message.reply_text(msg)
+        elif action == "donate":
+            await q.message.reply_text("💰 Escribe la cantidad de puntos a donar a la bóveda:")
+            context.user_data["state"] = "WAIT_FAC_DONATE"
+        elif action == "upgrade":
+            f_name = u_data["faction"]
+            fac = db.data["factions"][f_name]
+            if fac['vault'] >= 10000:
+                fac['vault'] -= 10000
+                fac['level'] += 1
+                await db.save()
+                await q.message.reply_text(f"⭐ ¡La facción {f_name} ha subido al Nivel {fac['level']}!")
+            else: await q.message.reply_text("❌ La bóveda no tiene 10,000 pts para ascender.")
+        elif action == "leave":
+            f_name = u_data["faction"]
+            db.data["factions"][f_name]["members"].remove(uid_str)
+            u_data["faction"] = None
+            if uid_str == db.data["factions"][f_name]["owner"]:
+                db.data["factions"][f_name]["owner"] = db.data["factions"][f_name]["members"][0] if db.data["factions"][f_name]["members"] else "Abandonada"
+            await db.save()
+            await q.edit_message_text("🚪 Has abandonado la facción.")
+
+    elif data.startswith("casino_"):
+        db.data["stats"]["casino_spins"] = db.data["stats"].get("casino_spins", 0) + 1
+        game = data.split("_")[1]
+        
+        await db.update_bounty(uid_str, "casino_5", 1)
+        
+        if game == "slots":
+            bet = 100
+            if await db.deduct_points(uid_str, bet):
+                w, msg = casino_engine.play_slots(bet)
+                await db.add_points(uid_str, w)
+                await q.edit_message_text(msg, reply_markup=EmpireUI.casino_panel())
+            else:
+                return await q.message.reply_text("❌ Puntos insuficientes.")
+            
+        elif game == "roulette":
+            bet = 250
+            if await db.deduct_points(uid_str, bet):
+                num = random.randint(0, 36)
+                color = "🟢" if num == 0 else ("🔴" if num in [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36] else "⚫")
+                msg = f"🎡 **RULETA (Apuesta: 250)**\nLa bola gira...\n\n¡Cayó en **{num} {color}**!\n"
+                if num == 0:
+                    win = bet * 14; msg += f"🎉 ¡PLENO VERDE! Ganaste {win} pts."; await db.add_points(uid_str, win)
+                elif color == "🔴":
+                    win = bet * 2; msg += f"🔥 Rojo. Ganaste {win} pts."; await db.add_points(uid_str, win)
+                else: msg += "💀 Negro. Pierdes la apuesta."
+                await q.edit_message_text(msg, reply_markup=EmpireUI.casino_panel())
+            else:
+                return await q.message.reply_text("❌ Puntos insuficientes.")
+
+        elif game == "bj":
+            bet = 500
+            if await db.deduct_points(uid_str, bet):
+                p_hand = [casino_engine.draw_card(), casino_engine.draw_card()]
+                d_hand = [casino_engine.draw_card()]
+                context.user_data["bj_hand"] = p_hand
+                context.user_data["bj_dealer"] = d_hand
+                msg = f"🃏 **BLACKJACK (Apuesta 500)**\n\nTu Mano: {p_hand} (Valor: {casino_engine.calculate_hand(p_hand)})\nCrupier: {d_hand} [?]\n\n¿Qué deseas hacer?"
+                await q.edit_message_text(msg, reply_markup=EmpireUI.blackjack_panel(bet))
+            else:
+                return await q.message.reply_text("❌ Puntos insuficientes (500 req).")
+            
+        elif game == "crash":
+            bet = 1000
+            if await db.deduct_points(uid_str, bet):
+                crash_point = casino_engine.calculate_crash_multiplier()
+                context.user_data["crash_point"] = crash_point
+                
+                msg = f"📈 **CRIPTO CRASH (Apuesta: {bet})**\nEl cohete está despegando...\nMultiplicador actual: `1.00x`"
+                await q.edit_message_text(msg, reply_markup=EmpireUI.crash_panel(bet, 1.00))
+                asyncio.create_task(simulate_crash_tick(context.bot, uid, q.message.message_id, bet, crash_point, context))
+            else:
+                return await q.message.reply_text("❌ Puntos insuficientes (1000 req).")
+
+    elif data.startswith("bj_"):
+        parts = data.split("_")
+        action = parts[1]
+        bet = int(parts[2])
+        p_hand = context.user_data.get("bj_hand", [])
+        d_hand = context.user_data.get("bj_dealer", [])
+        
+        if action == "hit":
+            p_hand.append(casino_engine.draw_card())
+            val = casino_engine.calculate_hand(p_hand)
+            if val > 21:
+                msg = f"💥 **TE PASASTE!**\n\nTu Mano: {p_hand} (Valor: {val})\n💀 Pierdes {bet} pts."
+                await q.edit_message_text(msg, reply_markup=EmpireUI.casino_panel())
+            else:
+                msg = f"🃏 **BLACKJACK**\n\nTu Mano: {p_hand} (Valor: {val})\nCrupier: {d_hand} [?]\n\n¿Qué deseas hacer?"
+                await q.edit_message_text(msg, reply_markup=EmpireUI.blackjack_panel(bet))
+                
+        elif action == "stand":
+            p_val = casino_engine.calculate_hand(p_hand)
+            while casino_engine.calculate_hand(d_hand) < 17: d_hand.append(casino_engine.draw_card())
+            d_val = casino_engine.calculate_hand(d_hand)
+            
+            msg = f"🃏 **BLACKJACK - RESULTADO**\n\nTu Mano: {p_hand} (Valor: {p_val})\nCrupier: {d_hand} (Valor: {d_val})\n\n"
+            if d_val > 21 or p_val > d_val:
+                win = bet * 2; await db.add_points(uid_str, win); u_data["stats"]["blackjack_wins"] += 1
+                msg += f"🎉 **¡GANASTE!** +{win} pts."
+                if u_data["stats"]["blackjack_wins"] >= 10 and "CARD_SHARK" not in u_data["achievements"]:
+                    u_data["achievements"].append("CARD_SHARK")
+                    await db.add_points(uid_str, 3000)
+                    await q.message.reply_text("🏆 ¡LOGRO: Tiburón de Cartas! +3000 pts")
+            elif p_val == d_val:
+                await db.add_points(uid_str, bet); msg += "🤝 **EMPATE.** Recuperas tu apuesta."
+            else: msg += "💀 **EL CRUPIER GANA.**"
+            
+            await db.save()
+            await q.edit_message_text(msg, reply_markup=EmpireUI.casino_panel())
+
+    elif data.startswith("crash_cashout_"):
+        parts = data.split("_")
+        bet = int(parts[2])
+        mult = float(parts[3])
+        
+        crash_point = context.user_data.pop("crash_point", -1) 
+        
+        if crash_point != -1 and mult <= crash_point:
+            win = int(bet * mult)
+            await db.add_points(uid_str, win)
+            msg = f"✅ **¡CASH OUT EXITOSO!**\nSaltaste a `{mult}x`.\n🚀 Ganancia: +{win} pts."
+            await q.edit_message_text(msg, reply_markup=EmpireUI.casino_panel())
+        else:
+            await q.answer("El cohete ya explotó o ya habías saltado.", show_alert=True)
+
+    elif data.startswith("adm_") and uid == EmpireConfig.ADMIN_ID:
         if data.startswith("adm_list_"):
-            page  = int(data.split("_")[2])
+            page = int(data.split("_")[2])
             users = list(db.data["users"].items())
-            start = page*10; end = start+10
-            msg   = f"👥 **USUARIOS (pág {page+1}/{math.ceil(len(users)/10)}):**\n"
-            for sid,d in users[start:end]:
-                ban = "🚫" if d.get("is_banned") else "✅"
-                msg += f"{ban} `{sid}` | {d.get('name','?')[:10]} | Lv{d.get('level',1)} | {d.get('plan','?')} | {d.get('points',0):,}pts\n"
-            kb = [[InlineKeyboardButton("⬅️",callback_data=f"adm_list_{max(0,page-1)}"),
-                   InlineKeyboardButton(f"{page+1}",callback_data="dummy"),
-                   InlineKeyboardButton("➡️",callback_data=f"adm_list_{page+1}")]]
-            kb.append([InlineKeyboardButton("❌ CERRAR",callback_data="u_close")])
+            start = page * 10
+            end = start + 10
+            msg = f"👥 **ESCLAVOS (Pág {page+1}):**\n"
+            for sid, d in users[start:end]:
+                msg += f"• `{sid}` | {d['name'][:10]} | Lvl:{d['level']} | {d['plan']}\n"
+            kb = [[InlineKeyboardButton("⬅️ Ant", callback_data=f"adm_list_{max(0, page-1)}"), InlineKeyboardButton("Sig ➡️", callback_data=f"adm_list_{page+1}")]]
+            kb.append([InlineKeyboardButton("❌ CERRAR", callback_data="u_close")])
             await q.edit_message_text(msg, reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
-
-        elif data == "adm_bc":   await q.message.reply_text("📢 Mensaje para todos:"); ctx.user_data["state"]="WAIT_BC"
-        elif data == "adm_ban":  await q.message.reply_text("🚫 ID a banear:"); ctx.user_data["state"]="WAIT_BAN"
-        elif data == "adm_unban":await q.message.reply_text("🔓 ID a desbanear:"); ctx.user_data["state"]="WAIT_UNBAN"
-        elif data == "adm_pts":  await q.message.reply_text("💰 ID del usuario:"); ctx.user_data["state"]="WAIT_PTS_ID"
-        elif data == "adm_cp":   await q.message.reply_text("🎫 Código del cupón:"); ctx.user_data["state"]="WAIT_CP_CODE"
-        elif data == "adm_edit_plan": await q.message.reply_text("🎭 ID del usuario:"); ctx.user_data["state"]="WAIT_PLAN_EDIT_ID"
+            
+        elif data == "adm_bc":
+            await q.message.reply_text("📢 Dicta mensaje para propagación general:"); context.user_data["state"] = "WAIT_BC"
+        elif data == "adm_ban":
+            await q.message.reply_text("🚫 ID a banear del sistema:"); context.user_data["state"] = "WAIT_BAN"
+        elif data == "adm_unban":
+            await q.message.reply_text("🔓 ID a desbanear:"); context.user_data["state"] = "WAIT_UNBAN"
+        elif data == "adm_pts":
+            await q.message.reply_text("💰 ID al que fondear:"); context.user_data["state"] = "WAIT_PTS_ID"
+        elif data == "adm_cp":
+            await q.message.reply_text("🎫 Escribe la clave del nuevo cupón (Max 10 chars):"); context.user_data["state"] = "WAIT_CP_CODE"
+        elif data == "adm_edit_plan":
+            await q.message.reply_text("🎭 ID del usuario para cambiar rango:"); context.user_data["state"] = "WAIT_PLAN_EDIT_ID"
         elif data == "adm_maint":
-            db.data["system"]["maint_mode"] = not db.data["system"]["maint_mode"]; await db.save()
-            est = "ACTIVADO" if db.data["system"]["maint_mode"] else "DESACTIVADO"
-            await q.edit_message_text(f"⚠️ Mantenimiento {est}.", reply_markup=UI.overlord_panel())
+            db.data["system"]["maint_mode"] = not db.data["system"]["maint_mode"]
+            await db.save()
+            estado = "ACTIVADO" if db.data["system"]["maint_mode"] else "DESACTIVADO"
+            await q.edit_message_text(f"⚠️ Mantenimiento {estado}.", reply_markup=EmpireUI.overlord_panel(0))
+            audit_logger.log("MAINTENANCE_TOGGLED", user_id=uid, details={"state": estado})
         elif data == "adm_backup":
             await db.save()
-            with open(EmpireConfig.DATABASE_PATH,'rb') as f:
-                await ctx.bot.send_document(uid, f, caption="💾 DB Backup V500")
-        elif data == "adm_tickets":
-            open_tickets = {k:v for k,v in db.data["tickets"].items() if v["status"]=="OPEN"}
-            msg = f"📂 **TICKETS ABIERTOS ({len(open_tickets)}):**\n\n"
-            for tid,t in list(open_tickets.items())[:10]:
-                user_t = db.data["users"].get(t["uid"],{}).get("name","?")
-                msg += f"• `{tid}` — {user_t}: {t['text'][:50]}...\n"
-            kb = [[InlineKeyboardButton(f"🔒 Cerrar {tid}", callback_data=f"tc_close_{tid}")] for tid in list(open_tickets.keys())[:5]]
-            kb.append([InlineKeyboardButton("❌ CERRAR", callback_data="u_close")])
-            await q.edit_message_text(msg or "Sin tickets abiertos.", reply_markup=InlineKeyboardMarkup(kb), parse_mode="Markdown")
+            def _send_backup():
+                 return open(EmpireConfig.DATABASE_PATH, 'rb')
+            f_backup = await asyncio.to_thread(_send_backup)
+            await context.bot.send_document(uid, f_backup, caption="💾 Core Vault V401 (Respaldo Manual)")
+
+        # V401 nuevos admin callbacks
         elif data == "adm_giftcard":
             values = EmpireConfig.ECONOMY["GIFT_CARD_VALUES"]
-            kb = [[InlineKeyboardButton(f"🎁 {v:,} pts", callback_data=f"adm_giftval_{v}")] for v in values]
+            kb = [[InlineKeyboardButton(f"🎁 {v} pts", callback_data=f"adm_giftval_{v}")] for v in values]
             kb.append([InlineKeyboardButton("❌ CANCELAR", callback_data="u_close")])
-            await q.edit_message_text("🎁 **GENERAR GIFT CARD** — Elige valor:", reply_markup=InlineKeyboardMarkup(kb))
-        elif data == "adm_analytics":
+            await q.edit_message_text("🎁 **GENERAR TARJETA REGALO**\nElige el valor:", reply_markup=InlineKeyboardMarkup(kb))
+
+        elif data.startswith("adm_giftval_") and uid == EmpireConfig.ADMIN_ID:
+            val = int(data.split("_")[2])
+            code = await db.generate_gift_card(val)
+            await q.edit_message_text(f"✅ **TARJETA REGALO CREADA**\nCódigo: `{code}`\nValor: `{val} pts`\n\nCompártela con quien quieras.", reply_markup=EmpireUI.overlord_panel(), parse_mode="Markdown")
+
+        elif data == "adm_analytics" and uid == EmpireConfig.ADMIN_ID:
+            s = db.data["stats"]
             users_list = list(db.data["users"].values())
-            plan_counts= {p: sum(1 for v in users_list if v.get("plan")==p) for p in EmpireConfig.PLANS}
-            today_str  = str(datetime.date.today())
-            active_today = sum(1 for v in users_list if v.get("daily_downloads",[0,""])[1]==today_str)
-            avg_dl     = db.data["stats"]["total_downloads"] / max(db.data["stats"]["total_users"],1)
-            banned_cnt = sum(1 for v in users_list if v.get("is_banned"))
-            vip_cnt    = sum(1 for v in users_list if v.get("vip_expiry") and datetime.datetime.now() < datetime.datetime.fromisoformat(v["vip_expiry"]))
-            total_pts  = sum(v.get("points",0) for v in users_list)
+            free_c = sum(1 for u in users_list if u.get("plan") == "FREE")
+            pro_c = sum(1 for u in users_list if u.get("plan") == "PRO")
+            ultra_c = sum(1 for u in users_list if u.get("plan") == "ULTRA")
+            god_c = sum(1 for u in users_list if u.get("plan") == "GOD")
+            banned_c = sum(1 for u in users_list if u.get("is_banned"))
+            today = str(datetime.date.today())
+            active_today = sum(1 for u in users_list if u.get("daily_downloads", [0, ""])[1] == today)
+            avg_dl = s["total_downloads"] / max(s["total_users"], 1)
             msg = (
-                f"📊 **ANALÍTICAS COMPLETAS V500**\n\n"
+                f"📊 **ANALÍTICAS AVANZADAS V401**\n\n"
                 f"**Distribución de Planes:**\n"
-                + "\n".join(f"  {EmpireConfig.PLANS[p]['color']} {p}: `{plan_counts[p]}`" for p in EmpireConfig.PLANS)
-                + f"\n  🥂 VIP activos: `{vip_cnt}`\n  🚫 Baneados: `{banned_cnt}`\n\n"
+                f"• FREE: `{free_c}` | PRO: `{pro_c}` | ULTRA: `{ultra_c}` | GOD: `{god_c}`\n"
+                f"• Baneados: `{banned_c}`\n\n"
                 f"**Engagement:**\n"
-                f"  • Activos hoy: `{active_today}`\n"
-                f"  • Avg descargas/usuario: `{avg_dl:.1f}`\n"
-                f"  • Total puntos en circulación: `{total_pts:,}`\n\n"
+                f"• Activos hoy: `{active_today}`\n"
+                f"• Promedio descargas/usuario: `{avg_dl:.1f}`\n\n"
                 f"**Ingresos:**\n"
-                f"  • Stars totales: `{db.data['stats'].get('stars_revenue',0):,} ⭐️`\n"
-                f"  • Comisiones afiliado: `{db.data['stats'].get('affiliate_payouts',0):,} pts`\n"
-                f"  • Gift cards generadas: `{db.data['stats'].get('gift_cards_sold',0)}`\n"
-                f"  • Vol. P2P: `{db.data['stats'].get('p2p_volume',0):,} pts`\n\n"
+                f"• Stars totales: `{s.get('stars_revenue', 0)} ⭐️`\n"
+                f"• Comisiones afiliados pagadas: `{s.get('affiliate_payouts', 0)} pts`\n"
+                f"• Gift cards vendidas: `{s.get('gift_cards_sold', 0)}`\n"
+                f"• Premios torneos: `{s.get('tournament_prize_pool', 0)} pts`\n\n"
                 f"**Casino:**\n"
-                f"  • Total spins: `{db.data['stats'].get('casino_spins',0):,}`\n\n"
-                f"**Seguridad:**\n"
-                f"  • Fraude bloqueado: `{db.data['stats'].get('fraud_attempts_blocked',0)}`\n"
-                f"  • IPs en blacklist: `{len(sec.blocked_ips)}`"
+                f"• Total giros: `{s.get('casino_spins', 0)}`\n"
             )
-            await q.edit_message_text(msg, reply_markup=UI.overlord_panel(), parse_
+            await q.edit_message_text(msg, reply_markup=EmpireUI.overlord_panel(), parse_mode="Markdown")
+
+        elif data == "adm_vip_push" and uid == EmpireConfig.ADMIN_ID:
+            await q.message.reply_text("📣 Escribe el mensaje de push exclusivo para usuarios VIP:")
+            context.user_data["state"] = "WAIT_VIP_PUSH"
+
+        elif data == "adm_apikeys" and uid == EmpireConfig.ADMIN_ID:
+            keys = db.data.get("b2b_api_keys", {})
+            msg = f"🔑 **API KEYS ACTIVAS ({len(keys)})**\n\n"
+            for key_hash, owner_uid in list(keys.items())[:15]:
+                owner_name = db.data["users"].get(owner_uid, {}).get("name", owner_uid)[:12]
+                msg += f"• `{key_hash[:20]}...` → {owner_name}\n"
+            await q.edit_message_text(msg, reply_markup=EmpireUI.overlord_panel(), parse_mode="Markdown")
+
+    elif data.startswith("setplan_") and uid == EmpireConfig.ADMIN_ID:
+        plan = data.split("_")[1]
+        tid = context.user_data.get("target_user_id")
+        if tid in db.data["users"]:
+            db.data["users"][tid]["plan"] = plan
+            expiry = datetime.datetime.now() + datetime.timedelta(days=365) if plan not in ["FREE", "GOD"] else None
+            db.data["users"][tid]["plan_expiry"] = str(expiry) if expiry else None
+            await db.save()
+            await q.edit_message_text(f"✅ Rango de `{tid}` reescrito de forma forzada a **{plan}**.")
+            try: await context.bot.send_message(tid, f"👁️ El Director Ishak ha modificado tu existencia al rango **{plan}**.")
+            except: pass
+        context.user_data["target_user_id"] = None
+
+    elif data.startswith("tc_close_") and uid == EmpireConfig.ADMIN_ID:
+        tid = data.replace("tc_close_", "")
+        if tid in db.data["tickets"]:
+            db.data["tickets"][tid]["status"] = "CLOSED"
+            await db.save()
+            user_ticket = db.data["tickets"][tid]["uid"]
+            await q.edit_message_reply_markup(reply_markup=None)
+            await q.message.reply_text(f"✅ Ticket {tid} clausurado.")
+            try: await context.bot.send_message(user_ticket, f"✅ Tu ticket `{tid}` ha sido resuelto por el Alto Mando.")
+            except: pass
+
+    elif data.startswith("fmt_"):
+        mode = data.split("_")[1]
+        if mode == "back": return await q.edit_message_text("🎬 Selecciona formato:", reply_markup=EmpireUI.format_selector())
+        context.user_data["active_fmt"] = mode
+        
+        if mode in ["MP3", "MP3U", "GIF", "VOICE", "VNOA"]: 
+            await finalize_download(update, context)
+        else: 
+            await q.edit_message_text("🎥 Selecciona resolución óptica:", reply_markup=EmpireUI.quality_selector(u_data["plan"]))
+
+    elif data.startswith("ql_"):
+        context.user_data["active_qlty"] = data.split("_")[1]
+        await finalize_download(update, context)
+
+    elif data.startswith("lb_"):
+        cat = data.split("_")[1]
+        cat_names = {"points": "Puntos", "downloads": "Descargas", "referrals": "Referidos", "affiliate": "Afiliados"}
+        top = await db.get_leaderboard(cat, 10)
+        medals = ["🥇", "🥈", "🥉"] + ["4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟"]
+        msg = f"🏆 **TOP 10 - {cat_names.get(cat, cat).upper()}**\n\n"
+        for i, (name, username, val) in enumerate(top):
+            uname_str = f"@{username}" if username else name
+            msg += f"{medals[i]} `{val:,}` — {uname_str[:20]}\n"
+        await q.edit_message_text(msg, reply_markup=EmpireUI.leaderboard_panel(), parse_mode="Markdown")
+
+    elif data.startswith("tour_"):
+        action = data.split("_")[1]
+        t = db.data["system"].get("tournament", {})
+        
+        if action == "rank":
+            parts_t = t.get("participants", {})
+            if not parts_t:
+                await q.answer("No hay participantes aún.", show_alert=True)
+            else:
+                sorted_p = sorted(parts_t.items(), key=lambda x: x[1], reverse=True)[:10]
+                msg = "🏟️ **CLASIFICACIÓN TORNEO**\n\n"
+                medals = ["🥇","🥈","🥉"] + ["4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣","🔟"]
+                for i, (puid, score) in enumerate(sorted_p):
+                    pname = db.data["users"].get(puid, {}).get("name", puid)[:15]
+                    msg += f"{medals[i]} `{score}` pts — {pname}\n"
+                await q.edit_message_text(msg, reply_markup=EmpireUI.tournament_panel(), parse_mode="Markdown")
+        
+        elif action == "prizes":
+            pool = t.get("prize_pool", 0)
+            msg = (f"🏆 **PREMIOS TORNEO**\n\n"
+                   f"Bote total: `{pool} pts`\n\n"
+                   f"🥇 1er lugar: `{int(pool*0.5)} pts`\n"
+                   f"🥈 2do lugar: `{int(pool*0.3)} pts`\n"
+                   f"🥉 3er lugar: `{int(pool*0.2)} pts`\n\n"
+                   f"*Por cada descarga durante el torneo acumulas puntos en el ranking.*")
+            await q.edit_message_text(msg, reply_markup=EmpireUI.tournament_panel(), parse_mode="Markdown")
+
+        elif action == "start" and uid == EmpireConfig.ADMIN_ID:
+            hours = int(data.split("_")[2])
+            await db.start_tournament(duration_hours=hours, prize_pool_seed=5000)
+            await q.edit_message_text(f"✅ ¡Torneo iniciado! Duración: {hours}h. Bote inicial: 5,000 pts.\n\nSe notificará a todos los usuarios.", reply_markup=EmpireUI.admin_tournament_panel())
+            # broadcast
+            for sid in list(db.data["users"].keys()):
+                try:
+                    await context.bot.send_message(sid, f"🏟️ **¡TORNEO IMPERIAL INICIADO!**\n⏰ Duración: {hours} horas.\nCada descarga suma al ranking.\nPremios: hasta {5000 * int(hours // 24 + 1)} pts para el 1er lugar.\n¡Empieza a descargar ahora!")
+                    await asyncio.sleep(0.04)
+                except: pass
+
+        elif action == "end" and uid == EmpireConfig.ADMIN_ID:
+            winners = await db.finalize_tournament()
+            if winners:
+                msg = "🏁 **TORNEO FINALIZADO**\n\nGanadores:\n"
+                for i, (wuid, score, prize) in enumerate(winners):
+                    wname = db.data["users"].get(wuid, {}).get("name", wuid)[:15]
+                    medals = ["🥇","🥈","🥉"]
+                    msg += f"{medals[i]} {wname} — {score} pts → +{prize} pts\n"
+                await q.edit_message_text(msg, reply_markup=EmpireUI.admin_tournament_panel())
+                for wuid, score, prize in winners:
+                    try:
+                        await context.bot.send_message(wuid, f"🏆 ¡Felicidades! Has ganado el torneo. Premio: **+{prize} pts**.")
+                    except: pass
+            else:
+                await q.edit_message_text("❌ Torneo finalizado sin participantes.", reply_markup=EmpireUI.admin_tournament_panel())
+
+    elif data.startswith("vip_"):
+        vip_action = data.split("_")[1]
+        vip_exp = u_data.get("vip_expiry")
+        is_vip = vip_exp and datetime.datetime.now() < datetime.datetime.fromisoformat(vip_exp)
+        if not is_vip and vip_action != "join":
+            await q.answer("❌ Acceso VIP requerido.", show_alert=True)
+        elif vip_action == "stats":
+            user_rank = sorted(db.data["users"].values(), key=lambda x: x.get("points", 0), reverse=True)
+            rank_pos = next((i+1 for i, u in enumerate(user_rank) if str(u.get("id")) == uid_str), "?")
+            msg = (f"📊 **TUS ESTADÍSTICAS VIP**\n\n"
+                   f"Posición global: `#{rank_pos}`\n"
+                   f"Total descargas: `{u_data.get('total_downloads', 0)}`\n"
+                   f"Ganancias afiliados: `{u_data.get('affiliate_earnings', 0)} pts`\n"
+                   f"Stars gastadas: `{u_data.get('total_spent_stars', 0)}`\n"
+                   f"Racha máxima registrada: `{u_data.get('streak', 0)} días`")
+            await q.answer()
+            await q.message.reply_text(msg, parse_mode="Markdown")
+        elif vip_action == "gift":
+            values = EmpireConfig.ECONOMY["GIFT_CARD_VALUES"]
+            kb = [[InlineKeyboardButton(f"🎁 {v} pts ({v//50} ⭐️)", callback_data=f"vip_giftbuy_{v}")] for v in values]
+            kb.append([InlineKeyboardButton("❌ CANCELAR", callback_data="u_close")])
+            await q.edit_message_text("🎁 **COMPRAR TARJETA REGALO**\nElige el valor:", reply_markup=InlineKeyboardMarkup(kb))
+        elif vip_action == "giftbuy":
+            val = int(data.split("_")[2])
+            cost_stars = val // 50
+            # generar y enviar tarjeta como invoice Stars
+            code = await db.generate_gift_card(val)
+            await q.edit_message_text(f"✅ Tarjeta regalo generada:\nCódigo: `{code}`\nValor: `{val} pts`\n\nComparte este código con quien quieras.", parse_mode="Markdown")
+        elif vip_action == "unlimited":
+            if u_data.get("plan") not in ["ULTRA", "GOD"]:
+                # VIP bonus: resetear límite diario
+                u_data["daily_downloads"] = [0, str(datetime.date.today())]
+                await db.save()
+                await q.answer("✅ ¡Límite diario reseteado! Puedes descargar de nuevo.", show_alert=True)
+            else:
+                await q.answer("Ya tienes descargas ilimitadas con tu plan.", show_alert=True)
+
+    elif data == "u_close":
+        try: await q.message.delete()
+        except: pass
+
+
+async def gift_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Comando /gift para regalar una tarjeta. /gift <código> <@usuario_o_id>"""
+    user = update.effective_user
+    uid_str = str(user.id)
+    u_data, _ = await db.get_user(user)
+    
+    if not context.args or len(context.args) < 1:
+        await update.message.reply_text(
+            "🎁 **SISTEMA DE TARJETAS REGALO**\n\n"
+            "Uso:\n"
+            "`/gift <código>` — canjea tu propia tarjeta\n"
+            "`/gift <código> <ID_usuario>` — regala el código a otro usuario\n\n"
+            "Compra tarjetas en ⭐️ Tienda Oficial.", parse_mode="Markdown"
+        )
+        return
+    
+    code = context.args[0].strip().upper()
+    
+    if len(context.args) >= 2:
+        # regalar a otro usuario
+        target_id = context.args[1].strip().replace("@", "")
+        target_uid = None
+        for uid_k, u in db.data["users"].items():
+            if str(u.get("id")) == target_id or u.get("username", "").lower() == target_id.lower():
+                target_uid = uid_k
+                break
+        
+        if not target_uid:
+            await update.message.reply_text("❌ Usuario no encontrado.")
+            return
+        
+        success, msg = await db.redeem_gift_card(target_uid, code)
+        if success:
+            target_name = db.data["users"][target_uid].get("name", "Usuario")
+            await update.message.reply_text(f"🎁 ¡Tarjeta enviada a **{target_name}**!\n{msg}", parse_mode="Markdown")
+            try:
+                await context.bot.send_message(target_uid, f"🎁 **¡Has recibido un regalo de {user.first_name}!**\n{msg}", parse_mode="Markdown")
+            except: pass
+        else:
+            await update.message.reply_text(f"❌ {msg}")
+    else:
+        # canjear para sí mismo
+        success, msg = await db.redeem_gift_card(uid_str, code)
+        await update.message.reply_text(msg, parse_mode="Markdown")
+
+async def coupon_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Comando /coupon <código> para canjear un cupón de plan."""
+    user = update.effective_user
+    uid_str = str(user.id)
+    u_data, _ = await db.get_user(user)
+    
+    if not context.args:
+        await update.message.reply_text("Uso: `/coupon CÓDIGO`", parse_mode="Markdown")
+        return
+    
+    code = context.args[0].strip().upper()
+    if code in db.data["coupons"]:
+        coupon_data = db.data["coupons"][code]
+        if isinstance(coupon_data, dict) and coupon_data.get("type") == "gift_card":
+            success, msg = await db.redeem_gift_card(uid_str, code)
+            await update.message.reply_text(msg, parse_mode="Markdown")
+        elif isinstance(coupon_data, str):
+            plan = coupon_data
+            if plan in EmpireConfig.PLANS:
+                u_data["plan"] = plan
+                expiry = datetime.datetime.now() + datetime.timedelta(days=30)
+                u_data["plan_expiry"] = str(expiry) if plan not in ["FREE", "GOD"] else None
+                del db.data["coupons"][code]
+                await db.save()
+                await update.message.reply_text(f"✅ ¡Cupón **{code}** canjeado! Plan **{plan}** activo 30 días.", parse_mode="Markdown")
+            else:
+                await update.message.reply_text("❌ Cupón con plan inválido.")
+        else:
+            await update.message.reply_text("❌ Tipo de cupón desconocido.")
+    else:
+        await update.message.reply_text("❌ Código incorrecto o ya usado.")
+
+async def stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Comando /stats para ver estadísticas personales detalladas."""
+    user = update.effective_user
+    uid_str = str(user.id)
+    u_data, _ = await db.get_user(user)
+    
+    # Calcular ranking
+    all_users = sorted(db.data["users"].values(), key=lambda x: x.get("points", 0), reverse=True)
+    rank = next((i+1 for i, u in enumerate(all_users) if str(u.get("id")) == uid_str), "?")
+    
+    tier2_count = len(u_data.get("referrals_tier2", []))
+    
+    msg = (
+        f"📊 **ESTADÍSTICAS DETALLADAS V401**\n\n"
+        f"**General:**\n"
+        f"• Ranking global: `#{rank}`\n"
+        f"• Nivel: `{u_data['level']}` (XP: `{u_data['xp']}`)\n"
+        f"• Puntos totales: `{u_data['points']:,}`\n\n"
+        f"**Descargas:**\n"
+        f"• Hoy: `{u_data['daily_downloads'][0]}`\n"
+        f"• Total histórico: `{u_data.get('total_downloads', 0):,}`\n\n"
+        f"**Afiliados:**\n"
+        f"• Referidos Tier-1: `{u_data.get('referrals', 0)}`\n"
+        f"• Referidos Tier-2: `{tier2_count}`\n"
+        f"• Ganancias afiliado: `{u_data.get('affiliate_earnings', 0):,} pts`\n\n"
+        f"**Engagement:**\n"
+        f"• Racha actual: `{u_data.get('streak', 0)} días 🔥`\n"
+        f"• Casino jugadas: `{u_data['stats'].get('casino_played', 0)}`\n"
+        f"• Stars gastadas: `{u_data.get('total_spent_stars', 0)}`\n"
+        f"• Logros: `{len(u_data.get('achievements', []))} / {len(EmpireConfig.ACHIEVEMENTS)}`\n"
+    )
+    await update.message.reply_text(msg, parse_mode="Markdown")
+    current_mult = 1.00
+    try:
+        while current_mult < crash_point:
+            await asyncio.sleep(1.2) 
+            
+            if context.user_data.get("crash_point") == -1: return
+            
+            if current_mult < 2.0: current_mult += 0.2
+            elif current_mult < 5.0: current_mult += 0.5
+            elif current_mult < 10.0: current_mult += 1.0
+            else: current_mult += 2.5
+            
+            if current_mult >= crash_point: break
+            
+            msg = f"📈 **CRIPTO CRASH (Apuesta: {bet})**\nEl cohete está subiendo...\nMultiplicador actual: `{current_mult:.2f}x`"
+            await bot.edit_message_text(msg, chat_id=chat_id, message_id=message_id, reply_markup=EmpireUI.crash_panel(bet, current_mult))
+            
+        if context.user_data.get("crash_point") != -1:
+            context.user_data["crash_point"] = -1
+            msg = f"💥 **¡CRASH!**\nEl cohete explotó en `{crash_point:.2f}x`.\n💀 Perdiste tu apuesta de {bet} pts."
+            await bot.edit_message_text(msg, chat_id=chat_id, message_id=message_id, reply_markup=EmpireUI.casino_panel())
+    except Exception as e:
+        logger.error(f"Error en Crash tick: {e}")
+        alert_system.track_error()
+
+# =================================================================
+# [10] MOTOR DE DESCARGA TITÁN (ARCHIVOS, VOZ, GIF) + GARBAGE COLLECTOR
+# =================================================================
+async def finalize_download(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    q = update.callback_query
+    uid = q.from_user.id
+    uid_str = str(uid)
+    url = context.user_data.get("active_url")
+    fmt = context.user_data.get("active_fmt")
+    qlty = context.user_data.get("active_qlty", "720p")
+    u_data, _ = await db.get_user(q.from_user)
+
+    plan_info = EmpireConfig.PLANS[u_data["plan"]]
+    max_size = plan_info["max_file_mb"]
+
+    msg = await q.edit_message_text(f"⚡ **MOTOR V400 INICIADO...**\n`[{fmt} | {qlty}]`")
+    job_id = f"job_{uid_str}_{uuid.uuid4().hex[:6]}"
+    progress_tracker.add_job(job_id, msg)
+    
+    try:
+        success, path, title, duration, f_size, err_msg = await asyncio.wait_for(
+            MediaEngine.run(url, fmt, qlty, uid_str, max_size, job_id, u_data['settings']),
+            timeout=600.0
+        )
+        
+        if job_id in progress_tracker.active_jobs:
+            progress_tracker.active_jobs[job_id]['finished'] = True
+            
+        if not success:
+            await msg.edit_text(f"❌ **ERROR DEL NÚCLEO EXTRACCIÓN:**\n{err_msg}")
+            return
+        
+        size_mb = f_size / (1024 * 1024)
+        if size_mb > max_size:
+            if os.path.exists(path):
+                await asyncio.to_thread(os.remove, path)
+            await msg.edit_text(f"❌ Archivo excede límite de {max_size}MB de tu rango {u_data['plan']}.")
+            return
+
+        await msg.edit_text("📤 **SUBIENDO AL SATÉLITE CORPORATIVO...**", parse_mode="Markdown")
+        
+        def _get_file_reader():
+            return open(path, 'rb')
+            
+        with await asyncio.to_thread(_get_file_reader) as f:
+            wm_text = f"\n©️ Marca de Agua: `{u_data['settings']['watermark']}`" if u_data['settings'].get('watermark') else ""
+            veo3_note = "\n🇪🇸 *Regla Directiva Absoluta: Español (Veo3).* " if "veo3" in url.lower() else ""
+            cap = (
+                f"✅ **{title[:50]}...**\n"
+                f"⏱️ `{str(datetime.timedelta(seconds=duration))}` | 💾 `{size_mb:.1f} MB`{wm_text}{veo3_note}\n"
+            )
+            
+            if u_data['settings'].get('send_as_doc'):
+                await context.bot.send_document(uid, f, caption=cap, parse_mode="Markdown", read_timeout=300)
+            elif fmt in ["MP3", "MP3U"]: 
+                await context.bot.send_audio(uid, f, caption=cap, parse_mode="Markdown", read_timeout=120)
+            elif fmt == "VOICE":
+                await context.bot.send_voice(uid, f, caption=cap, parse_mode="Markdown", read_timeout=120)
+            elif fmt == "GIF":
+                await context.bot.send_animation(uid, f, caption=cap, parse_mode="Markdown", read_timeout=300)
+            else: 
+                await context.bot.send_video(uid, f, caption=cap, parse_mode="Markdown", read_timeout=300, supports_streaming=True)
+
+        u_data["daily_downloads"][0] += 1
+        u_data["total_downloads"] = u_data.get("total_downloads", 0) + 1
+        db.data["stats"]["total_downloads"] += 1
+        await db.save()
+        await db.update_bounty(uid_str, "dl_3", 1)
+        await db.add_xp(uid_str, EmpireConfig.ECONOMY["XP_PER_DOWNLOAD"])
+        
+        # V401: puntuar torneo
+        asyncio.create_task(db.add_tournament_score(uid_str, 1))
+        
+        # V401: logros por descargas
+        total_dl = u_data.get("total_downloads", 0)
+        if total_dl == 1 and "FIRST_BLOOD" not in u_data.get("achievements", []):
+            u_data.setdefault("achievements", []).append("FIRST_BLOOD")
+            u_data["points"] += EmpireConfig.ACHIEVEMENTS["FIRST_BLOOD"]["reward"]
+            try: await context.bot.send_message(uid, "🏆 ¡LOGRO: Primera Sangre! +500 pts")
+            except: pass
+        if total_dl >= 100 and "CENTURION" not in u_data.get("achievements", []):
+            u_data.setdefault("achievements", []).append("CENTURION")
+            u_data["points"] += EmpireConfig.ACHIEVEMENTS["CENTURION"]["reward"]
+            try: await context.bot.send_message(uid, "🏆 ¡LOGRO: Centurión! 100 descargas. +5000 pts")
+            except: pass
+        if total_dl >= 500 and "DOWNLOADER_500" not in u_data.get("achievements", []):
+            u_data.setdefault("achievements", []).append("DOWNLOADER_500")
+            u_data["points"] += EmpireConfig.ACHIEVEMENTS["DOWNLOADER_500"]["reward"]
+            try: await context.bot.send_message(uid, "🏆 ¡LOGRO LEGENDARIO: Extractor 500! +25,000 pts")
+            except: pass
+        await db.save()
+        
+        if os.path.exists(path):
+            await asyncio.to_thread(os.remove, path)
+            
+        try: await msg.delete()
+        except: pass
+
+    except asyncio.TimeoutError:
+        if job_id in progress_tracker.active_jobs: progress_tracker.active_jobs[job_id]['finished'] = True
+        logger.error(f"⌛ Timeout B2B superado para job {job_id} por UID: {uid}.")
+        await msg.edit_text("❌ **ERROR DE SISTEMA:**\nServidor de Extracción Saturado. La operación superó el límite de tiempo.")
+        alert_system.track_error()
+        
+    except Exception as e:
+        if job_id in progress_tracker.active_jobs: progress_tracker.active_jobs[job_id]['finished'] = True
+        logger.error(f"Fallo general asíncrono UID {uid}: {e}")
+        await msg.edit_text(f"❌ **ERROR DE SISTEMA:**\nFallo crítico en la matriz B2B.")
+        alert_system.track_error()
+    
+    finally:
+        gc.collect()
+        logger.info(f"🧹 [MEMORY PURGE] Garbage Collector V400 ha liberado memoria para el job {job_id}.")
+
+# =================================================================
+# [11] PANEL SAAS WEB MEGA-EXPANDIDO (B2B API & DASHBOARD)
+# =================================================================
+web_app = Flask("Ishak_Enterprise_Web")
+CORS_APP(web_app)
+
+LANDING_HTML = """
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ishak Enterprise V400 | B2B Media Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+        body { background-color: #020617; color: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .glass-panel { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glow-text { text-shadow: 0 0 15px rgba(56, 189, 248, 0.8); }
+        .gradient-text { background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-bg { background: radial-gradient(circle at center, rgba(56, 189, 248, 0.15) 0%, transparent 60%); }
+        code { font-family: 'Courier New', Courier, monospace; }
+        .api-block { background: #0f172a; padding: 1rem; border-left: 4px solid #38bdf8; border-radius: 4px; }
+        .health-ok { color: #22c55e; }
+        .health-degraded { color: #facc15; }
+        .health-down { color: #ef4444; }
+    </style>
+</head>
+<body class="antialiased">
+    <nav class="fixed w-full z-50 glass-panel py-4 px-8 flex justify-between items-center border-b border-slate-800">
+        <div class="text-2xl font-extrabold tracking-tighter">
+            <i class="fas fa-cube text-blue-500 mr-2"></i> ISHAK<span class="text-blue-500">.V400</span>
+        </div>
+        <div class="hidden md:flex space-x-6">
+            <a href="#dashboard" class="hover:text-blue-400 transition">Dashboard</a>
+            <a href="#api" class="hover:text-blue-400 transition">API REST</a>
+            <a href="#health" class="hover:text-blue-400 transition">Health & Metrics</a>
+        </div>
+        <button class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg font-semibold transition shadow-lg shadow-blue-500/30">
+            Admin Login
+        </button>
+    </nav>
+
+    <div class="relative min-h-screen flex items-center justify-center pt-20 hero-bg">
+        <div class="absolute w-96 h-96 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 top-10 left-10 animate-blob"></div>
+        <div class="absolute w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 bottom-10 right-10 animate-blob" style="animation-delay: 2s"></div>
+        
+        <div class="z-10 text-center px-4 max-w-5xl glass-panel p-16 rounded-[2rem] shadow-2xl border border-slate-700/50 relative overflow-hidden">
+            <div class="absolute top-0 right-0 bg-blue-500 text-xs font-bold px-3 py-1 rounded-bl-lg">LIVE</div>
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight"><span class="gradient-text">INFRAESTRUCTURA B2B</span> DEFINITIVA</h1>
+            <p class="text-xl md:text-2xl text-slate-400 mb-10 max-w-3xl mx-auto font-light">
+                Motor de extracción multimedia y transacciones criptográficas. Valoración de mercado: <strong class="text-white">€250,000</strong>.
+                Creado y dirigido por <strong class="text-blue-400 glow-text">Ishak Ezzahouani (18)</strong> en España.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10 text-left">
+                <div class="bg-slate-900/60 p-8 rounded-2xl border border-slate-700 hover:border-blue-500 transition-colors">
+                    <i class="fas fa-server text-4xl text-blue-400 mb-4 drop-shadow-md"></i>
+                    <h3 class="text-xl font-bold mb-2">Motor Asíncrono</h3>
+                    <p class="text-sm text-slate-400">Procesamiento de peticiones concurrentes con optimización de memoria (Garbage Collector automático).</p>
+                </div>
+                <div class="bg-slate-900/60 p-8 rounded-2xl border border-slate-700 hover:border-purple-500 transition-colors">
+                    <i class="fas fa-shield-virus text-4xl text-purple-400 mb-4 drop-shadow-md"></i>
+                    <h3 class="text-xl font-bold mb-2">Self-Healing Core</h3>
+                    <p class="text-sm text-slate-400">La base de datos se repara automáticamente. Bloqueos Anti-DDoS y validación estricta de variables.</p>
+                </div>
+                <div class="bg-slate-900/60 p-8 rounded-2xl border border-slate-700 hover:border-green-500 transition-colors">
+                    <i class="fas fa-chart-line text-4xl text-green-400 mb-4 drop-shadow-md"></i>
+                    <h3 class="text-xl font-bold mb-2">Economía Real</h3>
+                    <p class="text-sm text-slate-400">Integración de Telegram Stars nativo y sistema de fluctuación de criptomoneda interna.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="health" class="py-16 bg-slate-900/50 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-8 text-center gradient-text">ESTADO DEL SISTEMA</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="health-metrics">
+                <div class="glass-panel p-6 rounded-xl text-center">
+                    <div class="text-3xl mb-2" id="h-status">✅</div>
+                    <div class="text-sm text-slate-400">Estado General</div>
+                </div>
+                <div class="glass-panel p-6 rounded-xl text-center">
+                    <div class="text-3xl mb-2" id="h-latency">0ms</div>
+                    <div class="text-sm text-slate-400">Latencia</div>
+                </div>
+                <div class="glass-panel p-6 rounded-xl text-center">
+                    <div class="text-3xl mb-2" id="h-uptime">0%</div>
+                    <div class="text-sm text-slate-400">Uptime</div>
+                </div>
+                <div class="glass-panel p-6 rounded-xl text-center">
+                    <div class="text-3xl mb-2" id="h-queue">0</div>
+                    <div class="text-sm text-slate-400">Cola Activa</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard" class="py-24 bg-slate-950 border-t border-slate-900">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-16 gradient-text">MÉTRICAS EN TIEMPO REAL</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-blue-500/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                    <div class="text-5xl font-black text-blue-400 mb-2 font-mono" id="val-users">0</div>
+                    <div class="text-sm font-semibold text-slate-500 uppercase tracking-widest">Ciudadanos</div>
+                </div>
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-purple-500/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                    <div class="text-5xl font-black text-purple-400 mb-2 font-mono" id="val-downloads">0</div>
+                    <div class="text-sm font-semibold text-slate-500 uppercase tracking-widest">Extracciones</div>
+                </div>
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-green-500/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                    <div class="text-5xl font-black text-green-400 mb-2 font-mono" id="val-revenue">0</div>
+                    <div class="text-sm font-semibold text-slate-500 uppercase tracking-widest">Stars Revenue</div>
+                </div>
+                <div class="glass-panel p-8 rounded-2xl relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-yellow-500/10 translate-y-full group-hover:translate-y-0 transition-transform"></div>
+                    <div class="text-5xl font-black text-yellow-400 mb-2 font-mono" id="val-crypto">0.00</div>
+                    <div class="text-sm font-semibold text-slate-500 uppercase tracking-widest">IshakCoin (Pts)</div>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-panel p-6 rounded-2xl text-left">
+                    <h3 class="text-lg font-bold mb-4 text-slate-300">Fluctuación de Mercado (IshakCoin)</h3>
+                    <canvas id="cryptoChart" height="150"></canvas>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl text-left">
+                    <h3 class="text-lg font-bold mb-4 text-slate-300">Auditoría y Seguridad</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <span class="text-slate-400">Intentos Fraude (Bloqueados)</span>
+                            <span class="font-mono text-red-400 font-bold" id="val-fraud">0</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <span class="text-slate-400">Reparaciones de Base de Datos</span>
+                            <span class="font-mono text-blue-400 font-bold" id="val-fixes">0</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                            <span class="text-slate-400">Giros Totales Casino</span>
+                            <span class="font-mono text-purple-400 font-bold" id="val-casino">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="api" class="py-24 bg-[#020617]">
+        <div class="max-w-5xl mx-auto px-4">
+            <h2 class="text-3xl font-bold mb-8 gradient-text">DOCUMENTACIÓN B2B API (REAL)</h2>
+            <div class="glass-panel p-8 rounded-2xl mb-8">
+                <div class="flex items-center mb-6">
+                    <span class="bg-green-600 text-white text-xs font-bold px-3 py-1 rounded mr-4">POST</span>
+                    <h3 class="text-xl font-mono text-slate-200">/api/v1/extract</h3>
+                </div>
+                <p class="text-slate-400 mb-4">
+                    Endpoint corporativo para extracción pura de enlaces CDN de plataformas de vídeo. 
+                    Requiere cabecera de autorización con una <code class="text-blue-400">API Key</code> hasheada en formato SHA-256 en nuestra base de datos.
+                </p>
+                <div class="api-block text-sm text-slate-300 overflow-x-auto">
+<pre>curl -X POST https://api.ishak-enterprise.com/api/v1/extract \\
+  -H "Content-Type: application/json" \\
+  -H "X-API-KEY: sk_live_ejemplo1234" \\
+  -d '{"url": "https://www.ejemplo.com/video"}'</pre>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass-panel p-8 rounded-2xl">
+                    <h4 class="font-bold text-lg mb-4 text-slate-300">Respuestas Exitosas (200)</h4>
+                    <div class="api-block text-xs text-green-300 overflow-x-auto">
+<pre>{
+  "status": "success",
+  "code": 200,
+  "data": {
+    "title": "Video Título",
+    "direct_cdn_url": "https://cdn...",
+    "duration": 120
+  }
+}</pre>
+                    </div>
+                </div>
+                <div class="glass-panel p-8 rounded-2xl">
+                    <h4 class="font-bold text-lg mb-4 text-slate-300">Manejo de Errores (4xx/5xx)</h4>
+                    <div class="api-block text-xs text-red-300 overflow-x-auto">
+<pre>{
+  "error": "No autorizado. Clave ausente o revocada.",
+  "status": 401
+}
+// Rate limit (Anti-DDoS) -> 429
+// Fallo extracción matriz -> 500</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="py-12 bg-slate-950 border-t border-slate-900 text-center text-slate-500">
+        <p class="mb-2">© 2026 Ishak Enterprise V400. Todos los derechos reservados.</p>
+        <p class="text-sm">Sistema blindado y gobernado por Ishak Ezzahouani (Director, España).</p>
+    </footer>
+
+    <script>
+        const ctx = document.getElementById('cryptoChart').getContext('2d');
+        const cryptoChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(20).fill(''),
+                datasets: [{
+                    label: 'Valor IshakCoin (Pts)',
+                    data: Array(20).fill(150),
+                    borderColor: '#38bdf8',
+                    backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { 
+                        display: true, 
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#94a3b8' }
+                    }
+                },
+                animation: { duration: 0 }
+            }
+        });
+
+        async function fetchMetrics() {
+            try {
+                const start = performance.now();
+                const res = await fetch('/api/v4/metrics');
+                const data = await res.json();
+                const latency = Math.round(performance.now() - start);
+                
+                document.getElementById('val-users').innerText = data.metrics.users;
+                document.getElementById('val-downloads').innerText = data.metrics.downloads;
+                document.getElementById('val-revenue').innerText = data.metrics.revenue + " ⭐️";
+                document.getElementById('val-crypto').innerText = data.metrics.crypto.toFixed(2);
+                document.getElementById('val-fraud').innerText = data.metrics.fraud_blocked;
+                document.getElementById('val-fixes').innerText = data.metrics.self_healing;
+                document.getElementById('val-casino').innerText = data.metrics.casino_spins;
+
+                // Health
+                document.getElementById('h-latency').innerText = latency + 'ms';
+                document.getElementById('h-status').innerText = data.health === 'ok' ? '✅' : '⚠️';
+                
+                const chartData = cryptoChart.data.datasets[0].data;
+                chartData.push(data.metrics.crypto);
+                if (chartData.length > 20) chartData.shift();
+                cryptoChart.update();
+
+            } catch (e) { 
+                console.log("Core sync error - Posible Firewall activado."); 
+            }
+        }
+        
+        fetchMetrics();
+        setInterval(fetchMetrics, 5000); 
+    </script>
+</body>
+</html>
+"""
+
+@web_app.route('/', methods=['GET'])
+def index():
+    return render_template_string(LANDING_HTML)
+
+@web_app.route('/api/v4/metrics', methods=['GET'])
+def api_metrics():
+    boot_time = datetime.datetime.fromisoformat(db.data["stats"]["boot_time"])
+    uptime_hours = (datetime.datetime.now() - boot_time).total_seconds() / 3600
+    return jsonify({
+        "status": "ONLINE",
+        "health": "ok" if psutil.cpu_percent() < 90 else "degraded",
+        "metrics": {
+            "users": db.data["stats"]["total_users"],
+            "downloads": db.data["stats"]["total_downloads"],
+            "revenue": db.data["stats"].get("stars_revenue", 0),
+            "crypto": db.data["market_stats"]["crypto_value"],
+            "fraud_blocked": db.data["stats"].get("fraud_attempts_blocked", 0),
+            "self_healing": db.data["stats"].get("self_healing_fixes", 0),
+            "casino_spins": db.data["stats"].get("casino_spins", 0),
+            "cpu_percent": psutil.cpu_percent(),
+            "memory_percent": psutil.virtual_memory().percent,
+            "uptime_hours": round(uptime_hours, 2)
+        }
+    })
+
+# [4] HEALTH CHECKS ENDPOINTS
+@web_app.route('/health', methods=['GET'])
+def health_check():
+    """Health check para Kubernetes/Cloud orquestadores."""
+    db_ok = os.path.exists(EmpireConfig.DATABASE_PATH)
+    disk_ok = psutil.disk_usage('/').percent < 90
+    mem_ok = psutil.virtual_memory().percent < 90
+    
+    status = "ok" if (db_ok and disk_ok and mem_ok) else "degraded"
+    code = 200 if status == "ok" else 503
+    
+    return jsonify({
+        "status": status,
+        "version": EmpireConfig.VERSION,
+        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "checks": {
+            "database": "ok" if db_ok else "fail",
+            "disk": "ok" if disk_ok else "fail",
+            "memory": "ok" if mem_ok else "fail"
+        }
+    }), code
+
+@web_app.route('/ready', methods=['GET'])
+def readiness_check():
+    """Readiness probe para saber si el bot puede recibir tráfico."""
+    return jsonify({"ready": True, "polling": "active"}), 200
+
+# [12] PROMETHEUS METRICS
+@web_app.route('/metrics', methods=['GET'])
+def prometheus_metrics():
+    """Métricas en formato Prometheus para Grafana."""
+    boot_time = datetime.datetime.fromisoformat(db.data["stats"]["boot_time"])
+    uptime_seconds = (datetime.datetime.now() - boot_time).total_seconds()
+    
+    lines = [
+        "# HELP ishak_users_total Total number of registered users",
+        "# TYPE ishak_users_total gauge",
+        f'ishak_users_total {db.data["stats"]["total_users"]}',
+        "# HELP ishak_downloads_total Total media downloads",
+        "# TYPE ishak_downloads_total counter",
+        f'ishak_downloads_total {db.data["stats"]["total_downloads"]}',
+        "# HELP ishak_revenue_stars_total Total stars revenue",
+        "# TYPE ishak_revenue_stars_total counter",
+        f'ishak_revenue_stars_total {db.data["stats"].get("stars_revenue", 0)}',
+        "# HELP ishak_crypto_value Current value of IshakCoin",
+        "# TYPE ishak_crypto_value gauge",
+        f'ishak_crypto_value {db.data["market_stats"]["crypto_value"]}',
+        "# HELP ishak_uptime_seconds System uptime in seconds",
+        "# TYPE ishak_uptime_seconds counter",
+        f'ishak_uptime_seconds {int(uptime_seconds)}',
+        "# HELP ishak_cpu_usage_percent Current CPU usage",
+        "# TYPE ishak_cpu_usage_percent gauge",
+        f'ishak_cpu_usage_percent {psutil.cpu_percent()}',
+        "# HELP ishak_memory_usage_percent Current memory usage",
+        "# TYPE ishak_memory_usage_percent gauge",
+        f'ishak_memory_usage_percent {psutil.virtual_memory().percent}',
+        "# HELP ishak_disk_usage_percent Current disk usage",
+        "# TYPE ishak_disk_usage_percent gauge",
+        f'ishak_disk_usage_percent {psutil.disk_usage("/").percent}',
+        "# HELP ishak_fraud_blocked_total Total fraud attempts blocked",
+        "# TYPE ishak_fraud_blocked_total counter",
+        f'ishak_fraud_blocked_total {db.data["stats"].get("fraud_attempts_blocked", 0)}',
+    ]
+    return Response('\n'.join(lines) + '\n', mimetype='text/plain')
+
+# [19] OPENAPI/SWAGGER DOCUMENTATION
+@web_app.route('/api/docs', methods=['GET'])
+def api_docs():
+    """Documentación interactiva OpenAPI/Swagger generada dinámicamente."""
+    return render_template_string("""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ishak Enterprise API Docs</title>
+    <script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css" />
+    <style>body { margin: 0; }</style>
+</head>
+<body>
+    <div id="swagger-ui"></div>
+    <script>
+        const spec = {{ spec|tojson }};
+        SwaggerUIBundle({
+            spec: spec,
+            dom_id: '#swagger-ui',
+            layout: 'BaseLayout',
+            deepLinking: true
+        });
+    </script>
+</body>
+</html>
+    """, spec={
+        "openapi": "3.0.3",
+        "info": {
+            "title": "Ishak Enterprise B2B API",
+            "version": "400.2",
+            "description": "API REST para extracción multimedia y gestión de infraestructura.",
+            "contact": {"name": "Ishak Ezzahouani", "email": "admin@ishak-enterprise.com"}
+        },
+        "servers": [{"url": "https://api.ishak-enterprise.com"}],
+        "paths": {
+            "/api/v1/extract": {
+                "post": {
+                    "summary": "Extraer enlace CDN de vídeo",
+                    "security": [{"ApiKeyAuth": []}],
+                    "requestBody": {
+                        "required": True,
+                        "content": {"application/json": {"schema": {"type": "object", "properties": {"url": {"type": "string", "format": "uri"}}}}}
+                    },
+                    "responses": {
+                        "200": {"description": "Extracción exitosa"},
+                        "401": {"description": "No autorizado"},
+                        "429": {"description": "Demasiadas peticiones"},
+                        "500": {"description": "Error interno"}
+                    }
+                }
+            },
+            "/health": {"get": {"summary": "Health Check", "responses": {"200": {"description": "Sistema operativo"}}}},
+            "/api/v4/metrics": {"get": {"summary": "Métricas JSON", "responses": {"200": {"description": "Métricas actuales"}}}},
+           "/metrics": {"get": {"summary": "Métricas Prometheus", "responses": {"200": {"description": "Formato Prometheus"}}}}
+    },
+    "components": {}
+})
+
+# =================================================================
+# [12] ARRANQUE DEL SISTEMA (MAIN V400)
+# =================================================================
+
+def run_api():
+    """Ejecuta el servidor web SaaS en un hilo separado para que no bloquee el bot."""
+    port = int(os.environ.get("PORT", settings.port))
+    web_app.run(host="0.0.0.0", port=port, use_reloader=False)
+
+def main():
+    """Función principal de arranque del Leviathan V400 mejorada para Python 3.14+."""
+    
+    # 1. Arrancar la API Web B2B en segundo plano
+    api_thread = threading.Thread(target=run_api, daemon=True)
+    api_thread.start()
+    logger.info("🌐 Web API SaaS B2B iniciada en segundo plano.")
+
+    # 2. Construir la aplicación de Telegram
+    # Usamos el token que ya configuraste en Render como ISHAK_TELEGRAM_TOKEN
+    application = ApplicationBuilder().token(EmpireConfig.TOKEN).build()
+
+    # 3. Registrar los controladores (Handlers)
+    application.add_handler(CommandHandler("start", start_handler))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_dispatcher))
+    application.add_handler(CallbackQueryHandler(callback_handler))
+    application.add_handler(PreCheckoutQueryHandler(precheckout_callback))
+    application.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment_callback))
+
+    # 4. Iniciar las tareas asíncronas ANTES de arrancar el polling
+    async def setup_tasks(app):
+        # Creamos las tareas dentro del contexto de la aplicación
+        asyncio.create_task(db.backup_job())
+        asyncio.create_task(self_healing_core_task())
+        asyncio.create_task(buffer_cleanup_task())
+        asyncio.create_task(crypto_fluctuation_task())
+        asyncio.create_task(progress_tracker.update_messages_loop())
+        logger.info("⚙️ Tareas asíncronas de mantenimiento programadas.")
+
+    # 5. Ejecutar el Polling para escuchar mensajes
+    logger.info("🚀 SISTEMA LEVIATHAN V400 EN LÍNEA. Iniciando polling...")
+    
+    # Agregamos la inicialización de tareas al arranque de la app
+    application.post_init = setup_tasks
+    
+    application.run_polling(drop_pending_updates=True)
+if __name__ == "__main__":
+    main()
